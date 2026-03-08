@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>First Infinity — Admin Panel</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#05050f;--c1:#0d0d1c;--c2:#141428;--br:rgba(255,255,255,.07);--a:#00d4ff;--a2:#ff3d7f;--a3:#4dff91;--a4:#ffaa00;--tx:#eef0ff;--m:#6b6b8a;--m2:#9999bb;--grad:linear-gradient(135deg,#00d4ff,#7c6cff,#ff3d7f);}
+html,body{min-height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--tx);font-size:14px;}
+::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px;}
+#loginWrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 20% 20%,rgba(0,212,255,.1),transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(255,61,127,.08),transparent 50%),var(--bg);z-index:100;}
+.login-card{background:var(--c1);border:1px solid var(--br);border-radius:24px;padding:36px 28px;width:92%;max-width:400px;box-shadow:0 40px 80px rgba(0,0,0,.8);}
+.lc-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;}
+.lc-title{font-size:22px;font-weight:900;letter-spacing:2px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.lc-sub{color:var(--m);font-size:11px;text-align:center;margin-bottom:24px;}
+.fi{width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:13px 15px;color:var(--tx);font-size:14px;outline:none;margin-bottom:12px;transition:.2s;}
+.fi:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(0,212,255,.1);}
+.btn-g{width:100%;background:var(--grad);border:none;border-radius:12px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;}
+.btn-g:active{transform:scale(.97);}
+.warn{background:rgba(255,61,127,.07);border:1px solid rgba(255,61,127,.2);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--m2);margin-top:14px;line-height:1.7;text-align:center;}
+.warn strong{color:var(--a2);}
+.login-err{background:rgba(255,61,127,.1);border:1px solid rgba(255,61,127,.25);border-radius:9px;padding:9px 12px;color:var(--a2);font-size:12px;display:none;margin-bottom:10px;}
+#app{display:none;min-height:100vh;}
+.topbar{background:rgba(8,8,20,.97);border-bottom:1px solid var(--br);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(20px);}
+.tb-logo{font-size:16px;font-weight:900;letter-spacing:1px;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.tb-badge{background:rgba(255,61,127,.15);border:1px solid rgba(255,61,127,.3);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--a2);font-weight:700;}
+.tb-logout{background:rgba(255,61,127,.1);border:1px solid rgba(255,61,127,.25);border-radius:10px;padding:8px 14px;color:var(--a2);font-size:12px;cursor:pointer;font-weight:600;}
+.stats-bar{display:flex;gap:10px;padding:14px 16px;overflow-x:auto;scrollbar-width:none;}
+.stats-bar::-webkit-scrollbar{display:none;}
+.stat-card{background:var(--c1);border:1px solid var(--br);border-radius:16px;padding:14px 18px;min-width:110px;text-align:center;flex-shrink:0;}
+.stat-n{font-size:24px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-l{font-size:11px;color:var(--m);margin-top:3px;}
+.tabs{display:flex;gap:0;background:var(--c1);border-bottom:1px solid var(--br);overflow-x:auto;scrollbar-width:none;position:sticky;top:53px;z-index:40;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:13px 16px;font-size:13px;font-weight:600;color:var(--m);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.15s;}
+.tab.on{color:var(--a);border-bottom-color:var(--a);}
+.tab-content{display:none;padding:12px 14px;}
+.tab-content.show{display:block;}
+.search-box{width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:11px 14px;color:var(--tx);font-size:13px;outline:none;margin-bottom:10px;}
+.search-box:focus{border-color:var(--a);}
+.u-card{background:var(--c1);border:1px solid var(--br);border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.u-em{font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--c2);border-radius:12px;flex-shrink:0;}
+.u-info{flex:1;min-width:0;}
+.u-nm{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.u-un{font-size:11px;color:var(--m);margin-top:1px;}
+.u-meta{font-size:10px;color:var(--m2);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;}
+.u-meta span{background:rgba(255,255,255,.05);padding:2px 7px;border-radius:20px;}
+.u-actions{display:flex;gap:6px;flex-shrink:0;flex-direction:column;}
+.btn-sm{border:none;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap;}
+.btn-sm:active{transform:scale(.93);}
+.btn-del{background:rgba(255,61,127,.15);color:var(--a2);}
+.btn-ban{background:rgba(255,170,0,.15);color:var(--a4);}
+.btn-unban{background:rgba(77,255,145,.15);color:var(--a3);}
+.banned-badge{background:rgba(255,61,127,.15);border:1px solid rgba(255,61,127,.3);color:var(--a2);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:4px;}
+.p-card{background:var(--c1);border:1px solid var(--br);border-radius:14px;padding:14px;margin-bottom:8px;}
+.p-card-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.p-card-av{font-size:22px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:var(--c2);border-radius:10px;flex-shrink:0;}
+.p-card-meta{flex:1;}
+.p-card-nm{font-weight:700;font-size:13px;}
+.p-card-t{font-size:11px;color:var(--m);}
+.p-card-body{font-size:13px;color:var(--m2);line-height:1.6;margin-bottom:8px;word-break:break-word;}
+.p-card-img{width:100%;border-radius:10px;max-height:180px;object-fit:cover;margin-bottom:8px;cursor:pointer;}
+.p-card-stats{display:flex;gap:12px;font-size:11px;color:var(--m);}
+.conv-item{background:var(--c1);border:1px solid var(--br);border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;}
+.conv-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.conv-nm{font-weight:700;font-size:13px;}
+.conv-cnt{font-size:11px;color:var(--m);background:var(--c2);padding:2px 8px;border-radius:20px;}
+.conv-preview{font-size:12px;color:var(--m2);}
+.msg-viewer{background:var(--bg);border:1px solid var(--br);border-radius:12px;padding:12px;max-height:60vh;overflow-y:auto;margin-top:8px;display:none;}
+.msg-viewer.open{display:block;}
+.adm-msg{padding:8px 10px;margin-bottom:6px;border-radius:10px;background:var(--c2);font-size:12px;line-height:1.6;}
+.adm-msg .am-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.adm-msg .am-nm{font-weight:700;font-size:11px;color:var(--a);}
+.adm-msg .am-t{font-size:10px;color:var(--m);}
+.adm-msg-del{background:none;border:none;color:var(--a2);font-size:14px;cursor:pointer;padding:2px 6px;}
+.ann-ta{width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:14px;color:var(--tx);font-size:14px;outline:none;min-height:120px;resize:vertical;margin-bottom:12px;line-height:1.6;}
+.ann-ta:focus{border-color:var(--a);}
+.act-item{display:flex;gap:10px;padding:10px;border-bottom:1px solid var(--br);}
+.act-ic{font-size:20px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--c2);border-radius:10px;flex-shrink:0;}
+.act-body{flex:1;}
+.act-tx{font-size:13px;line-height:1.5;}
+.act-t{font-size:11px;color:var(--m);margin-top:2px;}
+.ctrl-card{background:var(--c1);border:1px solid var(--br);border-radius:14px;padding:18px;margin-bottom:10px;}
+.ctrl-title{font-size:14px;font-weight:800;margin-bottom:4px;}
+.ctrl-sub{font-size:12px;color:var(--m);margin-bottom:14px;line-height:1.6;}
+.btn-danger{background:rgba(255,61,127,.15);border:1px solid rgba(255,61,127,.3);border-radius:10px;padding:11px 18px;color:var(--a2);font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:.15s;}
+.btn-danger:active{background:rgba(255,61,127,.25);}
+.btn-safe{background:rgba(77,255,145,.12);border:1px solid rgba(77,255,145,.25);border-radius:10px;padding:11px 18px;color:var(--a3);font-size:13px;font-weight:700;cursor:pointer;width:100%;margin-top:8px;transition:.15s;}
+.ld{text-align:center;padding:30px;color:var(--m);font-size:13px;}
+.empty{text-align:center;padding:40px 20px;color:var(--m);font-size:13px;line-height:2;}
+.divider{height:1px;background:var(--br);margin:14px 0;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(14px);background:rgba(13,13,28,.97);border:1px solid var(--a);border-radius:30px;padding:10px 20px;font-size:13px;z-index:1000;opacity:0;transition:all .25s;white-space:nowrap;backdrop-filter:blur(20px);}
+.toast.vis{opacity:1;transform:translateX(-50%) translateY(0);}
+.firebase-input{background:var(--c2);border:1px solid var(--br);border-radius:10px;padding:10px 12px;color:var(--tx);font-size:12px;width:100%;outline:none;margin-bottom:8px;font-family:monospace;}
+.firebase-input:focus{border-color:var(--a);}
+.setup-step{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start;}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0;margin-top:2px;}
+.step-body .step-title{font-weight:800;font-size:13px;margin-bottom:4px;}
+.step-body .step-desc{font-size:12px;color:var(--m2);line-height:1.8;}
+</style>
+</head>
+<body>
+<div id="loginWrap">
+  <div class="login-card">
+    <div class="lc-logo">
+      <svg width="40" height="40" viewBox="0 0 100 100"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#ff3d7f"/></linearGradient></defs><rect width="100" height="100" rx="26" fill="#0d0d1c"/><text x="50" y="67" font-family="Arial Black" font-size="60" text-anchor="middle" fill="url(#g1)">∞</text></svg>
+      <div class="lc-title">ADMIN PANEL</div>
+    </div>
+    <div class="lc-sub">🔐 First Infinity — Admin Only</div>
+    <div class="login-err" id="loginErr">❌ Wrong password! Try again.</div>
+    <input class="fi" id="adminPw" type="password" placeholder="Enter admin password..." onkeydown="if(event.key==='Enter')adminLogin()">
+    <button class="btn-g" onclick="adminLogin()">🔐 Login as Admin</button>
+    <div class="warn">⚠️ This panel shows ALL user data, messages & posts.<br>Default password: <strong>admin@fi123</strong><br>Change it immediately in Control tab!</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="tb-logo">∞ First Infinity Admin</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="tb-badge">🔐 ADMIN</div>
+      <button class="tb-logout" onclick="adminLogout()">Logout</button>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-n" id="st-users">—</div><div class="stat-l">👥 Users</div></div>
+    <div class="stat-card"><div class="stat-n" id="st-posts">—</div><div class="stat-l">📝 Posts</div></div>
+    <div class="stat-card"><div class="stat-n" id="st-msgs">—</div><div class="stat-l">💬 Messages</div></div>
+    <div class="stat-card"><div class="stat-n" id="st-online">—</div><div class="stat-l">🟢 Online</div></div>
+    <div class="stat-card"><div class="stat-n" id="st-banned">—</div><div class="stat-l">🚫 Banned</div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab on" onclick="showTab('users',this)">👥 Users</div>
+    <div class="tab" onclick="showTab('posts',this)">📝 Posts</div>
+    <div class="tab" onclick="showTab('messages',this)">💬 Messages</div>
+    <div class="tab" onclick="showTab('activity',this)">📊 Activity</div>
+    <div class="tab" onclick="showTab('announce',this)">📢 Announce</div>
+    <div class="tab" onclick="showTab('control',this)">⚙️ Control</div>
+    <div class="tab" onclick="showTab('setup',this)">🔧 Setup</div>
+  </div>
+  <div class="tab-content show" id="tab-users">
+    <input class="search-box" placeholder="🔍 Search users by name or username..." oninput="filterUsers(this.value)">
+    <div id="userList"><div class="ld">⏳ Loading...</div></div>
+  </div>
+  <div class="tab-content" id="tab-posts">
+    <input class="search-box" placeholder="🔍 Search posts..." oninput="filterPosts(this.value)">
+    <div id="postList"><div class="ld">⏳ Loading...</div></div>
+  </div>
+  <div class="tab-content" id="tab-messages">
+    <div style="font-size:12px;color:var(--m);margin-bottom:10px;line-height:1.7">👁 Select a conversation to view all messages between two users.</div>
+    <input class="search-box" placeholder="🔍 Search by user name..." oninput="filterConvos(this.value)">
+    <div id="convoList"><div class="ld">⏳ Loading...</div></div>
+  </div>
+  <div class="tab-content" id="tab-activity">
+    <div id="actList"><div class="ld">⏳ Loading...</div></div>
+  </div>
+  <div class="tab-content" id="tab-announce">
+    <div style="font-size:12px;color:var(--m);margin-bottom:12px;line-height:1.8">📢 This announcement will appear on ALL users' feeds with an Admin badge.</div>
+    <textarea class="ann-ta" id="annTxt" placeholder="Type your announcement here..."></textarea>
+    <button class="btn-g" onclick="sendAnnounce()">📢 Send to All Users</button>
+  </div>
+  <div class="tab-content" id="tab-control">
+    <div class="ctrl-card">
+      <div class="ctrl-title">🔑 Change Admin Password</div>
+      <div class="ctrl-sub">Password is saved locally in this browser. Make it strong!</div>
+      <input class="fi" id="newPw1" type="password" placeholder="New password (min 8 characters)">
+      <input class="fi" id="newPw2" type="password" placeholder="Confirm new password">
+      <button class="btn-safe" onclick="changeAdminPw()">✅ Update Password</button>
+    </div>
+    <div class="ctrl-card">
+      <div class="ctrl-title">🔓 Unban All Users</div>
+      <div class="ctrl-sub">Remove ban from all currently banned users at once.</div>
+      <button class="btn-safe" onclick="unbanAll()">🔓 Unban Everyone</button>
+    </div>
+    <div class="ctrl-card">
+      <div class="ctrl-title">🗑 Delete All Posts</div>
+      <div class="ctrl-sub">⚠️ Permanently deletes ALL posts. Cannot be undone!</div>
+      <button class="btn-danger" onclick="deleteAllPosts()">🗑 Delete All Posts</button>
+    </div>
+    <div class="ctrl-card">
+      <div class="ctrl-title">📖 Delete All Stories</div>
+      <div class="ctrl-sub">⚠️ Permanently deletes ALL stories. Cannot be undone!</div>
+      <button class="btn-danger" onclick="deleteAllStories()">🗑 Delete All Stories</button>
+    </div>
+  </div>
+  <div class="tab-content" id="tab-setup">
+    <div style="font-size:15px;font-weight:800;margin-bottom:14px">🔧 Firebase Setup Guide</div>
+    <div style="background:var(--c1);border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div class="setup-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Firebase Project তৈরি করো</div><div class="step-desc"><strong style="color:var(--a)">console.firebase.google.com</strong> এ যাও → Add project → নাম দাও "First Infinity" → Create</div></div></div>
+      <div class="setup-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Authentication Enable</div><div class="step-desc">Left menu → Authentication → Get Started → Email/Password → Enable → Save</div></div></div>
+      <div class="setup-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Firestore Database</div><div class="step-desc">Left menu → Firestore Database → Create Database → <strong>Start in test mode</strong> → Location: <strong>asia-south1</strong> → Create</div></div></div>
+      <div class="setup-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Storage Enable</div><div class="step-desc">Left menu → Storage → Get Started → <strong>Start in test mode</strong> → Done</div></div></div>
+      <div class="setup-step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Config Copy করো</div><div class="step-desc">⚙️ Project Settings → Your Apps → Web App (&lt;/&gt;) → Register → <strong>firebaseConfig values copy করো</strong></div></div></div>
+    </div>
+    <div style="font-size:13px;font-weight:800;margin-bottom:10px">🔑 তোমার Firebase Config</div>
+    <div style="font-size:12px;color:var(--m);margin-bottom:10px">Firebase Console থেকে এই values নিয়ে এখানে দাও। Save হয়ে থাকবে।</div>
+    <input class="firebase-input" id="fc-apiKey" placeholder="apiKey: AIza...">
+    <input class="firebase-input" id="fc-authDomain" placeholder="authDomain: yourproject.firebaseapp.com">
+    <input class="firebase-input" id="fc-projectId" placeholder="projectId: your-project-id">
+    <input class="firebase-input" id="fc-storageBucket" placeholder="storageBucket: yourproject.appspot.com">
+    <input class="firebase-input" id="fc-messagingSenderId" placeholder="messagingSenderId: 12345...">
+    <input class="firebase-input" id="fc-appId" placeholder="appId: 1:123:web:abc...">
+    <button class="btn-g" onclick="saveAndConnect()">🔗 Connect to Firebase</button>
+    <div class="divider"></div>
+    <div style="font-size:13px;font-weight:800;margin-bottom:10px">📱 App Deploy করো (Netlify)</div>
+    <div style="background:var(--c1);border:1px solid var(--br);border-radius:12px;padding:14px;font-size:12px;color:var(--m2);line-height:2">
+      1. <strong style="color:var(--a)">netlify.com/drop</strong> এ যাও<br>
+      2. <strong>FirstInfinity.html</strong> drag করে drop করো<br>
+      3. Link পাবা → সেটা বন্ধুদের দাও ✅<br>
+      4. আলাদাভাবে <strong>FirstInfinity_Admin.html</strong> ও deploy করো<br>
+      5. Admin link <strong style="color:var(--a2)">শুধু তুমি use করবা, কাউকে দিও না!</strong>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+const G=id=>document.getElementById(id);
+const DEFAULT_PW='admin@fi123';
+function getAdminPw(){return localStorage.getItem('fi_admin_pw')||DEFAULT_PW;}
+const tAgo=d=>{if(!d)return'';try{const s=Math.floor((Date.now()-d.getTime())/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}catch(e){return'';}};
+const fmtD=d=>{try{return d?d.toLocaleDateString('en',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—';}catch(e){return'—';}};
+let tT;function toast(m){const el=G('toast');el.textContent=m;el.classList.add('vis');clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('vis'),2800);}
+let DB=null,allUsers=[],allPosts=[],allConvos=[];
+
+window.adminLogin=()=>{const pw=G('adminPw').value;if(pw===getAdminPw()){G('loginWrap').style.display='none';G('app').style.display='block';initAdmin();}else{G('loginErr').style.display='block';G('adminPw').style.borderColor='#ff3d7f';setTimeout(()=>G('adminPw').style.borderColor='',1500);}};
+window.adminLogout=()=>{G('loginWrap').style.display='flex';G('app').style.display='none';G('adminPw').value='';G('loginErr').style.display='none';};
+window.changeAdminPw=()=>{const p1=G('newPw1').value,p2=G('newPw2').value;if(p1.length<8)return toast('Min 8 characters!');if(p1!==p2)return toast('Passwords do not match!');localStorage.setItem('fi_admin_pw',p1);G('newPw1').value='';G('newPw2').value='';toast('✅ Password changed!');};
+window.showTab=(id,el)=>{document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('show'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));G('tab-'+id).classList.add('show');el.classList.add('on');if(id==='users')loadUsers();if(id==='posts')loadPosts();if(id==='messages')loadConvos();if(id==='activity')loadActivity();};
+
+// Load saved config inputs
+// Pre-filled config
+const PRE_CFG={apiKey:"AIzaSyB1p3VfEut_MJ9OJtMygM8uRPco42RDvoM",authDomain:"first-infinity-cd91c.firebaseapp.com",projectId:"first-infinity-cd91c",storageBucket:"first-infinity-cd91c.firebasestorage.app",messagingSenderId:"842313996138",appId:"1:842313996138:web:fbc0a5e91c899116527713"};
+['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId'].forEach(k=>{const v=localStorage.getItem('fi_fc_'+k)||PRE_CFG[k];if(v&&G('fc-'+k))G('fc-'+k).value=v;localStorage.setItem('fi_fc_'+k,PRE_CFG[k]);});
+
+window.saveAndConnect=async()=>{
+  const cfg={};['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId'].forEach(k=>{const v=G('fc-'+k).value.trim();cfg[k]=v;localStorage.setItem('fi_fc_'+k,v);});
+  if(!cfg.apiKey||!cfg.projectId){toast('⚠️ Fill all fields!');return;}
+  toast('🔗 Connecting...');try{await connectFirebase(cfg);}catch(e){toast('❌ Failed: '+e.message);}
+};
+
+async function connectFirebase(cfg){
+  const {initializeApp,getApps}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+  const fs=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+  const APP=initializeApp(cfg,'admin');
+  DB=fs.getFirestore(APP);
+  window._fs={...fs,DB};
+  toast('✅ Firebase connected!');setTimeout(()=>{initAdmin();},400);
+}
+
+async function initAdmin(){
+  if(!DB){const cfg={};['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId'].forEach(k=>{cfg[k]=localStorage.getItem('fi_fc_'+k)||'';});if(cfg.apiKey&&cfg.projectId){try{await connectFirebase(cfg);}catch(e){}}else{toast('⚠️ Go to Setup tab first!');return;}return;}
+  loadStats();loadUsers();
+}
+
+async function loadStats(){
+  if(!DB)return;const {collection,getDocs,query,orderBy,limit}=window._fs;
+  try{
+    const [uS,pS]=await Promise.all([getDocs(collection(DB,'users')),getDocs(collection(DB,'posts'))]);
+    let ban=0,onl=0;uS.forEach(d=>{if(d.data().isBanned)ban++;if(d.data().isOnline)onl++;});
+    G('st-users').textContent=uS.size;G('st-posts').textContent=pS.size;G('st-banned').textContent=ban;G('st-online').textContent=onl;
+    let msgs=0;try{const cs=await getDocs(collection(DB,'chats'));for(const c of cs.docs){const m=await getDocs(collection(DB,'chats',c.id,'messages'));msgs+=m.size;}G('st-msgs').textContent=msgs;}catch(e){G('st-msgs').textContent='~';}
+  }catch(e){}
+}
+
+async function loadUsers(){
+  if(!DB)return;G('userList').innerHTML='<div class="ld">⏳ Loading users...</div>';
+  const {collection,getDocs}=window._fs;
+  const snap=await getDocs(collection(DB,'users'));
+  allUsers=[];snap.forEach(d=>allUsers.push({id:d.id,...d.data()}));
+  allUsers.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  renderUsers(allUsers);
+}
+function renderUsers(users){
+  if(!users.length){G('userList').innerHTML='<div class="empty">No users found</div>';return;}
+  G('userList').innerHTML=users.map(u=>`<div class="u-card" id="uc-${u.id}">
+    <div class="u-em">${u.emoji||'😊'}</div>
+    <div class="u-info">
+      <div class="u-nm">${u.name||'?'}${u.isBanned?'<span class="banned-badge">BANNED</span>':''}</div>
+      <div class="u-un">@${u.username||'—'}</div>
+      <div class="u-meta"><span>👥 ${(u.friends||[]).length} friends</span>${u.isOnline?'<span style="color:var(--a3)">🟢 Online</span>':'<span>⚫ Offline</span>'}${u.createdAt?'<span>📅 '+tAgo(u.createdAt?.toDate?.())+'</span>':''}</div>
+    </div>
+    <div class="u-actions">
+      ${u.isBanned?`<button class="btn-sm btn-unban" onclick="toggleBan('${u.id}',false,'${(u.name||'').replace(/'/g,"\\'")}')">✅ Unban</button>`:`<button class="btn-sm btn-ban" onclick="toggleBan('${u.id}',true,'${(u.name||'').replace(/'/g,"\\'")}')">🚫 Ban</button>`}
+      <button class="btn-sm btn-del" onclick="deleteUser('${u.id}','${(u.name||'').replace(/'/g,"\\'")}')">🗑 Delete</button>
+    </div>
+  </div>`).join('');
+}
+window.filterUsers=q=>{const s=q.toLowerCase();renderUsers(allUsers.filter(u=>(u.name||'').toLowerCase().includes(s)||(u.username||'').toLowerCase().includes(s)));};
+window.toggleBan=async(uid,ban,name)=>{if(!confirm((ban?'Ban ':'Unban ')+name+'?'))return;const {doc,updateDoc}=window._fs;await updateDoc(doc(DB,'users',uid),{isBanned:ban});const i=allUsers.findIndex(u=>u.id===uid);if(i>-1)allUsers[i].isBanned=ban;renderUsers(allUsers);toast(ban?'🚫 '+name+' banned':'✅ '+name+' unbanned');loadStats();};
+window.deleteUser=async(uid,name)=>{if(!confirm('DELETE '+name+'? Cannot be undone!'))return;const {doc,deleteDoc}=window._fs;await deleteDoc(doc(DB,'users',uid));allUsers=allUsers.filter(u=>u.id!==uid);renderUsers(allUsers);toast('🗑 '+name+' deleted');loadStats();};
+
+async function loadPosts(){
+  if(!DB)return;G('postList').innerHTML='<div class="ld">⏳ Loading posts...</div>';
+  const {collection,getDocs,query,orderBy}=window._fs;
+  const snap=await getDocs(query(collection(DB,'posts'),orderBy('createdAt','desc')));
+  allPosts=[];snap.forEach(d=>allPosts.push({id:d.id,...d.data()}));renderPosts(allPosts);
+}
+function renderPosts(posts){
+  if(!posts.length){G('postList').innerHTML='<div class="empty">No posts found</div>';return;}
+  G('postList').innerHTML=posts.map(p=>`<div class="p-card" id="pc-${p.id}">
+    <div class="p-card-top"><div class="p-card-av">${p.authorEmoji||'😊'}</div><div class="p-card-meta"><div class="p-card-nm">${p.author||'?'} ${p.mood||''} ${p.isAnnouncement?'📢':''}</div><div class="p-card-t">${tAgo(p.createdAt?.toDate?.())}</div></div><button class="btn-sm btn-del" onclick="deletePost('${p.id}')">🗑</button></div>
+    ${p.text?`<div class="p-card-body">${p.text.slice(0,200)+(p.text.length>200?'...':'')}</div>`:''}
+    ${p.imageUrl?`<img class="p-card-img" src="${p.imageUrl}" onclick="window.open('${p.imageUrl}','_blank')" loading="lazy">`:''}
+    ${p.videoUrl?`<div style="font-size:12px;color:var(--a);margin-bottom:6px">🎬 Video post</div>`:''}
+    <div class="p-card-stats"><span>❤️ ${(p.likes||[]).length}</span><span>💬 ${p.commentCount||0}</span></div>
+  </div>`).join('');
+}
+window.filterPosts=q=>{const s=q.toLowerCase();renderPosts(allPosts.filter(p=>((p.text||'')+(p.author||'')).toLowerCase().includes(s)));};
+window.deletePost=async id=>{if(!confirm('Delete this post?'))return;const {doc,deleteDoc}=window._fs;await deleteDoc(doc(DB,'posts',id));allPosts=allPosts.filter(p=>p.id!==id);G('pc-'+id)?.remove();toast('🗑 Post deleted');loadStats();};
+
+async function loadConvos(){
+  if(!DB)return;G('convoList').innerHTML='<div class="ld">⏳ Loading...</div>';
+  const {collection,getDocs}=window._fs;
+  const snap=await getDocs(collection(DB,'chats'));
+  allConvos=[];
+  for(const c of snap.docs){
+    const key=c.id,parts=key.split('__');
+    const msgSnap=await getDocs(collection(DB,'chats',key,'messages'));
+    if(msgSnap.empty)continue;
+    const msgs=[];msgSnap.forEach(m=>msgs.push({id:m.id,...m.data()}));
+    msgs.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    const last=msgs[0];
+    const u1=allUsers.find(u=>u.id===parts[0]);const u2=allUsers.find(u=>u.id===parts[1]);
+    allConvos.push({key,nm1:u1?.name||parts[0]?.slice(0,8)||'?',nm2:u2?.name||parts[1]?.slice(0,8)||'?',em1:u1?.emoji||'😊',em2:u2?.emoji||'😊',msgCount:msgs.length,last,msgs});
+  }
+  allConvos.sort((a,b)=>(b.last?.createdAt?.seconds||0)-(a.last?.createdAt?.seconds||0));
+  renderConvos(allConvos);
+}
+function renderConvos(convos){
+  if(!convos.length){G('convoList').innerHTML='<div class="empty">No conversations yet</div>';return;}
+  G('convoList').innerHTML=convos.map((c,i)=>`<div class="conv-item" onclick="toggleConvo(${i})">
+    <div class="conv-hd"><div class="conv-nm">${c.em1} ${c.nm1} ↔ ${c.em2} ${c.nm2}</div><div class="conv-cnt">${c.msgCount} msgs</div></div>
+    <div class="conv-preview">${c.last?.text?c.last.text.slice(0,60):(c.last?.voiceUrl?'🎤 Voice':c.last?.fileUrl?'📁 File':c.last?.imageUrl?'📸 Photo':c.last?.videoUrl?'🎬 Video':'—')}</div>
+    <div id="mv-${i}" class="msg-viewer"></div>
+  </div>`).join('');
+}
+window.filterConvos=q=>{const s=q.toLowerCase();renderConvos(allConvos.filter(c=>(c.nm1+c.nm2).toLowerCase().includes(s)));};
+window.toggleConvo=idx=>{
+  const mv=G('mv-'+idx);if(!mv)return;
+  if(mv.classList.contains('open')){mv.classList.remove('open');return;}
+  const c=allConvos[idx];
+  const sorted=[...c.msgs].sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+  mv.innerHTML=sorted.map(m=>{
+    const sender=allUsers.find(u=>u.id===m.from);
+    return `<div class="adm-msg">
+      <div class="am-head"><div class="am-nm">${sender?.emoji||'😊'} ${sender?.name||'Unknown'}</div><div style="display:flex;gap:6px;align-items:center"><span class="am-t">${fmtD(m.createdAt?.toDate?.())}</span><button class="adm-msg-del" onclick="delMsg('${c.key}','${m.id}',${idx})" title="Delete">🗑</button></div></div>
+      <div>${m.text||''} ${m.voiceUrl?'🎤 <em>Voice note</em>':''} ${m.fileUrl?'📁 <a href="'+m.fileUrl+'" target="_blank" style="color:var(--a)">'+m.fileName+'</a>':''} ${m.imageUrl?'<br><img src="'+m.imageUrl+'" style="max-width:180px;border-radius:8px;margin-top:4px" loading="lazy">':''} ${m.videoUrl?'🎬 <a href="'+m.videoUrl+'" target="_blank" style="color:var(--a)">View video</a>':''}</div>
+    </div>`;
+  }).join('');
+  mv.innerHTML+=`<div style="text-align:center;margin-top:10px;padding-bottom:6px"><button class="btn-sm btn-del" onclick="deleteConvo('${c.key}',${idx})">🗑 Delete Entire Conversation</button></div>`;
+  mv.classList.add('open');setTimeout(()=>mv.scrollTop=mv.scrollHeight,50);
+};
+window.delMsg=async(chatKey,msgId,idx)=>{if(!confirm('Delete message?'))return;const {doc,deleteDoc}=window._fs;await deleteDoc(doc(DB,'chats',chatKey,'messages',msgId));allConvos[idx].msgs=allConvos[idx].msgs.filter(m=>m.id!==msgId);allConvos[idx].msgCount--;G('mv-'+idx).classList.remove('open');toggleConvo(idx);toast('Message deleted');};
+window.deleteConvo=async(chatKey,idx)=>{if(!confirm('Delete entire conversation?'))return;const {collection,getDocs,writeBatch}=window._fs;const snap=await getDocs(collection(DB,'chats',chatKey,'messages'));const batch=writeBatch(DB);snap.forEach(d=>batch.delete(d.ref));await batch.commit();allConvos.splice(idx,1);renderConvos(allConvos);toast('🗑 Conversation deleted');loadStats();};
+
+async function loadActivity(){
+  if(!DB)return;G('actList').innerHTML='<div class="ld">⏳ Loading...</div>';
+  const {collection,getDocs,query,orderBy,limit}=window._fs;
+  const [uS,pS]=await Promise.all([getDocs(query(collection(DB,'users'),orderBy('createdAt','desc'),limit(20))),getDocs(query(collection(DB,'posts'),orderBy('createdAt','desc'),limit(20)))]);
+  const acts=[];
+  uS.forEach(d=>{const u=d.data();acts.push({ic:'👤',tx:'<strong>'+u.name+'</strong> (@'+u.username+') joined First Infinity',t:u.createdAt?.toDate?.()});});
+  pS.forEach(d=>{const p=d.data();acts.push({ic:p.isAnnouncement?'📢':'📝',tx:'<strong>'+(p.isAnnouncement?'Admin Announcement':p.author)+'</strong>: '+(p.text||'📷 Photo').slice(0,50),t:p.createdAt?.toDate?.()});});
+  acts.sort((a,b)=>(b.t||0)-(a.t||0));
+  G('actList').innerHTML=acts.length?acts.slice(0,30).map(a=>`<div class="act-item"><div class="act-ic">${a.ic}</div><div class="act-body"><div class="act-tx">${a.tx}</div><div class="act-t">${a.t?tAgo(a.t):''}</div></div></div>`).join(''):'<div class="empty">No activity yet</div>';
+}
+
+window.sendAnnounce=async()=>{
+  if(!DB)return toast('⚠️ Connect Firebase first (Setup tab)!');
+  const txt=G('annTxt').value.trim();if(!txt)return toast('Write something!');
+  if(!confirm('Send to ALL users?'))return;
+  const {collection,addDoc,serverTimestamp}=window._fs;
+  await addDoc(collection(DB,'posts'),{text:txt,author:'First Infinity',authorEmoji:'📢',authorId:'admin',authorOnline:false,likes:[],reactions:{},commentCount:0,isAnnouncement:true,createdAt:serverTimestamp()});
+  G('annTxt').value='';toast('📢 Announcement sent!');
+};
+window.unbanAll=async()=>{
+  if(!DB)return toast('⚠️ Connect Firebase first!');if(!confirm('Unban ALL users?'))return;
+  const {collection,getDocs,writeBatch}=window._fs;const snap=await getDocs(collection(DB,'users'));const batch=writeBatch(DB);let c=0;
+  snap.forEach(d=>{if(d.data().isBanned){batch.update(d.ref,{isBanned:false});c++;}});
+  await batch.commit();toast('✅ '+c+' users unbanned');loadUsers();loadStats();
+};
+window.deleteAllPosts=async()=>{
+  if(!DB)return toast('⚠️ Connect Firebase first!');
+  if(!confirm('DELETE ALL POSTS?'))return;if(!confirm('100% sure? Cannot be undone!'))return;
+  const {collection,getDocs,writeBatch}=window._fs;const snap=await getDocs(collection(DB,'posts'));const batch=writeBatch(DB);snap.forEach(d=>batch.delete(d.ref));await batch.commit();allPosts=[];G('postList').innerHTML='<div class="empty">All deleted</div>';toast('🗑 All posts deleted');loadStats();
+};
+window.deleteAllStories=async()=>{
+  if(!DB)return toast('⚠️ Connect Firebase first!');if(!confirm('Delete ALL stories?'))return;
+  const {collection,getDocs,writeBatch}=window._fs;const snap=await getDocs(collection(DB,'stories'));const batch=writeBatch(DB);snap.forEach(d=>batch.delete(d.ref));await batch.commit();toast('🗑 All stories deleted');
+};
+
+// Auto connect on load
+(async()=>{const cfg={};['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId'].forEach(k=>{cfg[k]=localStorage.getItem('fi_fc_'+k)||'';});if(cfg.apiKey&&cfg.projectId){try{await connectFirebase(cfg);}catch(e){console.log('Auto connect fail',e);}}})();
+</script>
+</body>
+</html>
