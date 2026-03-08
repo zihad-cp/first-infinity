@@ -311,30 +311,104 @@ window.filterPosts=q=>{const s=q.toLowerCase();renderPosts(allPosts.filter(p=>((
 window.deletePost=async id=>{if(!confirm('Delete this post?'))return;const {doc,deleteDoc}=window._fs;await deleteDoc(doc(DB,'posts',id));allPosts=allPosts.filter(p=>p.id!==id);G('pc-'+id)?.remove();toast('🗑 Post deleted');loadStats();};
 
 async function loadConvos(){
-  if(!DB)return;G('convoList').innerHTML='<div class="ld">⏳ Loading...</div>';
+  if(!DB)return;
+  G('convoList').innerHTML='<div class="ld">⏳ Loading chats...</div>';
+  console.log('Loading chats from Firebase...');
   const {collection,getDocs}=window._fs;
-  const snap=await getDocs(collection(DB,'chats'));
+  
+  // ── Step 1: Make sure allUsers is loaded first ──
+  if(!allUsers.length){
+    const uSnap=await getDocs(collection(DB,'users'));
+    allUsers=[];uSnap.forEach(d=>allUsers.push({id:d.id,...d.data()}));
+  }
+  
+  // ── Step 2: Build a UID→user map for fast lookup ──
+  const userMap={};
+  allUsers.forEach(u=>userMap[u.id]=u);
+  
+  // ── Step 3: Load all chats ──
+  let snap;
+  try{
+    snap=await getDocs(collection(DB,'chats'));
+    console.log('Chat docs found:',snap.size);
+  }catch(err){
+    console.error('Firebase error:',err);
+    G('convoList').innerHTML=`<div class="empty" style="color:#ff3d7f">❌ Firebase Error: ${err.message}<br><br>
+    <small>Firestore Rules check করো — allow read: if true; থাকতে হবে</small></div>`;
+    return;
+  }
+  if(snap.empty){
+    G('convoList').innerHTML='<div class="empty">কোনো chat নেই এখনো 💬</div>';
+    return;
+  }
   allConvos=[];
-  for(const c of snap.docs){
-    const key=c.id,parts=key.split('__');
+  
+  for(const chatDoc of snap.docs){
+    const key=chatDoc.id;
+    // Support both __ and _ separator
+    // Chat key format: uid1__uid2 (sorted, double underscore)
+    const parts=key.split('__');
+    
     const msgSnap=await getDocs(collection(DB,'chats',key,'messages'));
     if(msgSnap.empty)continue;
-    const msgs=[];msgSnap.forEach(m=>msgs.push({id:m.id,...m.data()}));
-    msgs.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-    const last=msgs[0];
-    const u1=allUsers.find(u=>u.id===parts[0]);const u2=allUsers.find(u=>u.id===parts[1]);
-    allConvos.push({key,nm1:u1?.name||parts[0]?.slice(0,8)||'?',nm2:u2?.name||parts[1]?.slice(0,8)||'?',em1:u1?.emoji||'😊',em2:u2?.emoji||'😊',msgCount:msgs.length,last,msgs});
+    
+    const msgs=[];
+    msgSnap.forEach(m=>msgs.push({id:m.id,...m.data()}));
+    msgs.sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+    const last=msgs[msgs.length-1];
+    
+    // Find users - key contains UIDs directly
+    let u1=userMap[parts[0]]||null;
+    let u2=userMap[parts[1]]||null;
+    // Fallback: find from message senders
+    if(!u1||!u2){
+      const senderIds=[...new Set(msgs.map(m=>m.from).filter(Boolean))];
+      if(!u1&&senderIds[0])u1=userMap[senderIds[0]];
+      if(!u2&&senderIds[1])u2=userMap[senderIds[1]];
+      if(!u2&&senderIds[0]&&u1?.id!==senderIds[0])u2=userMap[senderIds[0]];
+    }
+    
+    const nm1=u1?.name||(u1?.phone?'📱'+u1.phone:'Unknown User');
+    const nm2=u2?.name||(u2?.phone?'📱'+u2.phone:'Unknown User');
+    const ph1=u1?.phone||parts[0]?.slice(0,8)+'...';
+    const ph2=u2?.phone||parts[1]?.slice(0,8)+'...';
+    
+    allConvos.push({
+      key,
+      nm1,nm2,
+      ph1,ph2,
+      em1:u1?.emoji||'😊',
+      em2:u2?.emoji||'😊',
+      msgCount:msgs.length,
+      last,msgs
+    });
   }
+  
   allConvos.sort((a,b)=>(b.last?.createdAt?.seconds||0)-(a.last?.createdAt?.seconds||0));
+  
+  if(!allConvos.length){
+    G('convoList').innerHTML='<div class="empty">💬 কোনো message নেই এখনো<br><small style="color:var(--m)">Users message করলে এখানে দেখা যাবে</small></div>';
+    return;
+  }
   renderConvos(allConvos);
 }
 function renderConvos(convos){
   if(!convos.length){G('convoList').innerHTML='<div class="empty">No conversations yet</div>';return;}
-  G('convoList').innerHTML=convos.map((c,i)=>`<div class="conv-item" onclick="toggleConvo(${i})">
-    <div class="conv-hd"><div class="conv-nm">${c.em1} ${c.nm1} ↔ ${c.em2} ${c.nm2}</div><div class="conv-cnt">${c.msgCount} msgs</div></div>
-    <div class="conv-preview">${c.last?.text?c.last.text.slice(0,60):(c.last?.voiceUrl?'🎤 Voice':c.last?.fileUrl?'📁 File':c.last?.imageUrl?'📸 Photo':c.last?.videoUrl?'🎬 Video':'—')}</div>
-    <div id="mv-${i}" class="msg-viewer"></div>
-  </div>`).join('');
+  G('convoList').innerHTML=convos.map((c,i)=>{
+    const lastTxt=c.last?.text?c.last.text.slice(0,70):(c.last?.imageUrl?'📸 Photo':(c.last?.voiceUrl?'🎤 Voice':'—'));
+    const lastTime=c.last?.createdAt?.toDate?tAgo(c.last.createdAt.toDate()):'';
+    return `<div class="conv-item" onclick="toggleConvo(${i})">
+      <div class="conv-hd">
+        <div class="conv-nm">${c.em1} ${c.nm1}${c.ph1?' <span style="font-size:10px;color:#888">(${c.ph1})</span>':''} ↔ ${c.em2} ${c.nm2}${c.ph2?' <span style="font-size:10px;color:#888">(${c.ph2})</span>':''}</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+          <div class="conv-cnt">${c.msgCount} msgs</div>
+          <div style="font-size:10px;color:#888">${lastTime}</div>
+        </div>
+      </div>
+      <div class="conv-preview">${lastTxt}</div>
+      <div id="mv-${i}" class="msg-viewer"></div>
+    </div>`;
+  }).join('');
 }
 window.filterConvos=q=>{const s=q.toLowerCase();renderConvos(allConvos.filter(c=>(c.nm1+c.nm2).toLowerCase().includes(s)));};
 window.toggleConvo=idx=>{
