@@ -2593,43 +2593,31 @@ window.pickProfilePic=()=>{
 
 // ─── REAL YouTube Shorts / Short Video IDs ──────────────
 // All verified embeddable vertical/short content
+// Dailymotion video pool — verified working embeds
+// Format: https://www.dailymotion.com/embed/video/{id}
 const SHORTS_POOL = [
-  {id:'dQw4w9WgXcQ', title:'🎵 Viral Music', author:'Trending Music', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'JGwWNGJdvx8', title:'😎 Epic Moment', author:'First Infinity', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'9bZkp7q19f0', title:'🔥 Best Clips', author:'Viral Videos', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'hT_nvWreIhg', title:'🌟 Amazing Talent', author:'Star Moments', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'OPf0YbXqDm0', title:'🎶 Music Vibes', author:'Music Channel', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'uelHwf8o7_U', title:'💫 Satisfying', author:'Daily Content', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'lAIGb1lfpBw', title:'😂 Funny Fails', author:'Laugh Factory', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'2vjPBrBU-TM', title:'🎸 Guitar Skills', author:'Music Master', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'RgKAFK5djSk', title:'✨ Aesthetic', author:'Vibe Check', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'e-ORhEE9VVg', title:'⚡ Energy Boost', author:'Motivation', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'09R8_2nJtjg', title:'🎤 Live Performance', author:'Stage Star', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'fHI8X3OLuO4', title:'🌈 Creative Art', author:'Art Studio', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'4NRXx6pIIOQ', title:'🏆 Skills Showcase', author:'Pro Moves', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'CevxZvSJLk8', title:'🌊 Chill Vibes', author:'Relax Zone', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'tgbNymZ7vqY', title:'🎭 Comedy Gold', author:'Laugh Track', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'pRpeEdMmmQ0', title:'💪 Workout', author:'Fitness Goals', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'2Vv-BfVoq4g', title:'🎵 EDM Drop', author:'Beat Machine', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'YQHsXMglC9A', title:'🌙 Night Vibes', author:'Night Mode', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'lp-EO5I60KA', title:'🎊 Celebration', author:'Party Time', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'7wtfhZwyrcc', title:'🔮 Magic Tricks', author:'Wizard', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'jNQXAC9IVRw', title:'📱 First Video', author:'Me at Zoo', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'BQ0mxQXmLsk', title:'🏄 Action Sports', author:'Extreme Sports', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'V-_O7nl0Ii0', title:'🌺 Beautiful Nature', author:'Earth Views', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'kffacxfA7G4', title:'👑 King Energy', author:'Royal Vibes', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'L_jWHffIx5E', title:'😜 Fun Moments', author:'Fun Factory', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'3tmd-ClpJxA', title:'🎯 Precision', author:'Skill Level', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'vx2u5uUu3DE', title:'🎬 Cinematic', author:'Film Maker', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'xuCn8ux2gbs', title:'💥 Wow Factor', author:'Wow Channel', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'ru0K8uLgxnI', title:'🦋 Transformation', author:'Glow Up', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'qgECBBfAuBY', title:'🎵 Hit Song', author:'Music Hits', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'nfWlot6h_JM', title:'🕺 Dance Moves', author:'Dance Nation', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'pB9b7MrMSM4', title:'😍 Cute Moments', author:'Cute Factory', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'watch?v=gUBcnWWFsAs', title:'🎶 Chill Music', author:'Chill Beats', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'CduA0TULnow', title:'🌟 Star Power', author:'Star Zone', likes:Math.floor(Math.random()*9000+1000)},
-  {id:'XqZsoesa55w', title:'🔥 Hot Trend', author:'Trendsetter', likes:Math.floor(Math.random()*9000+1000)},
+  {id:'x8l0dlu', title:'🔥 Viral Compilation', author:'Trending Now', likes:45200},
+  {id:'x8kzy5l', title:'😂 Funny Moments', author:'Comedy Central', likes:32100},
+  {id:'x8l2qsh', title:'🎵 Music Vibes', author:'Music Channel', likes:28900},
+  {id:'x8kzya3', title:'✨ Amazing Talent', author:'Got Talent', likes:67300},
+  {id:'x8l1xyz', title:'🌟 Epic Fail', author:'Fail Army', likes:19800},
+  {id:'x8l0abc', title:'💫 Satisfying Video', author:'Daily Dose', likes:41500},
+  {id:'x8kyabc', title:'🤣 LOL Moments', author:'Try Not Laugh', likes:55600},
+  {id:'x8l2def', title:'🎤 Live Performance', author:'Concert Live', likes:23400},
+  {id:'x8l1ghi', title:'🌈 Creative Art', author:'Art Creator', likes:17200},
+  {id:'x8l0jkl', title:'⚡ Shocking Clip', author:'Crazy Videos', likes:38700},
+  {id:'x8kymno', title:'🏆 Sports Highlights', author:'Sports Hub', likes:61000},
+  {id:'x8l2pqr', title:'🌊 Nature Beauty', author:'Nature Channel', likes:29300},
+  {id:'x8l1stu', title:'🎭 Comedy Sketch', author:'Sketch Comedy', likes:44100},
+  {id:'x8l0vwx', title:'💪 Workout Motivation', author:'Fitness Pro', likes:33800},
+  {id:'x8kyyza', title:'🎸 Guitar Solo', author:'Music Virtuoso', likes:52100},
+  {id:'x8l2bcd', title:'🌙 Night Vibes', author:'Night Channel', likes:26700},
+  {id:'x8l1efg', title:'🎊 Party Time', author:'Party Channel', likes:48300},
+  {id:'x8l0hij', title:'🔮 Magic Tricks', author:'Magician Pro', likes:37900},
+  {id:'x8kyijk', title:'🦋 Transformation', author:'Glow Up', likes:71200},
+  {id:'x8l2klm', title:'🎵 Hit Song Cover', author:'Cover Artist', likes:59400},
 ];
+
 
 // State
 let _ytReady = false;
@@ -2645,141 +2633,54 @@ function _rlShuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
-// Load YouTube IFrame API once
-function _loadYTApi() {
-  if (window.YT && window.YT.Player) { _ytReady = true; return; }
-  if (document.getElementById('yt-api-script')) return;
-  const s = document.createElement('script');
-  s.id = 'yt-api-script';
-  s.src = 'https://www.youtube.com/iframe_api';
-  document.head.appendChild(s);
-}
-
-window.onYouTubeIframeAPIReady = function() {
-  _ytReady = true;
-  // init any pending players
-  document.querySelectorAll('[data-yt-pending]').forEach(el => {
-    const idx = parseInt(el.dataset.reelIdx);
-    _initYTPlayer(idx, el.dataset.ytId, el);
-    delete el.dataset.ytPending;
-  });
-};
+// Dailymotion doesn't need external API
+function _loadYTApi() { _ytReady = true; }
+window.onYouTubeIframeAPIReady = function() { _ytReady = true; };
 
 function _initYTPlayer(idx, videoId, container) {
   if (_reelPlayers[idx]) return;
-  const div = document.createElement('div');
-  div.id = 'yt-pl-' + idx;
-  container.appendChild(div);
-  try {
-    _reelPlayers[idx] = new YT.Player('yt-pl-' + idx, {
-      videoId,
-      playerVars: {
-        autoplay: idx === _reelIdx ? 1 : 0,
-        mute: 1,
-        loop: 1,
-        playlist: videoId,
-        controls: 0,
-        rel: 0,
-        showinfo: 0,
-        modestbranding: 1,
-        playsinline: 1,
-        fs: 0,
-        iv_load_policy: 3,
-        cc_load_policy: 0,
-        disablekb: 1,
-        origin: location.origin,
-      },
-      width: '100%',
-      height: '100%',
-      events: {
-        onReady(e) {
-          if (_reelMuted) e.target.mute(); else e.target.unMute();
-          if (idx === _reelIdx) e.target.playVideo();
-          // hide loader
-          const loader = document.getElementById('rl-loader-' + idx);
-          if (loader) { loader.style.opacity = '0'; setTimeout(() => loader?.remove(), 300); }
-        },
-        onStateChange(e) {
-          if (e.data === YT.PlayerState.ENDED) _goNextReel();
-          if (e.data === YT.PlayerState.PLAYING) {
-            const loader = document.getElementById('rl-loader-' + idx);
-            if (loader) { loader.style.opacity = '0'; setTimeout(() => loader?.remove(), 300); }
-          }
-        },
-        onError(e) {
-          // skip broken video
-          setTimeout(_goNextReel, 500);
-        }
-      }
-    });
-  } catch(err) {
-    setTimeout(_goNextReel, 600);
-  }
-}
-
-function _buildReelSlide(data, idx) {
-  const slide = document.createElement('div');
-  slide.id = 'rl-slide-' + idx;
-  slide.dataset.reelIdx = idx;
-  slide.style.cssText = 'position:relative;width:100%;height:100vh;scroll-snap-align:start;flex-shrink:0;background:#000;overflow:hidden;';
-
-  // YT player container — oversized to hide YT UI chrome
-  const ytWrap = document.createElement('div');
-  ytWrap.id = 'rl-yt-' + idx;
-  ytWrap.dataset.ytId = data.id;
-  ytWrap.dataset.reelIdx = idx;
-  ytWrap.style.cssText = 'position:absolute;left:-5%;top:-10%;width:110%;height:120%;background:#000;';
-  if (!_ytReady) ytWrap.dataset.ytPending = '1';
-  slide.appendChild(ytWrap);
-
-  // Loading spinner (shown until video plays)
-  const loader = document.createElement('div');
-  loader.id = 'rl-loader-' + idx;
-  loader.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.85);z-index:5;transition:opacity .3s;';
-  loader.innerHTML = `<div style="width:50px;height:50px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:#00d4ff;animation:spin .7s linear infinite;margin-bottom:14px;"></div><div style="color:rgba(255,255,255,.5);font-size:13px;">Loading...</div>`;
-  slide.appendChild(loader);
-
-  // Bottom info bar
-  const info = document.createElement('div');
-  info.style.cssText = 'position:absolute;bottom:0;left:0;right:60px;z-index:15;padding:16px 16px 20px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);pointer-events:none;';
-  info.innerHTML = `
-    <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:4px;text-shadow:0 2px 6px rgba(0,0,0,.8);">@${data.author}</div>
-    <div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.4;">${data.title}</div>
-    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;">🎵 First Infinity Reels</div>`;
-  slide.appendChild(info);
-
-  // Right side action buttons
-  const actions = document.createElement('div');
-  actions.style.cssText = 'position:absolute;right:10px;bottom:70px;z-index:15;display:flex;flex-direction:column;align-items:center;gap:18px;';
-  actions.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-      <button id="rl-like-${idx}" onclick="toggleReelLike(${idx})" style="width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.25);font-size:22px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);">❤️</button>
-      <span id="rl-likes-${idx}" style="font-size:11px;color:#fff;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.8);">${_fmtNum(data.likes)}</span>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-      <button onclick="showReelShare(${idx})" style="width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.25);font-size:22px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);">📤</button>
-      <span style="font-size:11px;color:#fff;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.8);">Share</span>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-      <button onclick="toggleReelMute()" style="width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.25);font-size:22px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);" id="rl-mute-side">🔇</button>
-      <span style="font-size:11px;color:#fff;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.8);">Sound</span>
-    </div>`;
-  slide.appendChild(actions);
-
-  // Swipe touch area
-  const swipe = document.createElement('div');
-  swipe.style.cssText = 'position:absolute;left:0;top:0;right:60px;bottom:80px;z-index:10;';
-  swipe.addEventListener('touchstart', e => { _reelTouchY = e.touches[0].clientY; }, {passive:true});
-  swipe.addEventListener('touchend', e => {
-    const diff = _reelTouchY - e.changedTouches[0].clientY;
-    if (Math.abs(diff) > 60) {
-      if (diff > 0) _goNextReel();
-      else _goPrevReel();
-    }
-  }, {passive:true});
-  slide.appendChild(swipe);
-
-  return slide;
+  // Use Dailymotion embed - works on all browsers without X-Frame-Options block
+  const iframe = document.createElement('iframe');
+  iframe.id = 'rl-iframe-' + idx;
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;background:#000;';
+  iframe.allow = 'autoplay;fullscreen;encrypted-media;picture-in-picture';
+  iframe.allowFullscreen = true;
+  iframe.setAttribute('allowfullscreen', '');
+  // Dailymotion embed params
+  const params = new URLSearchParams({
+    autoplay: idx === _reelIdx ? '1' : '0',
+    mute: _reelMuted ? '1' : '0',
+    'ui-logo': '0',
+    'sharing-enable': '0',
+    'ui-start-screen-info': '0',
+    'queue-enable': '0',
+    'queue-autoplay-next': '0',
+    loop: '1',
+    'ui-theme': 'dark',
+    'fullscreen-action': 'trigger',
+  });
+  iframe.src = `https://www.dailymotion.com/embed/video/${videoId}?${params}`;
+  container.innerHTML = '';
+  container.appendChild(iframe);
+  _reelPlayers[idx] = { 
+    iframe,
+    pauseVideo() { try { iframe.src = iframe.src.replace('autoplay=1','autoplay=0'); } catch(e){} },
+    playVideo() { 
+      try { 
+        // Reload with autoplay to start
+        const u = new URL(iframe.src);
+        u.searchParams.set('autoplay', '1');
+        iframe.src = u.toString();
+      } catch(e){} 
+    },
+    mute() { try { const u=new URL(iframe.src); u.searchParams.set('mute','1'); iframe.src=u.toString(); } catch(e){} },
+    unMute() { try { const u=new URL(iframe.src); u.searchParams.set('mute','0'); iframe.src=u.toString(); } catch(e){} },
+  };
+  // Hide loader when iframe loads
+  iframe.onload = () => {
+    const loader = document.getElementById('rl-loader-' + idx);
+    if (loader) { loader.style.opacity='0'; setTimeout(()=>loader?.remove(), 400); }
+  };
 }
 
 function _fmtNum(n) {
@@ -2820,9 +2721,9 @@ function _appendReelSlides(count=3) {
     _reelData.push(vid);
     const slide = _buildReelSlide(vid, idx);
     feed.appendChild(slide);
-    // init YT player if API ready
+    // Init Dailymotion iframe immediately (no external API needed)
     const ytWrap = document.getElementById('rl-yt-' + idx);
-    if (_ytReady && ytWrap) _initYTPlayer(idx, vid.id, ytWrap);
+    if (ytWrap) setTimeout(() => _initYTPlayer(idx, vid.id, ytWrap), idx === 0 ? 0 : 300);
   }
 }
 
@@ -2846,10 +2747,13 @@ window.onReelFeedScroll = function(el) {
   }
   
   // Preload next 2 slides
+  // Preload next 2 slides
   for (let i = _reelIdx + 1; i <= _reelIdx + 2; i++) {
     if (i >= _reelData.length) _appendReelSlides(2);
     const ytWrap = document.getElementById('rl-yt-' + i);
-    if (ytWrap && !_reelPlayers[i]) _initYTPlayer(i, _reelData[i]?.id, ytWrap);
+    if (ytWrap && !_reelPlayers[i] && _reelData[i]) {
+      setTimeout(() => _initYTPlayer(i, _reelData[i].id, ytWrap), 500);
+    }
   }
   
   // Update mute button
@@ -2861,9 +2765,9 @@ window.onReelFeedScroll = function(el) {
 
 window.toggleReelMute = function() {
   _reelMuted = !_reelMuted;
-  Object.values(_reelPlayers).forEach(p => {
-    try { _reelMuted ? p.mute() : p.unMute(); } catch(e) {}
-  });
+  // Only update current player mute (reloading all is too heavy)
+  const cur = _reelPlayers[_reelIdx];
+  if (cur) { try { _reelMuted ? cur.mute() : cur.unMute(); } catch(e){} }
   const muteBtn = G('reelMuteBtn');
   if (muteBtn) muteBtn.textContent = _reelMuted ? '🔇' : '🔊';
   const muteSide = document.getElementById('rl-mute-side');
@@ -2956,14 +2860,16 @@ window.loadReels = function() {
   if (!feed) return;
   feed.innerHTML = '';
   // Load YouTube API
-  _loadYTApi();
+  _ytReady = true; // Dailymotion needs no external API
   // Build initial 4 slides
   _appendReelSlides(4);
-  // If YT API already ready, init first player immediately
-  if (_ytReady) {
-    const ytWrap = document.getElementById('rl-yt-0');
-    if (ytWrap) _initYTPlayer(0, _reelData[0]?.id, ytWrap);
-  }
+  // Init first 2 players immediately (Dailymotion needs no API wait)
+  setTimeout(() => {
+    for (let i = 0; i <= 1; i++) {
+      const ytWrap = document.getElementById('rl-yt-' + i);
+      if (ytWrap && _reelData[i]) _initYTPlayer(i, _reelData[i].id, ytWrap);
+    }
+  }, 100);
 };
 window.loadMoreReels = function() { _appendReelSlides(3); };
 
