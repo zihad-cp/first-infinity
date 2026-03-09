@@ -581,11 +581,11 @@ input:-webkit-autofill:focus {
     <!-- ── LOGIN VIEW ── -->
     <div class="a-view show" id="vLogin">
       <div class="a-view-title">&#128274; Welcome Back</div>
-      <div class="a-view-sub">Log in with your phone number & password</div>
+      <div class="a-view-sub">Log in with your phone number &amp; password</div>
       <div class="login-err" id="loginErr"><span>&#10060;</span><span id="loginErrTxt">Wrong username or password</span></div>
       <div class="fi-wrap">
         <div class="fi-label">PHONE NUMBER</div>
-        <input class="fi" id="lN" placeholder="01XXXXXXXXX" type="tel" maxlength="11" autocomplete="off" data-lpignore="true" readonly onfocus="this.removeAttribute('readonly')" oninput="clearLoginErr();this.value=this.value.replace(/[^0-9]/g,'').slice(0,11)" inputmode="numeric">
+        <input class="fi" id="lN" placeholder="01XXXXXXXXX" type="tel" maxlength="11" inputmode="numeric" autocomplete="off" data-lpignore="true" readonly onfocus="this.removeAttribute('readonly')" oninput="clearLoginErr()">
       </div>
       <div class="fi-wrap">
         <div class="fi-label">PASSWORD</div>
@@ -597,8 +597,8 @@ input:-webkit-autofill:focus {
       <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;font-size:13px;color:var(--m2)">
         <input type="checkbox" id="remMe" style="width:16px;height:16px;accent-color:var(--a)"> Remember me on this device
       </label>
-      <button class="btn-g" id="loginBtn" onclick="doLogin()">🔒 Log In</button>
-      <div class="a-switch">Don't have an account? <span onclick="showAuthView('vReg')">✨ Create Account</span></div>
+      <button class="btn-g" id="loginBtn" onclick="doLogin()">&#128274; Log In</button>
+      <div class="a-switch">Don't have an account? <span onclick="showAuthView('vReg')">&#127381; Create Account</span></div>
     </div>
 
     <!-- ── REGISTER VIEW — 3 Steps ── -->
@@ -611,13 +611,13 @@ input:-webkit-autofill:focus {
         <div class="a-view-sub">Step 1 of 3 — Your details</div>
         <div class="fi-wrap">
           <div class="fi-label">FULL NAME</div>
-          <input class="fi" id="rName" placeholder="e.g. Zihad Sorkar" oninput="checkName()">
+          <input class="fi" id="rName" placeholder="e.g. Rahim Ahmed" oninput="checkName()">
           <div class="fi-err" id="rNameErr">Name must be at least 3 characters</div>
         </div>
         <div class="fi-wrap">
-          <div class="fi-label">PHONE NUMBER (11 digits)</div>
-          <input class="fi" id="rUser" placeholder="01XXXXXXXXX" type="tel" maxlength="11" oninput="checkUser();this.value=this.value.replace(/[^0-9]/g,'').slice(0,11)" inputmode="numeric">
-          <div class="fi-err" id="rUserErr">Enter valid 11-digit phone number (01...)</div>
+          <div class="fi-label">USERNAME or PHONE NUMBER</div>
+          <input class="fi" id="rUser" placeholder="01XXXXXXXXX" type="tel" maxlength="11" inputmode="numeric" oninput="checkUser()">
+          <div class="fi-err" id="rUserErr">Only letters, numbers, _ — min 3 chars</div>
         </div>
         <button class="btn-g" onclick="step1Next()">Next &#8594;</button>
         <div class="a-switch">Already have an account? <span onclick="showAuthView('vLogin')">Log In</span></div>
@@ -786,11 +786,11 @@ input:-webkit-autofill:focus {
     <button class="mw-back" onclick="closeMW()">&#8249;</button>
     <div class="mw-av" id="mwAv">&#128512;</div>
     <div class="mw-info"><div class="mw-nm" id="mwNm">-</div><div class="mw-st" id="mwSt">&#9679; Online</div></div>
+    <button onclick="changeChatPass()" style="background:none;border:none;color:var(--m2);font-size:19px;cursor:pointer;padding:4px 8px" title="Change chat password">&#128272;</button>
     <div class="mw-acts">
       <button class="c-btn" onclick="startCall('audio')">&#128222;</button>
       <button class="c-btn" onclick="startCall('video')">&#127909;</button>
       <button class="c-btn" onclick="showFwdList()">&#8599;&#65039;</button>
-      <button class="c-btn" onclick="changeChatPass()" title="Change Chat Password">&#128274;</button>
     </div>
   </div>
   <div class="ty-ind" id="tyInd"><div class="t-dot"><span></span><span></span><span></span></div><span id="tyNm"></span> is typing...</div>
@@ -836,7 +836,7 @@ input:-webkit-autofill:focus {
 <!-- INCOMING CALL -->
 <div class="inc-call" id="incCall">
   <div class="ic-row"><div class="ic-av" id="icAv">&#128512;</div><div class="ic-info"><div class="ic-nm" id="icNm">-</div><div class="ic-st" id="icSt">&#128222; Incoming voice call</div></div></div>
-  <div class="ic-btns"><button class="ic-ans" onclick="ansCall()">&#128222; Answer</button><button class="ic-dec" onclick="decCall()">&#10006; Decline</button></div>
+  <div class="ic-btns"><button class="ic-ans" onclick="window.ansCall?.()">&#128222; Answer</button><button class="ic-dec" onclick="window.decCall?.()">&#10006; Decline</button></div>
 </div>
 
 <!-- ═══ EMOJI PICKER ═══ -->
@@ -962,7 +962,7 @@ input:-webkit-autofill:focus {
   <div class="ml-icon">&#128274;</div>
   <div class="ml-title">Chat is Locked</div>
   <div class="ml-sub">Enter your password to access<br>your private messages</div>
-  <div class="ml-box" id="mlBox">
+  <div class="ml-box">
     <div class="ml-err" id="mlErr">&#10060; Wrong password. Try again.</div>
     <div class="fi-label" style="margin-bottom:6px">YOUR PASSWORD</div>
     <div class="ml-pw-wrap">
@@ -970,8 +970,7 @@ input:-webkit-autofill:focus {
       <button class="pw-eye" onclick="togglePw('mlPw',this)" tabindex="-1">&#128065;</button>
     </div>
     <button class="btn-g" onclick="unlockChat()">&#128275; Unlock Chat</button>
-    <button onclick="resetChatPass()" style="background:none;border:none;color:#ff3d7f;font-size:13px;cursor:pointer;margin-top:10px;display:block;width:100%;text-align:center">🗑 Forgot Password? (Deletes all chats)</button>
-    <div style="text-align:center;font-size:12px;color:var(--m);margin-top:8px">&#128274; This protects your privacy</div>
+    <div style="text-align:center;font-size:12px;color:var(--m);margin-top:12px">&#128274; This protects your privacy</div>
   </div>
 </div>
 
@@ -1143,7 +1142,7 @@ async function doLogin_(){
   if(!n){G('lN').classList.add('err');return showLoginErr('Please enter your username');}
   if(!p){G('lP').classList.add('err');return showLoginErr('Please enter your password');}
   const btn=G('loginBtn');btn.disabled=true;btn.textContent='Logging in...';
-  const em=n.trim().replace(/[^0-9]/g,'')+'@firstinfinity.app';
+  const em=n.toLowerCase().replace(/\s+/g,'')+'@firstinfinity.app';
   try{
     // Save password BEFORE Firebase call
     savedPass=p;localStorage.setItem('fi_sp',p);
@@ -1154,7 +1153,7 @@ async function doLogin_(){
     btn.disabled=false;btn.textContent='🔒 Log In';
     savedPass='';localStorage.removeItem('fi_sp');
     if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')showLoginErr('Wrong password. Try again ❌');
-    else if(e.code==='auth/user-not-found'||e.code==='auth/invalid-email')showLoginErr('No account found with this number ❌');
+    else if(e.code==='auth/user-not-found'||e.code==='auth/invalid-email')showLoginErr('No account found with this username ❌');
     else if(e.code==='auth/too-many-requests')showLoginErr('Too many attempts. Try again later ⚠️');
     else showLoginErr('Login failed: '+e.message);
   }
@@ -1168,14 +1167,14 @@ async function doReg_(){
   const btn=G('regBtn');btn.disabled=true;btn.textContent='Creating account...';
   const em=username.toLowerCase().replace(/\s+/g,'')+'@firstinfinity.app';
   try{
-    const existing=await getDocs(query(collection(DB,'users'),where('phone','==',username)));
-    if(!existing.empty){btn.disabled=false;btn.textContent='🎉 Create My Account';return toast('This number already has an account ❌');}
+    const existing=await getDocs(query(collection(DB,'users'),where('username','==',username.toLowerCase())));
+    if(!existing.empty){btn.disabled=false;btn.textContent='🎉 Create My Account';return toast('Username already taken! Try another ❌');}
     // Save password BEFORE Firebase call to avoid race condition
     savedPass=pass;localStorage.setItem('fi_sp',pass);
     const c=await createUserWithEmailAndPassword(AUTH,em,pass);
     await updateProfile(c.user,{displayName:name});
     const bday=G('rBday')?.value||'';const gender=G('rGender')?.value||'';
-    await setDoc(doc(DB,'users',c.user.uid),{name,phone:username,username:username,emoji:selEmoji,bio:name+' | First Infinity ∞',uid:c.user.uid,birthday:bday,gender,isOnline:true,lastSeen:serverTimestamp(),friends:[],createdAt:serverTimestamp(),photoURL:''});
+    await setDoc(doc(DB,'users',c.user.uid),{name,username:username.toLowerCase(),emoji:selEmoji,bio:name+' | First Infinity ∞',uid:c.user.uid,birthday:bday,gender,isOnline:true,lastSeen:serverTimestamp(),friends:[],createdAt:serverTimestamp()});
     toast('Welcome to First Infinity! 🎉');
   }catch(e){
     btn.disabled=false;btn.textContent='🎉 Create My Account';
@@ -1185,7 +1184,7 @@ async function doReg_(){
   }
 }
 async function doLogout_(){subs.forEach(u=>u&&u());subs=[];chatLocked=true;savedPass='';localStorage.removeItem('fi_sp');hideBubble();await updateDoc(doc(DB,'users',me.uid),{isOnline:false,lastSeen:serverTimestamp()}).catch(()=>{});await signOut(AUTH);}
-function boot(){
+function boot(){try{navigator.credentials.preventSilentAccess();}catch(e){}
   G('app').style.display='block';const ae=G('auth');if(ae)ae.style.display='none';
   // Set avatars - photo or emoji
   if(pr.photoURL){
@@ -1451,12 +1450,7 @@ window.pubPost=async()=>{
 };
 
 // STORIES
-function loadStories(){const w=G('sRow');const q=query(collection(DB,'stories'),orderBy('createdAt','desc'),limit(50));const u=onSnapshot(q,snap=>{w.innerHTML=`<div class="s-item" onclick="G('stM').classList.add('vis')"><div class="s-ring" style="background:var(--c2)"><div class="s-av">➕</div></div><div class="s-lbl">Story</div></div>`;snap.forEach(d=>{const s={id:d.id,...d.data()};
-      // Skip expired stories
-      if(s.expiresAt){const exp=s.expiresAt.toDate?s.expiresAt.toDate():new Date(s.expiresAt);if(Date.now()>exp.getTime()){deleteDoc(doc(DB,'stories',s.id)).catch(()=>{});return;}}
-      const seen=(s.viewedBy||[]).includes(me?.uid);const el=document.createElement('div');el.className='s-item';el.onclick=()=>viewStory(s);
-      const avHtml=s.photoURL?`<img src="${s.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:s.emoji||'😊';
-      el.innerHTML=`<div class="s-ring ${seen?'seen':'new'}"><div class="s-av">${avHtml}</div></div><div class="s-lbl">${s.author?.split(' ')[0]||'?'}</div>`;w.appendChild(el);});trackData(200);});subs.push(u);}
+function loadStories(){const w=G('sRow');const q=query(collection(DB,'stories'),orderBy('createdAt','desc'),limit(50));const u=onSnapshot(q,snap=>{w.innerHTML=`<div class="s-item" onclick="G('stM').classList.add('vis')"><div class="s-ring" style="background:var(--c2)"><div class="s-av">➕</div></div><div class="s-lbl">Story</div></div>`;snap.forEach(d=>{const s={id:d.id,...d.data()};const seen=(s.viewedBy||[]).includes(me?.uid);const el=document.createElement('div');el.className='s-item';el.onclick=()=>viewStory(s);el.innerHTML=`<div class="s-ring ${seen?'seen':'new'}"><div class="s-av">${s.emoji||'😊'}</div></div><div class="s-lbl">${s.author?.split(' ')[0]||'?'}</div>`;w.appendChild(el);});trackData(200);});subs.push(u);}
 window.setStIc=(btn,e)=>{stIcon=e;G('stIcEl').textContent=e;document.querySelectorAll('#stMoodRow .m-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');};
 let stImg=null;
 window.pickStoryImg=()=>{
@@ -1475,100 +1469,59 @@ window.pickStoryImg=()=>{
 };
 window.removeStoryImg=()=>{stImg=null;G('stImgPrev').src='';G('stImgPrev').style.display='none';G('stImgRemBtn').style.display='none';};
 window.addStory=async()=>{
-  const txt=V('stTxt');
+  const txt=G('stTxt').value.trim()||'';
   if(!txt&&!stImg)return toast('Write something or add a photo!');
   const btn=document.querySelector('#stM .btn-g');if(btn){btn.disabled=true;btn.textContent='Sharing...';}
   try{
-    // 24hr expiry timestamp
-    const expiresAt=new Date(Date.now()+24*60*60*1000);
-    await addDoc(collection(DB,'stories'),{
-      text:txt,emoji:stIcon,imageUrl:stImg||'',
-      author:pr.name,authorId:me.uid,authorEmoji:pr.emoji||'😊',
-      photoURL:pr.photoURL||'',
-      viewedBy:[],reactions:{},
-      createdAt:serverTimestamp(),
-      expiresAt:expiresAt
-    });
-    toast('Story shared! ✨ Auto-deletes after 24 hours');
-    G('stM').classList.remove('vis');G('stTxt').value='';stImg=null;
-    G('stImgPrev').src='';G('stImgPrev').style.display='none';G('stImgRemBtn').style.display='none';
-  }catch(e){toast('Error: '+e.message);}
-  finally{if(btn){btn.disabled=false;btn.textContent='Share Story ✨';}}
+    let imgUrl=null;
+    if(stImg){toast('📤 Uploading...');imgUrl=await uploadToImgBB(stImg);}
+    await addDoc(collection(DB,'stories'),{text:txt||'📸',icon:stIcon,imageUrl:imgUrl||null,author:pr?.name||'?',emoji:pr?.emoji||'😊',authorId:me.uid,viewedBy:[],createdAt:serverTimestamp()});
+    G('stM').classList.remove('vis');G('stTxt').value='';stImg=null;G('stImgPrev').src='';G('stImgPrev').style.display='none';G('stImgRemBtn').style.display='none';
+    toast('Story shared ✨');
+  }catch(e){toast('Failed: '+e.message);}
+  if(btn){btn.disabled=false;btn.textContent='Share Story ✨';}
 };
-
-
 window.viewStory=async s=>{
-  // Check if expired (24hr)
+  // Check 24hr expiry
   if(s.expiresAt){
-    const exp = s.expiresAt.toDate ? s.expiresAt.toDate() : new Date(s.expiresAt);
-    if(Date.now() > exp.getTime()){
-      // Auto delete expired story
-      await deleteDoc(doc(DB,'stories',s.id)).catch(()=>{});
-      toast('This story has expired 🕐');
-      return;
+    const exp=s.expiresAt.toDate?s.expiresAt.toDate():new Date(s.expiresAt);
+    if(exp<new Date()){
+      deleteDoc(doc(DB,'stories',s.id)).catch(()=>{});
+      return toast('This story has expired 🕐');
     }
   }
   G('svEm').textContent=s.emoji||'😊';
   G('svTx').textContent=s.text||'';
   G('svAu').textContent='— '+s.author+(s.viewedBy?.length?' • '+s.viewedBy.length+' views':'');
   const svImg=G('svImg');
-  if(s.imageUrl){svImg.src=s.imageUrl;svImg.style.display='block';}
-  else{svImg.style.display='none';}
-
-  // Reaction bar
-  const rxns=['❤️','😂','😮','😢','🔥','👏'];
-  const rxnCounts=s.reactions||{};
-  const myRxn=rxnCounts[me?.uid];
-  let rxnHtml=`<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px">`;
-  rxns.forEach(r=>{
-    const cnt=Object.values(rxnCounts).filter(v=>v===r).length;
-    rxnHtml+=`<button onclick="reactStory('${s.id}','${r}')" style="background:rgba(255,255,255,.1);border:${myRxn===r?'2px solid #fff':'1px solid rgba(255,255,255,.2)'};border-radius:20px;padding:5px 10px;font-size:16px;cursor:pointer;color:#fff">${r}${cnt>0?` <span style="font-size:11px">${cnt}</span>`:''}</button>`;
-  });
-  rxnHtml+=`</div>`;
-
-  // Own story delete button
-  const isOwn = s.authorId===me?.uid;
-  let actHtml='';
-  if(isOwn){
-    actHtml=`<button onclick="deleteMyStory('${s.id}')" style="background:rgba(255,61,127,.2);border:1px solid rgba(255,61,127,.4);border-radius:12px;padding:8px 16px;color:#ff3d7f;font-size:13px;cursor:pointer;margin-top:8px">🗑 Delete Story</button>`;
-  }
-
-  // Time remaining
-  let timeLeft='';
-  if(s.expiresAt){
-    const exp = s.expiresAt.toDate ? s.expiresAt.toDate() : new Date(s.expiresAt);
-    const hrs=Math.max(0,Math.floor((exp.getTime()-Date.now())/3600000));
-    const mins=Math.max(0,Math.floor(((exp.getTime()-Date.now())%3600000)/60000));
-    timeLeft=`<div style="font-size:11px;color:rgba(255,255,255,.5);text-align:center;margin-top:6px">⏰ ${hrs}h ${mins}m remaining</div>`;
-  }
-
-  // Inject reactions into story view
-  const svBox=G('svM').querySelector('.sv-box');
-  if(svBox){
-    // Remove old reaction/action divs
-    svBox.querySelectorAll('.story-rxn,.story-act,.story-time').forEach(el=>el.remove());
-    const rxnDiv=document.createElement('div');rxnDiv.className='story-rxn';rxnDiv.innerHTML=rxnHtml;svBox.appendChild(rxnDiv);
-    if(actHtml){const actDiv=document.createElement('div');actDiv.className='story-act';actDiv.style.textAlign='center';actDiv.innerHTML=actHtml;svBox.appendChild(actDiv);}
-    if(timeLeft){const timeDiv=document.createElement('div');timeDiv.className='story-time';timeDiv.innerHTML=timeLeft;svBox.appendChild(timeDiv);}
-  }
-
+  if(s.imageUrl){svImg.src=s.imageUrl;svImg.style.display='block';}else{svImg.style.display='none';}
+  // Show reactions
+  const rxns=s.reactions||{};
+  const rxCounts={'❤️':0,'😂':0,'😮':0,'😢':0,'🔥':0,'👏':0};
+  Object.values(rxns).forEach(r=>{if(rxCounts[r]!==undefined)rxCounts[r]++;});
+  const svR=G('svRxn');
+  if(svR)svR.innerHTML=Object.entries(rxCounts).map(([e,n])=>`<button onclick="reactStory('${s.id}','${e}')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 10px;color:#fff;cursor:pointer;font-size:14px">${e}${n>0?' '+n:''}</button>`).join('');
+  // Own story: show delete button
+  const svD=G('svDel');
+  if(svD)svD.style.display=s.authorId===me.uid?'block':'none';
+  if(svD)svD.onclick=()=>deleteMyStory(s.id);
   G('svM').classList.add('vis');
+  viewingStoryId=s.id;
   setTimeout(()=>G('svM').classList.remove('vis'),s.imageUrl?8000:5000);
-  if(s.authorId!==me?.uid)await updateDoc(doc(DB,'stories',s.id),{viewedBy:arrayUnion(me.uid)});
+  if(s.authorId!==me.uid)await updateDoc(doc(DB,'stories',s.id),{viewedBy:arrayUnion(me.uid)}).catch(()=>{});
 };
 
 window.reactStory=async(storyId,emoji)=>{
-  await updateDoc(doc(DB,'stories',storyId),{[`reactions.${me.uid}`]:emoji}).catch(()=>{});
+  if(!me?.uid)return;
+  await updateDoc(doc(DB,'stories',storyId),{['reactions.'+me.uid]:emoji}).catch(()=>{});
   toast(emoji+' Reaction added!');
 };
-
-window.deleteMyStory=async(storyId)=>{
+window.deleteMyStory=async(id)=>{
   if(!confirm('Delete this story?'))return;
-  await deleteDoc(doc(DB,'stories',storyId));
+  await deleteDoc(doc(DB,'stories',id)).catch(()=>{});
   G('svM').classList.remove('vis');
   toast('🗑 Story deleted!');
 };
-
 
 // CHAT LIST
 async function loadChatList(){
@@ -1837,158 +1790,96 @@ function loadNotifs(){
 }
 
 // PROFILE
-window.loadProfile=async uid=>{
-  const s=await getDoc(doc(DB,'users',uid));
-  const p=s.exists()?s.data():pr;
-  trackData(300);
-  // Set avatar
-  if(p.photoURL){
-    G('bigAv').innerHTML=`<img src="${p.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"><div class="big-av-edit">📷</div>`;
-  }else{
-    G('bigAv').innerHTML=`${p.emoji||'😊'}<div class="big-av-edit">📷</div>`;
-  }
-  G('pNm').textContent=p.name||'?';
-  G('pBio').textContent=p.bio||'';
-  const ps=await getDocs(query(collection(DB,'posts'),where('authorId','==',uid),orderBy('createdAt','desc')));
-  G('psP').textContent=ps.size;
-  let lk=0;ps.forEach(d=>lk+=(d.data().likes||[]).length);
-  G('psL').textContent=lk;
-  G('psF').textContent=(p.friends||[]).length;
-  // Grid - show actual images
-  const grid=G('pGrid');
-  grid.innerHTML='';
-  if(ps.empty){
-    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--m);padding:20px;font-size:13px">No posts yet</div>';
-    return;
-  }
-  ps.forEach(d=>{
-    const po=d.data();
-    const el=document.createElement('div');
-    el.className='p-gt';
-    el.style.cssText='position:relative;aspect-ratio:1;overflow:hidden;border-radius:10px;background:var(--c2);cursor:pointer';
-    if(po.imageUrl){
-      el.innerHTML=`<img src="${po.imageUrl}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">`;
-    }else{
-      el.innerHTML=`<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px"><div style="font-size:22px">${po.mood||po.authorEmoji||'📝'}</div><div style="font-size:10px;color:var(--m2);text-align:center;word-break:break-word;overflow:hidden;max-height:40px">${(po.text||'').slice(0,40)}</div></div>`;
-    }
-    // Click to open post detail
-    el.onclick=()=>openPostDetail(d.id,po);
-    grid.appendChild(el);
-  });
-};
-
-window.openPostDetail=(postId,po)=>{
-  const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(10px)';
-  let imgHtml=po.imageUrl?`<img src="${po.imageUrl}" style="width:100%;max-height:350px;object-fit:contain;border-radius:14px;display:block;margin-bottom:12px" loading="lazy">`:'';
-  const liked=(po.likes||[]).includes(me?.uid);
-  modal.innerHTML=`
-    <div style="background:var(--c1);border-radius:20px;width:100%;max-width:480px;overflow:hidden;max-height:90vh;overflow-y:auto">
-      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--br)">
-        <div style="width:36px;height:36px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:18px">${po.authorEmoji||'😊'}</div>
-        <div><div style="font-weight:700;font-size:14px">${po.author||''}</div><div style="font-size:11px;color:var(--m)">${tAgo(po.createdAt?.toDate?.())}</div></div>
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="margin-left:auto;background:none;border:none;font-size:22px;cursor:pointer;color:var(--m2)">✕</button>
+window.loadProfile=async uid=>{const s=await getDoc(doc(DB,'users',uid));const p=s.exists()?s.data():pr;trackData(300);G('bigAv').textContent=p.emoji||'😊';G('pNm').textContent=p.name||'?';G('pBio').textContent=p.bio||'';const ps=await getDocs(query(collection(DB,'posts'),where('authorId','==',uid)));G('psP').textContent=ps.size;let lk=0;ps.forEach(d=>lk+=(d.data().likes||[]).length);G('psL').textContent=lk;G('psF').textContent=(p.friends||[]).length;const grid=G('pGrid');grid.innerHTML='';ps.forEach(d=>{const po=d.data();const el=document.createElement('div');el.className='p-gt';el.textContent=po.imageUrl?'🖼️':(po.mood||po.authorEmoji||'📝');el.onclick=()=>toast((po.text||'📝').slice(0,60));grid.appendChild(el);});};
+window.editBio=()=>{
+  // Build profile edit modal
+  const existing=document.getElementById('ep-modal');
+  if(existing)existing.remove();
+  const m=document.createElement('div');
+  m.id='ep-modal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:3000;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px)';
+  m.innerHTML=`
+    <div style="background:var(--c1);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px;max-height:90vh;overflow-y:auto">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:20px;font-weight:800">✏️ Edit Profile</div>
+        <div style="width:40px;height:4px;background:var(--br2);border-radius:2px;margin:8px auto 0"></div>
       </div>
-      ${imgHtml}
-      ${po.text?`<div style="padding:12px 16px;font-size:14px">${esc(po.text)}</div>`:''}
-      <div style="display:flex;border-top:1px solid var(--br)">
-        <button onclick="doLike('${postId}',${liked})" style="flex:1;background:none;border:none;border-right:1px solid var(--br);color:${liked?'#ff3d7f':'var(--m2)'};font-size:13px;cursor:pointer;padding:12px">${liked?'❤️':'🤍'} ${(po.likes||[]).length}</button>
-        <button onclick="this.closest('div[style*=fixed]').remove();togCmt('${postId}')" style="flex:1;background:none;border:none;color:var(--m2);font-size:13px;cursor:pointer;padding:12px">💬 Comment</button>
+      <div style="text-align:center;margin-bottom:20px">
+        <div id="ep-av" onclick="document.getElementById('ep-photo-inp').click()" style="width:80px;height:80px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto;cursor:pointer;border:3px solid var(--a)">${pr?.photoURL?`<img id="ep-av-img" src="${pr.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`:(pr?.emoji||'😊')}</div>
+        <div style="font-size:12px;color:var(--m);margin-top:6px">Tap to change photo</div>
+        <input type="file" id="ep-photo-inp" accept="image/*" style="display:none" onchange="previewEPPic(this)">
       </div>
-    </div>`;
-  document.body.appendChild(modal);
-};
-window.editBio=async()=>{
-  const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(10px)';
-  modal.innerHTML=`
-    <div style="background:var(--c1);border-radius:28px 28px 0 0;width:100%;max-width:500px;padding:24px 18px 36px;max-height:85vh;overflow-y:auto">
-      <div style="width:40px;height:4px;background:var(--br);border-radius:2px;margin:0 auto 18px"></div>
-      <div style="font-weight:800;font-size:17px;margin-bottom:18px;text-align:center">✏️ Edit Profile</div>
-      
-      <!-- Profile Pic -->
-      <div style="text-align:center;margin-bottom:18px">
-        <div id="epPicPrev" onclick="document.getElementById('epPicInput').click()" style="width:80px;height:80px;border-radius:50%;background:var(--grad);display:inline-flex;align-items:center;justify-content:center;font-size:36px;cursor:pointer;overflow:hidden;position:relative;border:3px solid var(--a)">
-          ${pr?.photoURL?`<img src="${pr.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:pr?.emoji||'😊'}
-          <div style="position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:22px">📷</div>
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:6px">YOUR NAME</div>
+        <input id="ep-name" class="fi" value="${pr?.name||''}" placeholder="Your name" style="width:100%">
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:6px">BIO</div>
+        <textarea id="ep-bio" style="width:100%;background:var(--c2);border:1px solid var(--br2);border-radius:12px;padding:12px;color:var(--tx);font-size:14px;resize:none;min-height:70px;font-family:inherit" placeholder="Write something about you...">${pr?.bio||''}</textarea>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:8px">AVATAR EMOJI</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          ${['😊','😎','🥰','😂','🤩','😍','🤗','😇','🥳','👑','💪','🎭','🌟','🔥','⚡','🎵','🌈','🦋','🐉','🌙'].map(e=>`<button onclick="selectEPEmoji('${e}',this)" style="font-size:24px;background:${(pr?.emoji||'😊')===e?'var(--a)':'var(--c2)'};border:2px solid ${(pr?.emoji||'😊')===e?'var(--a)':'var(--br)'};border-radius:10px;padding:6px;cursor:pointer;transition:.2s" data-ep-emoji="${e}">${e}</button>`).join('')}
         </div>
-        <input type="file" id="epPicInput" accept="image/*" style="display:none" onchange="previewEPPic(this)">
-        <div style="font-size:12px;color:var(--m);margin-top:6px">Click to change photo</div>
       </div>
-      
-      <!-- Name -->
-      <div style="font-size:11px;color:var(--m2);font-weight:700;margin-bottom:6px;letter-spacing:.5px">NAME</div>
-      <input id="epName" value="${(pr?.name||'').replace(/"/g,'&quot;')}" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 14px;color:var(--tx);font-size:14px;outline:none;margin-bottom:14px">
-      
-      <!-- Bio -->
-      <div style="font-size:11px;color:var(--m2);font-weight:700;margin-bottom:6px;letter-spacing:.5px">Bio</div>
-      <textarea id="epBio" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 14px;color:var(--tx);font-size:14px;outline:none;margin-bottom:14px;min-height:80px;resize:none">${pr?.bio||''}</textarea>
-      
-      <!-- Emoji -->
-      <div style="font-size:11px;color:var(--m2);font-weight:700;margin-bottom:8px;letter-spacing:.5px">Avatar Emoji</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
-        ${['😊','😎','🥰','😂','🤩','😏','🙏','💪','🔥','👑','✨','🫶','🤗','😇','🥳','😍'].map(e=>`<button onclick="selectEPEmoji('${e}',this)" style="font-size:22px;background:${pr?.emoji===e?'var(--c2)':'none'};border:${pr?.emoji===e?'2px solid var(--a)':'2px solid transparent'};border-radius:10px;padding:4px 6px;cursor:pointer">${e}</button>`).join('')}
+      <div id="ep-err" style="color:#ff3d7f;font-size:12px;margin-bottom:8px;min-height:16px"></div>
+      <div style="display:flex;gap:10px">
+        <button onclick="document.getElementById('ep-modal').remove()" style="flex:1;background:var(--c2);border:1px solid var(--br);border-radius:14px;padding:14px;color:var(--tx);font-weight:700;cursor:pointer">Cancel</button>
+        <button id="ep-save-btn" onclick="saveEProfile()" style="flex:2;background:var(--grad);border:none;border-radius:14px;padding:14px;color:#fff;font-weight:800;cursor:pointer">✅ Save Profile</button>
       </div>
-      
-      <div id="epErr" style="color:#ff3d7f;font-size:12px;text-align:center;min-height:18px;margin-bottom:8px"></div>
-      <button id="epSaveBtn" onclick="saveEProfile()" style="width:100%;background:var(--grad);border:none;border-radius:12px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">✅ Save</button>
-      <button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px;color:var(--m2);font-size:14px;cursor:pointer">Cancel</button>
     </div>`;
-  document.body.appendChild(modal);
+  document.body.appendChild(m);
+  m.addEventListener('click',e=>{if(e.target===m)m.remove();});
+  window._epEmoji=pr?.emoji||'😊';
+  window._epPhotoData=null;
 };
-let epNewPicFile=null,epSelEmoji=null;
-window.previewEPPic=(input)=>{
-  const file=input.files[0];if(!file)return;
-  epNewPicFile=file;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const prev=document.getElementById('epPicPrev');
-    if(prev)prev.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"><div style="position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:20px">📷</div>`;
+window.previewEPPic=async function(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=async ev=>{
+    const comp=await compImg(ev.target.result,0.6);
+    window._epPhotoData=comp;
+    const av=document.getElementById('ep-av');
+    if(av)av.innerHTML=`<img src="${comp}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    toast('📷 Photo ready!');
   };
-  reader.readAsDataURL(file);
+  r.readAsDataURL(f);
 };
-window.selectEPEmoji=(e,btn)=>{
-  epSelEmoji=e;
-  document.querySelectorAll('#epPicInput').forEach(()=>{});
-  btn.closest('div').querySelectorAll('button').forEach(b=>{b.style.background='none';b.style.border='2px solid transparent';});
-  btn.style.background='var(--c2)';btn.style.border='2px solid var(--a)';
+window.selectEPEmoji=function(e,btn){
+  window._epEmoji=e;
+  document.querySelectorAll('[data-ep-emoji]').forEach(b=>{b.style.background='var(--c2)';b.style.borderColor='var(--br)';});
+  if(btn){btn.style.background='var(--a)';btn.style.borderColor='var(--a)';}
 };
-window.saveEProfile=async()=>{
-  const name=document.getElementById('epName')?.value?.trim();
-  const bio=document.getElementById('epBio')?.value?.trim();
-  const err=document.getElementById('epErr');
-  const btn=document.getElementById('epSaveBtn');
-  if(!name||name.length<2){err.textContent='❌ Name must be at least 2 characters';return;}
-  btn.disabled=true;btn.textContent='⏳ Saving...';
+window.saveEProfile=async function(){
+  const name=document.getElementById('ep-name')?.value?.trim();
+  const bio=document.getElementById('ep-bio')?.value?.trim();
+  const err=document.getElementById('ep-err');
+  const btn=document.getElementById('ep-save-btn');
+  if(!name||name.length<2){if(err)err.textContent='❌ Name must be at least 2 characters';return;}
+  if(btn){btn.disabled=true;btn.textContent='⏳ Saving...';}
   try{
     let photoURL=pr?.photoURL||'';
-    // Upload new pic if selected
-    if(epNewPicFile){
-      const fd=new FormData();fd.append('image',epNewPicFile);
-      const r=await fetch('https://api.imgbb.com/1/upload?key=89cec845a8d100ca054d20f22607a334',{method:'POST',body:fd});
-      const j=await r.json();
-      if(j.success)photoURL=j.data.url;
+    if(window._epPhotoData){
+      toast('📤 Uploading photo...');
+      photoURL=await uploadToImgBB(window._epPhotoData);
     }
-    const emoji=epSelEmoji||pr?.emoji||'😊';
-    const updates={name,bio,emoji,photoURL};
-    pr={...pr,...updates};
-    await updateDoc(doc(DB,'users',me.uid),updates);
-    await updateProfile(AUTH.currentUser,{displayName:name});
-    // Update avatars
-    if(photoURL){
-      const ci=G('cpAv');if(ci)ci.innerHTML=`<img src="${photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-      const bi=G('bigAv');if(bi)bi.innerHTML=`<img src="${photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"><div class="big-av-edit">📷</div>`;
-    }else{
-      const ci=G('cpAv');if(ci)ci.textContent=emoji;
-      const bi=G('bigAv');if(bi)bi.innerHTML=`${emoji}<div class="big-av-edit">📷</div>`;
-    }
-    document.querySelector('div[style*="position:fixed"][style*="z-index:2000"]')?.remove();
+    const emoji=window._epEmoji||pr?.emoji||'😊';
+    await updateDoc(doc(DB,'users',me.uid),{name,bio:bio||'',emoji,photoURL});
+    await updateProfile(AUTH.currentUser,{displayName:name,photoURL:photoURL||''}).catch(()=>{});
+    pr={...pr,name,bio:bio||'',emoji,photoURL};
+    // Update UI
+    G('pNm').textContent=name;
+    G('pBio').textContent=bio||'';
+    G('bigAv').textContent=emoji;
+    G('cpAv').textContent=emoji;
+    if(photoURL){G('bigAv').innerHTML=`<img src="${photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;}
+    document.getElementById('ep-modal')?.remove();
     toast('✅ Profile updated!');
     loadProfile(me.uid);
-    epNewPicFile=null;epSelEmoji=null;
   }catch(e){
-    err.textContent='❌ '+e.message;
-    btn.disabled=false;btn.textContent='✅ Save';
+    if(err)err.textContent='Error: '+e.message;
+    if(btn){btn.disabled=false;btn.textContent='✅ Save Profile';}
   }
 };
 
@@ -2042,7 +1933,7 @@ window.sw=p=>{
       setTimeout(()=>G('mlPw')?.focus(),320);
     }else loadChatList();
   }
-  if(p==='reels'){window._reelsPage=0;loadReels();}
+  if(p==='reels')loadReels();
   if(p==='profile')loadProfile(me?.uid);
   if(p==='notif')loadNotifs();
   if(p==='settings')initTG();
@@ -2058,228 +1949,6 @@ document.addEventListener('click',e=>{
 });
 
 window.sharePost=async(id)=>{try{await navigator.share({title:'First Infinity',url:location.href});}catch{toast('📤 Share: '+location.href);}}
-// ── Open social apps with deep links ──
-window.openApp=function(app){
-  const links={
-    facebook:{
-      android:'fb://reels',
-      ios:'fb://reels',
-      web:'https://m.facebook.com/reels/'
-    },
-    youtube:{
-      android:'vnd.youtube://shorts',
-      ios:'vnd.youtube://shorts',
-      web:'https://m.youtube.com/shorts'
-    },
-    instagram:{
-      android:'instagram://reels',
-      ios:'instagram://reels',
-      web:'https://www.instagram.com/reels/'
-    },
-    tiktok:{
-      android:'snssdk1128://aweme/1/feed/?type=0',
-      ios:'tiktok://home',
-      web:'https://www.tiktok.com/'
-    }
-  };
-  const l=links[app];if(!l)return;
-  const isAndroid=/android/i.test(navigator.userAgent);
-  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  const deepLink=isAndroid?l.android:isIOS?l.ios:null;
-  if(deepLink){
-    // Try to open app, fallback to web after 1.5s
-    const fallback=setTimeout(()=>window.open(l.web,'_blank'),1500);
-    window.location.href=deepLink;
-    setTimeout(()=>clearTimeout(fallback),2000);
-  }else{
-    window.open(l.web,'_blank');
-  }
-};
-
-// ── Change Chat Password ──
-// ── Reset Chat Password (deletes ALL chats for privacy) ──
-window.resetChatPass=async()=>{
-  const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px)';
-  modal.innerHTML=`
-    <div style="background:var(--c1);border:1px solid rgba(255,61,127,.3);border-radius:24px;padding:28px 22px;width:100%;max-width:380px;box-shadow:0 40px 80px rgba(0,0,0,.7)">
-      <div style="font-size:32px;text-align:center;margin-bottom:8px">⚠️</div>
-      <div style="font-size:17px;font-weight:800;text-align:center;margin-bottom:6px;color:#ff3d7f">Password Reset</div>
-      <div style="font-size:13px;color:var(--m);text-align:center;margin-bottom:6px;line-height:1.6">
-        This will <b style="color:#ff3d7f">permanently delete ALL your chats & messages.</b><br>This is done to protect your privacy.
-      </div>
-      <div style="background:rgba(255,61,127,.1);border:1px solid rgba(255,61,127,.2);border-radius:12px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:#ff8fab;text-align:center">
-        🗑 All messages will be permanently deleted<br>Nobody can read them anymore
-      </div>
-      
-      <div style="font-size:11px;color:var(--m2);font-weight:700;margin-bottom:6px;letter-spacing:.5px">NEW CHAT PASSWORD</div>
-      <div style="position:relative;margin-bottom:14px">
-        <input id="rpNew" type="password" placeholder="New password (min 4 chars)..." style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 44px 12px 14px;color:var(--tx);font-size:14px;outline:none">
-        <button onclick="togglePw('rpNew',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px">👁</button>
-      </div>
-      
-      <div style="font-size:11px;color:var(--m2);font-weight:700;margin-bottom:6px;letter-spacing:.5px">CONFIRM PASSWORD</div>
-      <div style="position:relative;margin-bottom:8px">
-        <input id="rpNew2" type="password" placeholder="Confirm new password..." style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 44px 12px 14px;color:var(--tx);font-size:14px;outline:none">
-        <button onclick="togglePw('rpNew2',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px">👁</button>
-      </div>
-      
-      <div id="rpErr" style="color:#ff3d7f;font-size:12px;margin-bottom:14px;min-height:18px;text-align:center"></div>
-      
-      <button id="rpBtn" onclick="doResetChatPass()" style="width:100%;background:linear-gradient(135deg,#ff3d7f,#cc0055);border:none;border-radius:12px;padding:14px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px">🗑 Delete All Chats & Reset Password</button>
-      <button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px;color:var(--m2);font-size:14px;cursor:pointer">Cancel</button>
-    </div>`;
-  document.body.appendChild(modal);
-  setTimeout(()=>document.getElementById('rpNew')?.focus(),100);
-};
-
-window.doResetChatPass=async()=>{
-  const newP=document.getElementById('rpNew')?.value||'';
-  const newP2=document.getElementById('rpNew2')?.value||'';
-  const err=document.getElementById('rpErr');
-  const btn=document.getElementById('rpBtn');
-  
-  if(!newP||newP.length<4){err.textContent='❌ Minimum 4 characters required';return;}
-  if(newP!==newP2){err.textContent='❌ Passwords do not match!';return;}
-  
-  btn.disabled=true;btn.textContent='⏳ Deleting all chats...';
-  err.textContent='';
-  
-  try{
-    // Delete ALL chats where this user is involved
-    const chatsSnap=await getDocs(collection(DB,'chats'));
-    let deleted=0;
-    for(const chatDoc of chatsSnap.docs){
-      const key=chatDoc.id;
-      // Only delete chats involving this user
-      if(key.includes(me.uid)){
-        // Delete all messages in this chat
-        const msgsSnap=await getDocs(collection(DB,'chats',key,'messages'));
-        const batch=[];
-        msgsSnap.forEach(m=>batch.push(deleteDoc(doc(DB,'chats',key,'messages',m.id))));
-        await Promise.all(batch);
-        // Delete the chat document itself
-        await deleteDoc(doc(DB,'chats',key));
-        deleted++;
-      }
-    }
-    
-    btn.textContent='⏳ Setting new password...';
-    
-    // Update Firebase Auth password
-    const {updatePassword,reauthenticateWithCredential,EmailAuthProvider}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-    try{
-      await updatePassword(AUTH.currentUser,newP);
-    }catch(authErr){
-      // If reauthentication needed, try with saved pass
-      if(authErr.code==='auth/requires-recent-login'&&savedPass){
-        const em=(pr?.username||pr?.name||'').toLowerCase().replace(/\s+/g,'')+'@firstinfinity.app';
-        const cred=EmailAuthProvider.credential(em,savedPass);
-        await reauthenticateWithCredential(AUTH.currentUser,cred);
-        await updatePassword(AUTH.currentUser,newP);
-      }
-    }
-    
-    // Update local saved pass
-    savedPass=newP;
-    localStorage.setItem('fi_sp',newP);
-    chatLocked=false;
-    
-    // Close modal and lock screen
-    document.querySelector('div[style*="position:fixed"][style*="z-index:2000"]')?.remove();
-    G('msgLock').classList.remove('vis');
-    
-    toast('✅ Password reset! '+(deleted>0?deleted+'  chats deleted.':'')+ ' Privacy protected! 🔐');
-    
-    // Reload chat list
-    loadChatList();
-    
-  }catch(e){
-    btn.disabled=false;btn.textContent='🗑 Delete All Chats & Reset Password';
-    err.textContent='❌ Error: '+e.message;
-  }
-};
-
-window.changeChatPass=async()=>{
-  // Show a nice modal-style prompt
-  const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px)';
-  modal.innerHTML=`
-    <div style="background:var(--c1);border:1px solid var(--br);border-radius:24px;padding:28px 22px;width:100%;max-width:380px;box-shadow:0 40px 80px rgba(0,0,0,.7)">
-      <div style="font-size:24px;text-align:center;margin-bottom:4px">🔐</div>
-      <div style="font-size:18px;font-weight:800;text-align:center;margin-bottom:4px">Change Chat Password</div>
-      <div style="font-size:12px;color:var(--m);text-align:center;margin-bottom:20px">Set a new password for your Messenger lock</div>
-      
-      <div style="font-size:11px;color:var(--m2);font-weight:700;margin-bottom:6px;letter-spacing:.5px">CURRENT PASSWORD</div>
-      <div style="position:relative;margin-bottom:14px">
-        <input id="cpOld" type="password" placeholder="Old password..." style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 44px 12px 14px;color:var(--tx);font-size:14px;outline:none">
-        <button onclick="togglePw('cpOld',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px">👁</button>
-      </div>
-      
-      <div style="font-size:11px;color:var(--m2);font-weight:700;margin-bottom:6px;letter-spacing:.5px">NEW PASSWORD</div>
-      <div style="position:relative;margin-bottom:14px">
-        <input id="cpNew" type="password" placeholder="New password..." style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 44px 12px 14px;color:var(--tx);font-size:14px;outline:none">
-        <button onclick="togglePw('cpNew',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px">👁</button>
-      </div>
-      
-      <div style="font-size:11px;color:var(--m2);font-weight:700;margin-bottom:6px;letter-spacing:.5px">NEW PASSWORD CONFIRM PASSWORD</div>
-      <div style="position:relative;margin-bottom:8px">
-        <input id="cpNew2" type="password" placeholder="Confirm new password..." style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 44px 12px 14px;color:var(--tx);font-size:14px;outline:none">
-        <button onclick="togglePw('cpNew2',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px">👁</button>
-      </div>
-      
-      <div id="cpErr" style="color:#ff3d7f;font-size:12px;margin-bottom:12px;min-height:18px;text-align:center"></div>
-      
-      <button id="cpBtn" onclick="doChangeChatPass()" style="width:100%;background:var(--grad);border:none;border-radius:12px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">🔐 Change Password</button>
-      <button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px;color:var(--m2);font-size:14px;cursor:pointer">Cancel</button>
-    </div>`;
-  document.body.appendChild(modal);
-  setTimeout(()=>document.getElementById('cpOld')?.focus(),100);
-};
-
-window.doChangeChatPass=async()=>{
-  const oldP=document.getElementById('cpOld')?.value||'';
-  const newP=document.getElementById('cpNew')?.value||'';
-  const newP2=document.getElementById('cpNew2')?.value||'';
-  const err=document.getElementById('cpErr');
-  const btn=document.getElementById('cpBtn');
-  
-  if(!oldP){err.textContent='❌ Enter old password';return;}
-  if(!newP){err.textContent='❌ Enter new password';return;}
-  if(newP.length<4){err.textContent='❌ Minimum 4 characters required';return;}
-  if(newP!==newP2){err.textContent='❌ Passwords do not match!';return;}
-  
-  // Verify old password
-  const em=(pr?.username||pr?.name||'').toLowerCase().replace(/\s+/g,'')+'@firstinfinity.app';
-  btn.disabled=true;btn.textContent='⏳ Checking...';
-  try{
-    // Check if old password matches
-    if(oldP!==savedPass){
-      // Try Firebase auth
-      await signInWithEmailAndPassword(AUTH,em,oldP);
-    }
-    // Old password verified - now update
-    // Update Firebase Auth password
-    const {updatePassword}=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-    await updatePassword(AUTH.currentUser,newP);
-    // Update savedPass
-    savedPass=newP;
-    localStorage.setItem('fi_sp',newP);
-    // Close modal
-    document.querySelector('div[style*="position:fixed"][style*="z-index:2000"]')?.remove();
-    toast('✅ Chat password changed successfully!');
-  }catch(e){
-    btn.disabled=false;btn.textContent='🔐 Change Password';
-    if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
-      err.textContent='❌ Old password is wrong!';
-    }else if(e.code==='auth/weak-password'){
-      err.textContent='❌ Password must be at least 6 characters';
-    }else{
-      err.textContent='❌ Error: '+e.message;
-    }
-  }
-};
-
 window.doLogin=doLogin_;window.doReg=doReg_;window.doLogout=doLogout_;
 
 // ═══════════════════════════════════════════════════════
@@ -2316,275 +1985,155 @@ window.pickProfilePic=()=>{
   };i.click();
 };
 
-// ═══════════════════════════════════════════════════════
-// REELS (YouTube Shorts / Facebook Reels style)
-// ═══════════════════════════════════════════════════════
-const REEL_SOURCES=[
-  {title:'Funny Moments 😂',url:'https://youtube.com/shorts',src:'https://www.youtube.com/embed/HQoRXhS7vlU?autoplay=0&rel=0',thumb:'😂',cat:'Trending'},
-  {title:'Nature Vibes 🌿',url:'https://youtube.com/shorts',src:'https://www.youtube.com/embed/2Vv-BfVoq4g?autoplay=0&rel=0',thumb:'🌿',cat:'Nature'},
-  {title:'Cooking Tips 🍳',url:'https://youtube.com/shorts',src:'https://www.youtube.com/embed/r_ItP8Lqx4Q?autoplay=0&rel=0',thumb:'🍳',cat:'Food'},
-  {title:'Music Vibes 🎵',url:'https://youtube.com/shorts',src:'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&rel=0',thumb:'🎵',cat:'Music'},
-  {title:'Travel Goals ✈️',url:'https://youtube.com/shorts',src:'https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=0&rel=0',thumb:'✈️',cat:'Travel'},
-  {title:'Fitness 💪',url:'https://youtube.com/shorts',src:'https://www.youtube.com/embed/cbKkB3POqaY?autoplay=0&rel=0',thumb:'💪',cat:'Fitness'},
-  {title:'Tech Tips 💻',url:'https://youtube.com/shorts',src:'https://www.youtube.com/embed/LXb3EKWsInQ?autoplay=0&rel=0',thumb:'💻',cat:'Tech'},
-  {title:'Art & DIY 🎨',url:'https://youtube.com/shorts',src:'https://www.youtube.com/embed/AbSehcT19u0?autoplay=0&rel=0',thumb:'🎨',cat:'Creative'},
+// ═══════════════ REELS — Unlimited, No Repeat, Share to Chat ═══════════════
+const SHORTS_POOL=[
+  {id:'dQw4w9WgXcQ',title:'🎵 Classic Hit'},{id:'5qap5aO4i9A',title:'🎵 Lo-fi Beats'},
+  {id:'jfKfPfyJRdk',title:'🎵 Lofi Hip Hop'},{id:'lTRiuFIWV54',title:'🎵 Study Music'},
+  {id:'n61ULEU7CO0',title:'🎵 Chill Vibes'},{id:'kXYiU_JCYtU',title:'🎵 Nightcore Mix'},
+  {id:'1G4isv_Fylg',title:'🎵 Piano Chill'},{id:'pVeX4C9B3YY',title:'🎵 Ambient Mix'},
+  {id:'4xDzrJKXOOY',title:'🎵 Synthwave'},{id:'aJOTlE1K90k',title:'🎵 Deep Focus'},
+  {id:'CnkgKDyNF1Y',title:'🎵 Relaxing Music'},{id:'7NOSDKb0HlU',title:'🎵 Morning Vibes'},
+  {id:'yPYZpwSpKmA',title:'🎵 Jazz Hop'},{id:'DWcJFNfaw9c',title:'🎵 Chillhop'},
+  {id:'ZbZSe6N_BXs',title:'🎵 Happy Beats'},{id:'2vjPBrBU-TM',title:'🎵 Epic Music'},
+  {id:'y0XN7KFEBkE',title:'🎵 Gaming Music'},{id:'HlBKDYg31D8',title:'🎵 Trap Beats'},
+  {id:'XULUBg_ZcAY',title:'🎵 Bass Boosted'},{id:'tNkZsRW7h2c',title:'🎵 Phonk Music'},
+  {id:'21qNxnCS8WU',title:'🎵 Workout Mix'},{id:'wnHW6o8WMas',title:'🎵 Vlog Music'},
+  {id:'Dx5qFachd3A',title:'🎵 Background Music'},{id:'UceaB4D0jpo',title:'🎵 NCS Release'},
+  {id:'NkiRpuLWnKA',title:'🎵 Alan Walker'},{id:'rMnYFkAFKIs',title:'🎵 EDM Mix'},
+  {id:'8xg3vE8Ie_E',title:'🎵 Party Music'},{id:'yyDkOEeEBgg',title:'🎵 Bollywood Beats'},
+  {id:'LSOelm9FmUs',title:'🎵 Feel Good'},{id:'09R8_2nJtjg',title:'🎵 Maroon 5 Mix'},
+  {id:'60ItHLz5WEA',title:'🎵 Alan Walker-Faded'},{id:'Pt5vSCOLDog',title:'🎵 One Direction'},
+  {id:'JGwWNGJdvx8',title:'🎵 Ed Sheeran'},{id:'OPf0YbXqDm0',title:'🎵 Mark Ronson'},
+  {id:'kTJczUoc26U',title:'🎵 Shawn Mendes'},{id:'gdZLi9oWNZg',title:'🎵 Billie Eilish'},
+  {id:'hT_nvWreIhg',title:'🎵 Counting Stars'},{id:'CevxZvSJLk8',title:'🎵 Katy Perry'},
+  {id:'nfWlot6h_JM',title:'🎵 Taylor Swift'},{id:'YqeW9_5kURI',title:'🎵 Sam Smith'},
+  {id:'slNnMSKAMrQ',title:'🎵 Miley Cyrus'},{id:'PT2_F-1esPk',title:'🎵 Eminem'},
+  {id:'YykjpeuMNEk',title:'🎵 NF-Let You Down'},{id:'pRpeEdMmmQ0',title:'🎵 Shawn Mendes2'},
+  {id:'lp-EBllgBho',title:'🎵 Dua Lipa'},{id:'92BWAZzMNwQ',title:'🎵 Imagine Dragons'},
+  {id:'lYBUbBu4W08',title:'🎵 Linkin Park'},{id:'3JZ_D3ELwOQ',title:'🎵 Gorillaz'},
+  {id:'7wtfhZwyrcc',title:'🎵 Bruno Mars'},{id:'QkF3oxziUI4',title:'🎵 Charlie Puth'},
+  {id:'RgKAFK5djSk',title:'🎵 Wiz Khalifa'},{id:'w_hhKPa-DaA',title:'🎵 Justin Timberlake'},
+  {id:'OBHxuEuMFME',title:'🎵 Coldplay-Yellow'},{id:'d020hcWA_NI',title:'🎵 Adele-Hello'},
+  {id:'JKop_zCDVhk',title:'🎵 Bangla Song'},{id:'rRcU6Yl4BFc',title:'🎵 Pritom Hasan'},
+  {id:'KGpXQKhI7kA',title:'🎵 Habib-Moner Katha'},{id:'ByIAhwpDqfE',title:'🎵 Tahsan'},
+  {id:'9EsFYYZIqHU',title:'🎵 Imran-Shopno'},{id:'Pj-0dBtqiAY',title:'🎵 Nancy-Bangla'},
+  {id:'tgbNymZ7vqY',title:'🎵 Minecraft Music'},{id:'S8eBcK1MNao',title:'🎵 Game OST'},
+  {id:'e-ORhEE9VVg',title:'🎵 Cyberpunk Mix'},{id:'WiGC_9RM8-0',title:'🎵 City Pop'},
+  {id:'ulXU3oFlwZo',title:'🎵 K-Pop Hits'},{id:'CYEaI9y4Xgc',title:'🎵 BTS Mix'},
+  {id:'TT4PHY0CkDo',title:'🎵 BLACKPINK'},{id:'gdZLi9oWNZg',title:'🎵 Billie Eilish 2'},
+  {id:'h_D3VFfhvs4',title:'🎵 Smooth Jazz'},{id:'neV3EPgvZ3g',title:'🎵 Coffee Music'},
+  {id:'7maJOI3QMu0',title:'🎵 Classical Piano'},{id:'HMnrl0tmd3k',title:'🎵 Acoustic Guitar'},
+  {id:'2Vv-BfVoq4g',title:'🎵 Ed Sheeran Perfect'},{id:'nUsobB5JZGE',title:'🎵 Daft Punk'},
+  {id:'pB-5XG-DbAA',title:'🎵 Dance Mix'},{id:'hHW1oY26kxQ',title:'🎵 House Music'},
+  {id:'GNgVOJsIMKU',title:'🎵 Slow Motion Beats'},{id:'j5a0jTc9S10',title:'🎵 Night Drive'},
+  {id:'WPni755-Krg',title:'🎵 Future Bass'},{id:'EF_xdvn52As',title:'🎵 Tropical House'},
+  {id:'1ZYbU82GVz4',title:'🎵 Marshmello'},{id:'WWaLxFIVX1s',title:'🎵 R3HAB'},
+  {id:'IcrbM1l_BoI',title:'🎵 Avicii Tribute'},{id:'gCYcHz2k5x0',title:'🎵 DJ Snake'},
+  {id:'fJ9rUzIMcZQ',title:'🎵 Queen-Bohemian'},{id:'09R8_2nJtjg',title:'🎵 Pop Hits'},
+  {id:'OPf0YbXqDm0',title:'🎵 Uptown Funk'},{id:'y6Sxv-sUYtM',title:'🎵 Pop Mashup'},
 ];
 
-window.loadReels=()=>{
-  const feed=G('reelsFeed');
-  if(!feed)return;
-  feed.innerHTML='<div style="text-align:center;padding:40px;color:var(--m)">⏳ Loading Reels...</div>';
+// ── Track seen videos so they never repeat ──
+let _seenReels=new Set();
+let _reelQueue=[];
+let _reelCardIdx=0;
 
-  const ALL_YT_SHORTS=[
-    {id:'dQw4w9WgXcQ',title:'🎵 Music Vibes',cat:'Music'},
-    {id:'HQoRXhS7vlU',title:'😂 Funny Moments',cat:'Funny'},
-    {id:'2Vv-BfVoq4g',title:'🌿 Nature Vibes',cat:'Nature'},
-    {id:'LXb3EKWsInQ',title:'💻 Tech Tips',cat:'Tech'},
-    {id:'ScMzIvxBSi4',title:'✈️ Travel Goals',cat:'Travel'},
-    {id:'cbKkB3POqaY',title:'💪 Fitness',cat:'Fitness'},
-    {id:'9bZkp7q19f0',title:'🎶 K-Pop Vibes',cat:'Music'},
-    {id:'kffacxfA7G4',title:'🎸 Rock Music',cat:'Music'},
-    {id:'AbSehcT19u0',title:'🎨 Art & DIY',cat:'Creative'},
-    {id:'r_ItP8Lqx4Q',title:'🍳 Cooking Tips',cat:'Food'},
-    {id:'jNQXAC9IVRw',title:'🦁 Wildlife',cat:'Nature'},
-    {id:'OPf0YbXqDm0',title:'🎤 Pop Hits',cat:'Music'},
-    {id:'fJ9rUzIMcZQ',title:'🌊 Ocean Life',cat:'Nature'},
-    {id:'hT_nvWreIhg',title:'📚 Study Tips',cat:'Education'},
-    {id:'BQ0mxQXmLsk',title:'🏄 Surfing',cat:'Sports'},
-    {id:'M7lc1UVf-VE',title:'😂 Comedy Shorts',cat:'Funny'},
-    {id:'GNxaFNFpVak',title:'🍕 Food Hacks',cat:'Food'},
-    {id:'7PCkvCPvDXk',title:'🌸 K-Drama Clips',cat:'Drama'},
-    {id:'G7KNmW9a75Y',title:'🚀 Space Facts',cat:'Science'},
-    {id:'NhCO_wfGbTg',title:'💃 Dance Moves',cat:'Dance'},
-    {id:'y6120QOlsfU',title:'🎮 Gaming Shorts',cat:'Gaming'},
-    {id:'kJQP7kiw5Fk',title:'🇧🇩 Bangla Song',cat:'Music'},
-    {id:'09R8_2nJtjg',title:'🎵 Trending',cat:'Music'},
-    {id:'pRpeEdMmmQ0',title:'🌍 Travel Vlog',cat:'Travel'},
-    {id:'RgKAFK5djSk',title:'🎸 Guitar Solo',cat:'Music'},
-    {id:'60ItHLz5WEA',title:'🌺 Nature Walk',cat:'Nature'},
-    {id:'Ct6BUPvE2sY',title:'😂 Meme Compilation',cat:'Funny'},
-    {id:'450p7goxZqg',title:'🏋️ Workout',cat:'Fitness'},
-    {id:'hHW1oY26kxQ',title:'🍜 Cooking Shorts',cat:'Food'},
-    {id:'JGwWNGJdvx8',title:'🎵 EDM Drops',cat:'Music'},
-  ];
-  // Infinite scroll state
-  if(!window._reelsPage)window._reelsPage=0;
-  const PAGE_SIZE=5;
-  const startIdx=window._reelsPage*PAGE_SIZE;
-  const endIdx=startIdx+PAGE_SIZE;
-  // Shuffle for variety
-  if(window._reelsPage===0){ALL_YT_SHORTS.sort(()=>Math.random()-.5);}
-  const YT_SHORTS=ALL_YT_SHORTS.slice(startIdx%ALL_YT_SHORTS.length,(startIdx+PAGE_SIZE)%ALL_YT_SHORTS.length||PAGE_SIZE);
-
-  let h=`<div style="font-weight:800;font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px">
-    <span style="background:linear-gradient(135deg,#ff0000,#cc0000);border-radius:8px;padding:4px 12px;color:#fff;font-size:13px">▶ YouTube Shorts</span>
-    <span style="font-size:13px;color:var(--m);font-weight:400">— Watch inside the app</span>
-  </div>`;
-
-  YT_SHORTS.forEach((v,i)=>{
-    const shareUrl=`https://youtube.com/shorts/${v.id}`;
-    h+=`<div style="background:var(--c1);border:1px solid var(--br);border-radius:20px;margin-bottom:16px;overflow:hidden;box-shadow:var(--sh)">
-      
-      <!-- Thumbnail -->
-      <div id="yt-thumb-${i}" style="position:relative;cursor:pointer;background:#000;border-radius:20px 20px 0 0;overflow:hidden" onclick="playYT('${v.id}',${i})">
-        <img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" 
-          style="width:100%;height:230px;object-fit:cover;display:block;opacity:.85" loading="lazy"
-          onerror="this.style.display='none'">
-        <!-- Play overlay -->
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-          <div style="width:68px;height:68px;background:rgba(255,0,0,.92);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(255,0,0,.6)">
-            <span style="font-size:26px;margin-left:5px">▶</span>
-          </div>
-        </div>
-        <div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.7);border-radius:20px;padding:3px 10px;font-size:11px;color:#fff;font-weight:700">${v.cat}</div>
-        <div style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);border-radius:20px;padding:3px 10px;font-size:11px;color:#fff">▶ Play</div>
-      </div>
-
-      <!-- Video player (hidden until play) -->
-      <div id="yt-player-${i}" style="display:none">
-        <iframe 
-          src="https://www.youtube.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=1" 
-          style="width:100%;height:280px;border:none;display:block"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen loading="lazy">
-        </iframe>
-      </div>
-
-      <!-- Title & Share button only -->
-      <div style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-        <div style="font-weight:700;font-size:14px;flex:1">${v.title}</div>
-        <button onclick="shareReelToChat('${shareUrl}','${v.title}')" 
-          style="background:linear-gradient(135deg,var(--a),var(--a2));border:none;border-radius:20px;padding:8px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">
-          📤 Share
-        </button>
-      </div>
-    </div>`;
-  });
-
-  // App buttons
-  h+=`<div style="font-weight:800;font-size:15px;margin:4px 0 12px">📱 Open in Other Apps</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
-    <button onclick="openApp('facebook')" style="background:linear-gradient(135deg,#1877f2,#0d5dc4);border:none;border-radius:16px;padding:16px 10px;color:#fff;font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px">
-      <span style="font-size:28px">📘</span>Facebook Reels
-    </button>
-    <button onclick="openApp('instagram')" style="background:linear-gradient(135deg,#e1306c,#833ab4,#fcaf45);border:none;border-radius:16px;padding:16px 10px;color:#fff;font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px">
-      <span style="font-size:28px">📸</span>Instagram
-    </button>
-    <button onclick="openApp('youtube')" style="background:linear-gradient(135deg,#ff0000,#cc0000);border:none;border-radius:16px;padding:16px 10px;color:#fff;font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px">
-      <span style="font-size:28px">▶️</span>YouTube
-    </button>
-    <button onclick="openApp('tiktok')" style="background:linear-gradient(135deg,#010101,#69c9d0);border:none;border-radius:16px;padding:16px 10px;color:#fff;font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px">
-      <span style="font-size:28px">🎵</span>TikTok
-    </button>
-  </div>`;
-
-  // If first load, set full content; else append
-  if(window._reelsPage===0){
-    feed.innerHTML=h;
-  }else{
-    // Remove load more button if exists
-    feed.querySelector('#reelsLoadMore')?.remove();
-    feed.insertAdjacentHTML('beforeend',h);
+function _getNextReels(n){
+  // Refill queue if running low
+  if(_reelQueue.length<n){
+    // All seen? Reset
+    if(_seenReels.size>=SHORTS_POOL.length)_seenReels.clear();
+    const unseen=SHORTS_POOL.filter(v=>!_seenReels.has(v.id));
+    const shuffled=[...unseen].sort(()=>Math.random()-.5);
+    _reelQueue.push(...shuffled);
   }
-  
-  // Add Load More button
-  const loadMoreBtn=document.createElement('div');
-  loadMoreBtn.id='reelsLoadMore';
-  loadMoreBtn.innerHTML=`<button onclick="loadMoreReels()" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:16px;padding:16px;color:var(--tx);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:20px">⬇️ Load More Shorts</button>`;
-  feed.appendChild(loadMoreBtn);
-};
+  const batch=_reelQueue.splice(0,n);
+  batch.forEach(v=>_seenReels.add(v.id));
+  return batch;
+}
 
-window.loadMoreReels=()=>{
-  window._reelsPage=(window._reelsPage||0)+1;
-  loadReels();
-};
-
-// Play YouTube inside app (NO redirect to YouTube app)
-window.playYT=function(videoId,idx){
-  const thumb=G('yt-thumb-'+idx);
-  const player=G('yt-player-'+idx);
-  if(thumb)thumb.style.display='none';
-  if(player)player.style.display='block';
-};
-
-// Share reel link to messenger friend
-window.shareReelToChat=async(url,title)=>{
-  // Get friends list
-  const snap=await getDocs(collection(DB,'users'));
-  const friends=[];
-  snap.forEach(d=>{
-    const u=d.data();
-    if(d.id!==me?.uid)friends.push({uid:d.id,name:u.name||u.username,emoji:u.emoji||'😊'});
+window.loadReels=function(){
+  const feed=G('reelsFeed');if(!feed)return;
+  const batch=_getNextReels(5);
+  batch.forEach(v=>{
+    const idx=_reelCardIdx++;
+    const card=document.createElement('div');
+    card.style.cssText='background:var(--c1);border:1px solid var(--br);border-radius:16px;overflow:hidden;margin-bottom:12px';
+    card.innerHTML=`
+      <div id="reel-${idx}" style="position:relative;background:#000;min-height:220px;cursor:pointer;display:flex;align-items:center;justify-content:center" onclick="playYT('${v.id}',${idx})">
+        <img src="https://img.youtube.com/vi/${v.id}/mqdefault.jpg" style="width:100%;height:220px;object-fit:cover;display:block" loading="lazy" onerror="this.style.background='#111'">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3)">
+          <div style="width:60px;height:60px;background:rgba(255,61,127,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px">▶️</div>
+        </div>
+      </div>
+      <div style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <div style="font-weight:700;font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title}</div>
+        <button onclick="shareReelToChat('${v.id}','${v.title.replace(/'/g,'')}')" style="background:var(--grad);border:none;border-radius:20px;padding:8px 16px;color:#fff;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0">📤 Share</button>
+      </div>`;
+    feed.appendChild(card);
   });
-  if(!friends.length){toast('No friends yet!');return;}
+  // Auto-load more button
+  const existing=document.getElementById('reels-load-more');
+  if(existing)existing.remove();
+  const btn=document.createElement('div');
+  btn.id='reels-load-more';
+  btn.style.cssText='text-align:center;padding:16px';
+  btn.innerHTML=`<button onclick="loadReels()" style="background:var(--grad);border:none;border-radius:24px;padding:14px 40px;color:#fff;font-weight:800;font-size:15px;cursor:pointer">⬇️ Load More</button>`;
+  feed.appendChild(btn);
+};
 
-  // Show friend picker modal
+window.loadMoreReels=function(){loadReels();};
+
+window.playYT=function(videoId,idx){
+  const container=document.getElementById('reel-'+idx);
+  if(!container)return;
+  const src=`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&fs=1&cc_load_policy=0&iv_load_policy=3&color=white`;
+  container.innerHTML=`<iframe src="${src}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allow="autoplay;encrypted-media;picture-in-picture;fullscreen" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"></iframe>`;
+};
+
+// ── Share reel to friends via chat ──
+window.shareReelToChat=async function(videoId,title){
+  const snap=await getDocs(collection(DB,'users'));
+  const friends=pr?.friends||[];
+  if(!friends.length)return toast('No friends yet! Add friends first.');
   const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(10px)';
-  
-  let fHtml=friends.map(f=>`
-    <div onclick="sendReelMsg('${f.uid}','${url}','${(title||'').replace(/'/g,"\'")}',this)" 
-      style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:14px;cursor:pointer;transition:.2s;margin-bottom:4px"
-      onmouseover="this.style.background='var(--c2)'" onmouseout="this.style.background='none'">
-      <div style="width:42px;height:42px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${f.emoji}</div>
-      <div style="font-weight:700;font-size:15px">${f.name||'User'}</div>
-      <div style="margin-left:auto;font-size:12px;color:var(--m)">📤</div>
-    </div>`).join('');
-
-  modal.innerHTML=`
-    <div style="background:var(--c1);border-radius:28px 28px 0 0;width:100%;max-width:500px;padding:20px 16px 32px;max-height:70vh;overflow-y:auto">
-      <div style="width:40px;height:4px;background:var(--br);border-radius:2px;margin:0 auto 18px"></div>
-      <div style="font-weight:800;font-size:16px;margin-bottom:4px;text-align:center">📤 Share with...</div>
-      <div style="font-size:12px;color:var(--m);text-align:center;margin-bottom:16px">"${title}" — Send via Messenger</div>
-      ${fHtml}
-      <button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:14px;padding:13px;color:var(--m2);font-size:14px;cursor:pointer;margin-top:8px">Cancel</button>
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:3000;display:flex;align-items:flex-end;justify-content:center';
+  let html=`<div style="background:var(--c1);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px;max-height:70vh;overflow-y:auto">
+    <div style="font-weight:800;font-size:16px;margin-bottom:16px">📤 Share to Chat</div>
+    <div style="font-size:13px;color:var(--m);margin-bottom:12px">🎵 ${title}</div>`;
+  snap.forEach(d=>{
+    if(d.id===me.uid||!friends.includes(d.id))return;
+    const u=d.data();
+    html+=`<div onclick="doShareReel('${videoId}','${title.replace(/'/g,'')}','${d.id}',this)" style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;cursor:pointer;margin-bottom:6px;background:var(--c2)" class="share-item">
+      <div style="width:42px;height:42px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:20px">${u.emoji||'😊'}</div>
+      <div style="font-weight:700">${u.name}</div>
+      <div style="margin-left:auto;font-size:12px;color:var(--m)" id="sr-${d.id}">Tap to send</div>
     </div>`;
+  });
+  html+=`<button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;margin-top:12px;background:var(--c2);border:none;border-radius:14px;padding:14px;color:var(--tx);font-weight:700;font-size:14px;cursor:pointer">✖ Close</button></div>`;
+  modal.innerHTML=html;
+  modal.onclick=e=>{if(e.target===modal)modal.remove();};
   document.body.appendChild(modal);
 };
 
-window.sendReelMsg=async(toUid,url,title,el)=>{
-  if(!me||!toUid)return;
-  el.style.background='rgba(0,212,255,.15)';
-  el.innerHTML=el.innerHTML.replace('📤','✅');
-  const key=[me.uid,toUid].sort().join('_');
-  const msg={
-    text:`🎬 *${title}*
-${url}`,
-    from:me.uid,
-    to:toUid,
-    type:'reel',
-    createdAt:serverTimestamp(),
-    read:false
-  };
-  await addDoc(collection(DB,'chats',key,'messages'),msg);
-  await setDoc(doc(DB,'chats',key),{
-    users:[me.uid,toUid],
-    lastMsg:`🎬 ${title}`,
-    lastAt:serverTimestamp(),
-    [`unread_${toUid}`]:increment(1)
-  },{merge:true});
-  setTimeout(()=>{
-    document.querySelector('div[style*="position:fixed"][style*="z-index:2000"]')?.remove();
-    toast('✅ Reel sent!');
-  },600);
-};
-
-
-// Play YouTube video in-app
-window.playYT=function(videoId, idx){
-  const thumb=G('yt-thumb-'+idx);
-  const player=G('yt-player-'+idx);
-  if(thumb)thumb.style.display='none';
-  if(player)player.style.display='block';
-};
-
-
-// ═══════════════════════════════════════════════════════
-// COMMENT DELETE + EDIT
-// ═══════════════════════════════════════════════════════
-window.delCmt=async(postId,cmtId)=>{
-  if(!confirm('Delete this comment?'))return;
-  await deleteDoc(doc(DB,'posts',postId,'comments',cmtId));
-  const s=await getDoc(doc(DB,'posts',postId));
-  const cnt=s.data()?.commentCount||1;
-  await updateDoc(doc(DB,'posts',postId),{commentCount:Math.max(0,cnt-1)});
-  togCmt(postId);setTimeout(()=>togCmt(postId),100);
-  toast('Comment deleted');
-};
-
-window.editCmt=async(postId,cmtId)=>{
-  const cmtEl=G('cmt-'+cmtId);
-  const oldText=cmtEl?.querySelector('.c-tx')?.textContent||'';
-  const newText=prompt('Edit comment:',oldText);
-  if(!newText||newText.trim()===''||newText===oldText)return;
+window.doShareReel=async function(videoId,title,toUid,el){
+  const status=document.getElementById('sr-'+toUid);
+  if(status)status.textContent='Sending...';
   try{
-    await updateDoc(doc(DB,'posts',postId,'comments',cmtId),{text:newText.trim(),edited:true});
-    const ca=G('ca-'+postId);
-    if(ca){ca.classList.remove('open');setTimeout(()=>{ca.classList.add('open');togCmt(postId);},50);}
-    toast('✏️ Comment updated!');
-  }catch(e){toast('Error: '+e.message);}
+    const key=cKey(me.uid,toUid);
+    const url=`https://youtu.be/${videoId}`;
+    await addDoc(collection(DB,'chats',key,'messages'),{
+      text:`🎵 ${title}\n${url}`,
+      from:me.uid,readBy:[me.uid],reactions:{},isPinned:false,
+      type:'reel',reelId:videoId,reelTitle:title,
+      createdAt:serverTimestamp()
+    });
+    if(status){status.textContent='✅ Sent!';status.style.color='#4dff91';}
+    el.style.opacity='0.5';el.style.pointerEvents='none';
+  }catch(e){if(status)status.textContent='❌ Failed';}
 };
 
-// ═══════════════════════════════════════════════════════
-// LINK SHARING IN CHAT (auto-detect URLs)
-// ═══════════════════════════════════════════════════════
-function parseLinks(txt){
-  if(!txt)return txt;
-  return txt.replace(/(https?:\/\/[^\s<>"]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:#00d4ff;text-decoration:underline;word-break:break-all">$1</a>');
-}
 
 </script>
 </body>
 </html>
-// Set offline when page/tab closes
-window.addEventListener('beforeunload',()=>{
-  if(me?.uid)navigator.sendBeacon&&navigator.sendBeacon('/ping');
-  if(me?.uid)updateDoc(doc(DB,'users',me.uid),{isOnline:false,lastSeen:serverTimestamp()}).catch(()=>{});
-});
-// Heartbeat - every 30s update lastSeen while online
-setInterval(()=>{
-  if(me?.uid&&document.visibilityState==='visible'){
-    updateDoc(doc(DB,'users',me.uid),{isOnline:true,lastSeen:serverTimestamp()}).catch(()=>{});
-  }
-},30000);
-
