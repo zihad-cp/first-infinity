@@ -30,7 +30,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;c
 
 /* ── PERF: GPU layers for animated elements ── */
 .mw,.call-sc,.msg-lock,.ep,.inc-call,.chat-bubble{will-change:transform,opacity;}
-.topbar,.bnav{contain:layout style;}
+.topbar,.bnav{z-index:600;contain:layout style;}
 .post{contain:layout;}
 
 /* ── SMOOTH PAGE TRANSITIONS ── */
@@ -1302,13 +1302,14 @@ input:-webkit-autofill:focus {
       </div>
     </div>
     <!-- GAME SCREEN (fullscreen overlay) -->
-    <div id="gameScreen" style="display:none;position:fixed;inset:0;background:#000;z-index:500;flex-direction:column;">
-      <div id="gameHeader" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--c1);border-bottom:1px solid var(--br);">
-        <button onclick="closeGame()" style="background:none;border:none;color:var(--tx);font-size:24px;cursor:pointer;padding:4px;">‹</button>
+    <div id="gameScreen" style="display:none;position:fixed;inset:0;background:#111;z-index:490;flex-direction:column;">
+      <div id="gameHeader" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--c1);border-bottom:1px solid var(--br);flex-shrink:0;">
+        <button onclick="closeGame()" style="width:36px;height:36px;background:var(--c2);border:none;color:var(--tx);font-size:20px;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;">‹</button>
         <div id="gameTitle" style="font-size:16px;font-weight:800;flex:1;"></div>
         <div id="gameScore" style="font-size:14px;font-weight:700;color:var(--a);"></div>
+        <button onclick="closeGame();setTimeout(()=>openGame(window._gActive||'snake'),100)" id="gameRestartBtn" style="display:none;padding:6px 12px;background:var(--grad);border:none;color:#fff;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;">🔄 Restart</button>
       </div>
-      <div id="gameArea" style="flex:1;overflow:hidden;position:relative;"></div>
+      <div id="gameArea" style="flex:1;overflow:hidden;position:relative;background:#000;"></div>
     </div>
 
 
@@ -2741,7 +2742,8 @@ async function _pxFetch(){
       const url=vs.small?.url||vs.medium?.url||vs.large?.url||'';
       if(!url)continue;
       const id='px'+v.id;
-      if(_rvSeen.has(id)||_rvPool.some(p=>p.id===id))continue;
+      // Skip if already shown OR already in pool
+      if(_rvPool.some(p=>p.id===id))continue;
       _rvPool.push({id,url,title:`🎬 ${q.charAt(0).toUpperCase()+q.slice(1)} — First Infinity`,
         author:v.user||'Pixabay',likes:(v.likes||0)+Math.floor(Math.random()*9000+100),
         thumb:`https://i.vimeocdn.com/video/${v.picture_id}_640x360.jpg`});
@@ -2754,6 +2756,7 @@ let _rvLoaded=false, _rvMuted=true, _rvCur=0;
 let _rvSeen=new Set(), _rvPool=[], _rvLiked=new Set();
 let _rvSlides=[];   // array of slide data in DOM order
 let _rvAnimating=false;
+let _rvCycle=0;      // cycle counter — ensures unique DOM ids every cycle
 
 function _rvSeed(){
   const sh=[..._FB].sort(()=>Math.random()-.5);
@@ -2848,9 +2851,17 @@ function _rvMkSlide(data, pos){
 function _rvAddSlides(n=3){
   const feed=G('reelFeed');if(!feed)return;
   for(let i=0;i<n;i++){
-    if(!_rvPool.length){_rvSeen=new Set();_rvSeed();}
+    // Refill pool if empty — shuffle FB again (NO seen reset, use counter for unique DOM ids)
+    if(!_rvPool.length){
+      // Add shuffled FB pool — give each a fresh unique id so DOM ids are always unique
+      const sh=[..._FB].sort(()=>Math.random()-.5);
+      for(const v of sh){
+        // New pool entry with unique id each cycle
+        _rvPool.push({...v, id:v.id+'_c'+(_rvCycle++)});
+      }
+      _pxFetch(); // also try to get fresh API content
+    }
     const v=_rvPool.shift();if(!v)break;
-    _rvSeen.add(v.id);
     const pos=_rvSlides.length;
     _rvSlides.push(v);
     feed.appendChild(_rvMkSlide(v,pos));
@@ -3011,7 +3022,7 @@ window.loadReels=async function(){
     const cv=document.getElementById('rvv'+_rvCur);
     if(cv)cv.play().catch(()=>{});return;
   }
-  _rvLoaded=true; _rvCur=0; _rvSlides=[]; _rvPool=[]; _rvSeen=new Set(); _rvLiked=new Set();
+  _rvLoaded=true; _rvCur=0; _rvSlides=[]; _rvPool=[]; _rvSeen=new Set(); _rvLiked=new Set(); _rvCycle=0;
   const feed=G('reelFeed');if(!feed)return;
   feed.innerHTML='';
   _rvSeed();
@@ -4342,13 +4353,19 @@ window.loadGames = function() {
 };
 
 window.openGame = function(id) {
+  // Stop any previous game first
+  clearInterval(window._gLoop); clearInterval(window._gLoop2); clearTimeout(window._gTimer);
   _gActive = id;
+  window._gActive = id; // global for restart button
   const game = GAMES_LIST.find(g => g.id === id);
   if (!game) return;
   const gs = G('gameScreen');
   G('gameTitle').textContent = game.emoji + ' ' + game.name;
   G('gameScore').textContent = '';
   G('gameArea').innerHTML = '';
+  // Show restart button
+  const rb=G('gameRestartBtn');
+  if(rb){rb.style.display='flex';rb.onclick=()=>{clearInterval(window._gLoop);clearInterval(window._gLoop2);clearTimeout(window._gTimer);G('gameArea').innerHTML='';G('gameScore').textContent='';setTimeout(()=>openGame(id),50);};}
   gs.style.display = 'flex';
   // Init specific game
   const inits = {snake:_gSnake,ttt:_gTTT,memory:_gMemory,quiz:_gQuiz,g2048:_g2048,reaction:_gReaction,wordguess:_gWord,numslide:_gNumSlide};
@@ -4356,13 +4373,19 @@ window.openGame = function(id) {
 };
 
 window.closeGame = function() {
-  // Stop any running game loops
+  // Stop all game loops and timers
   clearInterval(window._gLoop);
+  clearInterval(window._gLoop2);
   clearTimeout(window._gTimer);
+  window._gLoop=null; window._gLoop2=null; window._gTimer=null;
+  // Clear game canvas/area
+  const area=G('gameArea');
+  if(area)area.innerHTML='';
+  // Hide game screen
   G('gameScreen').style.display = 'none';
   _gActive = null;
-  // Refresh scores on grid
-  loadGames();
+  // Make sure games page is visible and bottom nav works
+  sw('games');
 };
 
 function _gSaveScore(id, score) {
