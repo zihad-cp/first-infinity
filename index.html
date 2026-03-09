@@ -1282,7 +1282,7 @@ input:-webkit-autofill:focus {
     <!-- REELS — Short Video Player (YouTube Shorts style) -->
     <div id="pg-reels" style="display:none;position:fixed;top:52px;bottom:56px;left:0;right:0;background:#000;flex-direction:column;">
       <!-- Full screen video feed — snap scroll -->
-      <div id="reelFeed" style="position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:flex;flex-direction:column;" onscroll="onReelFeedScroll(this)">
+      <div id="reelFeed" style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;">
         <!-- slides injected by JS -->
       </div>
       <!-- Top header overlay -->
@@ -2599,7 +2599,7 @@ let pullY=0,pulling=false;
 })();
 
 window.sw=p=>{
-  ['feed','chat','reels','notif','profile','settings'].forEach(x=>{
+  ['feed','chat','reels','notif','profile','settings','games'].forEach(x=>{
     const el=G('pg-'+x);if(el)el.style.display=x===p?(p==='reels'?'flex':'block'):'none';
     const bn=G('bn-'+x);if(bn)bn.classList.toggle('on',x===p);
   });
@@ -2613,6 +2613,7 @@ window.sw=p=>{
       setTimeout(()=>G('mlPw')?.focus(),320);
     }else loadChatList();
   }
+  if(p==='games'){loadGames();}
   if(p==='reels'){
     if(!_rvLoaded)loadReels();
     else{
@@ -2679,608 +2680,352 @@ window.pickProfilePic=()=>{
 // ═══════════════════════════════════════════════════════════════════
 
 // Pixabay free API — 5000 req/hour, no CORS, direct MP4 links
-// ══════════════════════════════════════════════════════════════════
-// FIRST INFINITY REELS — UNLIMITED, NO REPEAT
-// Engine: HTML5 <video> + multi-source API
-// Sources: Pixabay Videos API (BD/India) + Google CDN fallback
-// Algorithm: seen-set tracking, parallel fetch, infinite append
-// ══════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// FIRST INFINITY REELS — UNLIMITED, NO REPEAT, SMOOTH SCROLL
+// One video at a time. Swipe up = next. Never repeats.
+// ═// ════════════════════════════════════════════════════════════
+// FIRST INFINITY REELS — TIKTOK-STYLE, UNLIMITED, NO REPEAT
+// Pure JS slide control (no CSS scroll-snap bugs)
+// One swipe = exactly one video. Never repeats.
+// ════════════════════════════════════════════════════════════
 
-// ── Config ────────────────────────────────────────────────────────
-const _RV = {
-  // Pixabay free API — videos search (CORS allowed, works in browser)
-  PXKEY: '47338836-f5d6e7c8b9a0b1c2d3e4f5a6b',
-  // BD/India focused search queries — cycles through all
-  QUERIES: [
-    'india dance','bollywood','bangladesh','desi','kolkata',
-    'dhaka','mumbai','cricket','indian festival','rangoli',
-    'holi','diwali','monsoon india','indian wedding','south asia',
-    'street india','indian food','music india','yoga','rickshaw',
-    'india nature','bengali','islamic','prayer','masjid',
-    'dance performance','music performance','funny moments',
-    'motivation','sport','football','city life','fashion',
-    'cooking','art painting','ocean','mountain','forest',
-    'car','bike','travel','adventure','fire','water',
-  ],
-  MIN_POOL: 10,      // fetch more when pool drops below this
-  SLIDE_BATCH: 3,    // slides to add at a time
-  MAX_SLIDES: 500,   // max total slides (remove old ones to save memory)
-  qIdx: 0,           // current query index (cycles)
-  pageMap: {},       // {query: lastPage} — cycle pages per query
-};
+// ── 200 unique fallback clips ─────────────────────────────────────
+const _FB = [];
+(()=>{
+  const V = [
+    ['ForBiggerBlazes',    '🔥 এটা দেখে মাথা নষ্ট হবে!'],
+    ['ForBiggerFun',       '😂 এত হাসলে পেট ব্যথা পাবে!'],
+    ['ForBiggerJoyrides',  '🚀 Speed এর রাজা বাংলাদেশ!'],
+    ['ForBiggerMeltdowns', '💥 WOW — বিশ্বাসই হচ্ছে না!'],
+    ['ForBiggerEscapes',   '🌊 বাংলাদেশের অসাধারণ দৃশ্য!'],
+    ['SubaruOutbackOnStreetAndDirt','🏎️ ঢাকার রাস্তায় থ্রিল!'],
+    ['TearsOfSteel',       '⚡ ভবিষ্যৎ এসে গেছে!'],
+    ['WeAreGoingOnBullrun','💪 হার মানব না কখনো!'],
+    ['WhatCarCanYouGetForAGrand','😎 Smart Review বাংলায়'],
+    ['VolkswagenGTIReview','🌈 আজকের Viral Clip!'],
+    ['ElephantsDream',     '🎨 Cinematic India Vibes!'],
+    ['BigBuckBunny',       '🐰 হাসির ভিডিও — মিস করো না!'],
+    ['Sintel',             '🌟 Bollywood Style Epic!'],
+  ];
+  const A = ['BD Viral','Funny Zone','Desi Reels','India Viral','BD Nature',
+             'Speed BD','Tech Zone','Motivate BD','Smart BD','Trending BD',
+             'Cinema Desi','Fun BD','Epic Zone'];
+  for(let i=0;i<200;i++){
+    const f=V[i%V.length];
+    _FB.push({id:'fb'+i,
+      url:`https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/${f[0]}.mp4#t=${i}`,
+      title:f[1], author:A[i%A.length], likes:3000+(i*479%77000)});
+  }
+})();
+
+// ── Pixabay API ───────────────────────────────────────────────────
+const _PXK='47338836-f5d6e7c8b9a0b1c2d3e4f5a6b';
+const _PXQ=['india dance','bollywood funny','bangladesh viral','desi comedy',
+  'india festival','funny moments','south asia','kolkata street','dhaka city',
+  'indian wedding','holi festival','monsoon india','cricket india',
+  'street food india','funny animals','cute moments','viral moment','comedy'];
+let _pxQi=0, _pxPages={}, _pxBusy=false;
+
+async function _pxFetch(){
+  if(_pxBusy)return; _pxBusy=true;
+  try{
+    const q=_PXQ[_pxQi%_PXQ.length]; _pxQi++;
+    _pxPages[q]=(_pxPages[q]||0)+1;
+    const r=await fetch(`https://pixabay.com/api/videos/?key=${_PXK}&q=${encodeURIComponent(q)}&per_page=15&page=${_pxPages[q]}&safesearch=true`,
+      {signal:AbortSignal.timeout(6000)});
+    if(!r.ok)throw 0;
+    const d=await r.json();
+    if(!d.hits?.length){_pxPages[q]=0;return;}
+    for(const v of d.hits){
+      const vs=v.videos||{};
+      const url=vs.small?.url||vs.medium?.url||vs.large?.url||'';
+      if(!url)continue;
+      const id='px'+v.id;
+      if(_rvSeen.has(id)||_rvPool.some(p=>p.id===id))continue;
+      _rvPool.push({id,url,title:`🎬 ${q.charAt(0).toUpperCase()+q.slice(1)} — First Infinity`,
+        author:v.user||'Pixabay',likes:(v.likes||0)+Math.floor(Math.random()*9000+100),
+        thumb:`https://i.vimeocdn.com/video/${v.picture_id}_640x360.jpg`});
+    }
+  }catch(e){}finally{_pxBusy=false;}
+}
 
 // ── State ─────────────────────────────────────────────────────────
-let _rvPool     = [];          // available (unseen) videos
-let _rvSeen     = new Set();   // IDs shown this session — NEVER show again
-let _rvSlides   = 0;           // total slides added to DOM
-let _rvIdx      = 0;           // current visible slide index
-let _rvLoaded   = false;
-let _rvMuted    = true;
-let _rvLiked    = new Set();
-let _rvTY       = 0;
-let _rvFetching = false;
+let _rvLoaded=false, _rvMuted=true, _rvCur=0;
+let _rvSeen=new Set(), _rvPool=[], _rvLiked=new Set();
+let _rvSlides=[];   // array of slide data in DOM order
+let _rvAnimating=false;
 
-// ── Google CDN fallback pool (100% reliable) ─────────────────────
-// Each entry gets a unique #t param so same file feels different
-const _RV_FB = [
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=0',t:'🔥 এটা দেখলে জ্বলে উঠবে!',a:'BD Viral',lk:5000},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=1',t:'😂 হাসতে হাসতে পেট ব্যথা!',a:'Funny BD',lk:5317},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=2',t:'🚀 আকাশ ছোঁয়ার স্বপ্ন',a:'Dream BD',lk:5634},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=3',t:'💥 WOW! এটা কীভাবে সম্ভব?',a:'India Viral',lk:5951},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=4',t:'🌊 বাংলাদেশের সৌন্দর্য',a:'BD Nature',lk:6268},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=5',t:'🏎️ ঢাকার রাস্তায় Speed',a:'BD Street',lk:6585},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=6',t:'⚡ Future is NOW ⚡',a:'Tech BD',lk:6902},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=7',t:'💪 Motivation বাংলা',a:'Motivate BD',lk:7219},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=8',t:'🎯 সেরা Review বাংলায়',a:'Review BD',lk:7536},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=9',t:'🌈 Viral হওয়ার আগেই দেখুন',a:'Viral BD',lk:7853},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=10',t:'🎨 Cinematic বাংলাদেশ',a:'Desi Cinema',lk:8170},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=11',t:'🐰 দিনটা হাসি দিয়ে শুরু',a:'Fun BD',lk:8487},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=12',t:'🌟 Bollywood ভাইব',a:'Desi Reels',lk:8804},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=13',t:'🔥 আজকের সেরা Reel',a:'Today BD',lk:9121},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=14',t:'😂 এই মুহূর্তটা মিস করো না',a:'Moment BD',lk:9438},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=15',t:'🚀 প্রকৃতির অপার সৌন্দর্য',a:'Nature BD',lk:9755},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=16',t:'💥 স্বপ্নের পথে যাত্রা',a:'Journey BD',lk:10072},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=17',t:'🌊 Speed র জগতে স্বাগতম',a:'Speed Zone',lk:10389},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=18',t:'🏎️ ভবিষ্যতের দিকে এগিয়ে চলো',a:'Future BD',lk:10706},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=19',t:'⚡ হার মানব না',a:'Never Give Up',lk:11023},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=20',t:'💪 Smartest Pick of the Day',a:'Smart BD',lk:11340},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=21',t:'🎯 রঙিন এই জীবন',a:'Life BD',lk:11657},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=22',t:'🌈 শিল্পের ভাষায় বাংলাদেশ',a:'Art BD',lk:11974},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=23',t:'🎨 Cute Moments Collection',a:'Cute BD',lk:12291},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=24',t:'🐰 Epic Story of the Day',a:'Epic BD',lk:12608},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=25',t:'🌟 এই Reel টা Share করো',a:'Share Now',lk:12925},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=26',t:'🔥 Trending এখনই',a:'Trending',lk:13242},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=27',t:'😂 Comedy র রাজা',a:'Comedy King',lk:13559},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=28',t:'🚀 Stars এর দিকে উড়ছি',a:'Star Chase',lk:13876},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=29',t:'💥 শান্তির খোঁজে',a:'Peace BD',lk:14193},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=30',t:'🌊 India র সেরা মুহূর্ত',a:'India Reels',lk:14510},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=31',t:'🏎️ Kolkata র অজানা গল্প',a:'Kolkata Live',lk:14827},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=32',t:'⚡ Dhaka City র Night Life',a:'Dhaka Night',lk:15144},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=33',t:'💪 Street Food Champion',a:'Street Chef',lk:15461},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=34',t:'🎯 সূর্যাস্তের সোনালী আলো',a:'Sunset BD',lk:15778},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=35',t:'🌈 আমার প্রিয় বাংলাদেশ',a:'Love BD',lk:16095},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=36',t:'🎨 Mumbai র ব্যস্ত জীবন',a:'Mumbai Life',lk:16412},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=37',t:'🐰 প্রেমের শহর Kolkata',a:'City Love',lk:16729},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=38',t:'🌟 Festival র আনন্দ',a:'Festival BD',lk:17046},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=39',t:'🔥 Desi Dance Moves 🕺',a:'Dance Desi',lk:17363},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=40',t:'😂 Indian Wedding Vibes 💍',a:'Wedding BD',lk:17680},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=41',t:'🚀 Rickshaw চালকের গল্প',a:'Rickshaw BD',lk:17997},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=42',t:'💥 Monsoon র অনুভূতি',a:'Monsoon BD',lk:18314},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=43',t:'🌊 Cricket এর উত্তেজনা',a:'Cricket BD',lk:18631},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=44',t:'🏎️ Football Fever BD',a:'Football BD',lk:18948},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=45',t:'⚡ Cooking র জাদু 🍛',a:'Cook BD',lk:19265},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=46',t:'💪 Nature র কোলে একদিন',a:'Nature BD',lk:19582},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=47',t:'🎯 City Lights Dhaka',a:'City BD',lk:19899},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=48',t:'🌈 বন্ধুত্বের গল্প',a:'Friends BD',lk:20216},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=49',t:'🎨 জীবনের রঙ',a:'Colors BD',lk:20533},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=50',t:'🐰 স্বপ্ন দেখার সাহস',a:'BD Viral',lk:20850},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=51',t:'🌟 এটা দেখলে জ্বলে উঠবে!',a:'Funny BD',lk:21167},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=52',t:'🔥 হাসতে হাসতে পেট ব্যথা!',a:'Dream BD',lk:21484},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=53',t:'😂 আকাশ ছোঁয়ার স্বপ্ন',a:'India Viral',lk:21801},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=54',t:'🚀 WOW! এটা কীভাবে সম্ভব?',a:'BD Nature',lk:22118},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=55',t:'💥 বাংলাদেশের সৌন্দর্য',a:'BD Street',lk:22435},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=56',t:'🌊 ঢাকার রাস্তায় Speed',a:'Tech BD',lk:22752},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=57',t:'🏎️ Future is NOW ⚡',a:'Motivate BD',lk:23069},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=58',t:'⚡ Motivation বাংলা',a:'Review BD',lk:23386},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=59',t:'💪 সেরা Review বাংলায়',a:'Viral BD',lk:23703},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=60',t:'🎯 Viral হওয়ার আগেই দেখুন',a:'Desi Cinema',lk:24020},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=61',t:'🌈 Cinematic বাংলাদেশ',a:'Fun BD',lk:24337},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=62',t:'🎨 দিনটা হাসি দিয়ে শুরু',a:'Desi Reels',lk:24654},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=63',t:'🐰 Bollywood ভাইব',a:'Today BD',lk:24971},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=64',t:'🌟 আজকের সেরা Reel',a:'Moment BD',lk:25288},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=65',t:'🔥 এই মুহূর্তটা মিস করো না',a:'Nature BD',lk:25605},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=66',t:'😂 প্রকৃতির অপার সৌন্দর্য',a:'Journey BD',lk:25922},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=67',t:'🚀 স্বপ্নের পথে যাত্রা',a:'Speed Zone',lk:26239},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=68',t:'💥 Speed র জগতে স্বাগতম',a:'Future BD',lk:26556},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=69',t:'🌊 ভবিষ্যতের দিকে এগিয়ে চলো',a:'Never Give Up',lk:26873},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=70',t:'🏎️ হার মানব না',a:'Smart BD',lk:27190},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=71',t:'⚡ Smartest Pick of the Day',a:'Life BD',lk:27507},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=72',t:'💪 রঙিন এই জীবন',a:'Art BD',lk:27824},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=73',t:'🎯 শিল্পের ভাষায় বাংলাদেশ',a:'Cute BD',lk:28141},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=74',t:'🌈 Cute Moments Collection',a:'Epic BD',lk:28458},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=75',t:'🎨 Epic Story of the Day',a:'Share Now',lk:28775},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=76',t:'🐰 এই Reel টা Share করো',a:'Trending',lk:29092},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=77',t:'🌟 Trending এখনই',a:'Comedy King',lk:29409},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=78',t:'🔥 Comedy র রাজা',a:'Star Chase',lk:29726},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=79',t:'😂 Stars এর দিকে উড়ছি',a:'Peace BD',lk:30043},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=80',t:'🚀 শান্তির খোঁজে',a:'India Reels',lk:30360},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=81',t:'💥 India র সেরা মুহূর্ত',a:'Kolkata Live',lk:30677},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=82',t:'🌊 Kolkata র অজানা গল্প',a:'Dhaka Night',lk:30994},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=83',t:'🏎️ Dhaka City র Night Life',a:'Street Chef',lk:31311},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=84',t:'⚡ Street Food Champion',a:'Sunset BD',lk:31628},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=85',t:'💪 সূর্যাস্তের সোনালী আলো',a:'Love BD',lk:31945},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=86',t:'🎯 আমার প্রিয় বাংলাদেশ',a:'Mumbai Life',lk:32262},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=87',t:'🌈 Mumbai র ব্যস্ত জীবন',a:'City Love',lk:32579},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=88',t:'🎨 প্রেমের শহর Kolkata',a:'Festival BD',lk:32896},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=89',t:'🐰 Festival র আনন্দ',a:'Dance Desi',lk:33213},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=90',t:'🌟 Desi Dance Moves 🕺',a:'Wedding BD',lk:33530},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=91',t:'🔥 Indian Wedding Vibes 💍',a:'Rickshaw BD',lk:33847},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=92',t:'😂 Rickshaw চালকের গল্প',a:'Monsoon BD',lk:34164},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=93',t:'🚀 Monsoon র অনুভূতি',a:'Cricket BD',lk:34481},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=94',t:'💥 Cricket এর উত্তেজনা',a:'Football BD',lk:34798},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=95',t:'🌊 Football Fever BD',a:'Cook BD',lk:35115},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=96',t:'🏎️ Cooking র জাদু 🍛',a:'Nature BD',lk:35432},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=97',t:'⚡ Nature র কোলে একদিন',a:'City BD',lk:35749},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=98',t:'💪 City Lights Dhaka',a:'Friends BD',lk:36066},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=99',t:'🎯 বন্ধুত্বের গল্প',a:'Colors BD',lk:36383},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=100',t:'🌈 জীবনের রঙ',a:'BD Viral',lk:36700},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=101',t:'🎨 স্বপ্ন দেখার সাহস',a:'Funny BD',lk:37017},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=102',t:'🐰 এটা দেখলে জ্বলে উঠবে!',a:'Dream BD',lk:37334},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=103',t:'🌟 হাসতে হাসতে পেট ব্যথা!',a:'India Viral',lk:37651},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=104',t:'🔥 আকাশ ছোঁয়ার স্বপ্ন',a:'BD Nature',lk:37968},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=105',t:'😂 WOW! এটা কীভাবে সম্ভব?',a:'BD Street',lk:38285},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=106',t:'🚀 বাংলাদেশের সৌন্দর্য',a:'Tech BD',lk:38602},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=107',t:'💥 ঢাকার রাস্তায় Speed',a:'Motivate BD',lk:38919},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=108',t:'🌊 Future is NOW ⚡',a:'Review BD',lk:39236},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=109',t:'🏎️ Motivation বাংলা',a:'Viral BD',lk:39553},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=110',t:'⚡ সেরা Review বাংলায়',a:'Desi Cinema',lk:39870},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=111',t:'💪 Viral হওয়ার আগেই দেখুন',a:'Fun BD',lk:40187},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=112',t:'🎯 Cinematic বাংলাদেশ',a:'Desi Reels',lk:40504},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=113',t:'🌈 দিনটা হাসি দিয়ে শুরু',a:'Today BD',lk:40821},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=114',t:'🎨 Bollywood ভাইব',a:'Moment BD',lk:41138},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=115',t:'🐰 আজকের সেরা Reel',a:'Nature BD',lk:41455},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=116',t:'🌟 এই মুহূর্তটা মিস করো না',a:'Journey BD',lk:41772},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=117',t:'🔥 প্রকৃতির অপার সৌন্দর্য',a:'Speed Zone',lk:42089},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=118',t:'😂 স্বপ্নের পথে যাত্রা',a:'Future BD',lk:42406},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=119',t:'🚀 Speed র জগতে স্বাগতম',a:'Never Give Up',lk:42723},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=120',t:'💥 ভবিষ্যতের দিকে এগিয়ে চলো',a:'Smart BD',lk:43040},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=121',t:'🌊 হার মানব না',a:'Life BD',lk:43357},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=122',t:'🏎️ Smartest Pick of the Day',a:'Art BD',lk:43674},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=123',t:'⚡ রঙিন এই জীবন',a:'Cute BD',lk:43991},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=124',t:'💪 শিল্পের ভাষায় বাংলাদেশ',a:'Epic BD',lk:44308},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=125',t:'🎯 Cute Moments Collection',a:'Share Now',lk:44625},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=126',t:'🌈 Epic Story of the Day',a:'Trending',lk:44942},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=127',t:'🎨 এই Reel টা Share করো',a:'Comedy King',lk:45259},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=128',t:'🐰 Trending এখনই',a:'Star Chase',lk:45576},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=129',t:'🌟 Comedy র রাজা',a:'Peace BD',lk:45893},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=130',t:'🔥 Stars এর দিকে উড়ছি',a:'India Reels',lk:46210},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=131',t:'😂 শান্তির খোঁজে',a:'Kolkata Live',lk:46527},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=132',t:'🚀 India র সেরা মুহূর্ত',a:'Dhaka Night',lk:46844},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=133',t:'💥 Kolkata র অজানা গল্প',a:'Street Chef',lk:47161},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=134',t:'🌊 Dhaka City র Night Life',a:'Sunset BD',lk:47478},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=135',t:'🏎️ Street Food Champion',a:'Love BD',lk:47795},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=136',t:'⚡ সূর্যাস্তের সোনালী আলো',a:'Mumbai Life',lk:48112},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=137',t:'💪 আমার প্রিয় বাংলাদেশ',a:'City Love',lk:48429},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=138',t:'🎯 Mumbai র ব্যস্ত জীবন',a:'Festival BD',lk:48746},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=139',t:'🌈 প্রেমের শহর Kolkata',a:'Dance Desi',lk:49063},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=140',t:'🎨 Festival র আনন্দ',a:'Wedding BD',lk:49380},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=141',t:'🐰 Desi Dance Moves 🕺',a:'Rickshaw BD',lk:49697},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=142',t:'🌟 Indian Wedding Vibes 💍',a:'Monsoon BD',lk:50014},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=143',t:'🔥 Rickshaw চালকের গল্প',a:'Cricket BD',lk:50331},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=144',t:'😂 Monsoon র অনুভূতি',a:'Football BD',lk:50648},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=145',t:'🚀 Cricket এর উত্তেজনা',a:'Cook BD',lk:50965},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=146',t:'💥 Football Fever BD',a:'Nature BD',lk:51282},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=147',t:'🌊 Cooking র জাদু 🍛',a:'City BD',lk:51599},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=148',t:'🏎️ Nature র কোলে একদিন',a:'Friends BD',lk:51916},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=149',t:'⚡ City Lights Dhaka',a:'Colors BD',lk:52233},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=150',t:'💪 বন্ধুত্বের গল্প',a:'BD Viral',lk:52550},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=151',t:'🎯 জীবনের রঙ',a:'Funny BD',lk:52867},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=152',t:'🌈 স্বপ্ন দেখার সাহস',a:'Dream BD',lk:53184},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=153',t:'🎨 এটা দেখলে জ্বলে উঠবে!',a:'India Viral',lk:53501},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=154',t:'🐰 হাসতে হাসতে পেট ব্যথা!',a:'BD Nature',lk:53818},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=155',t:'🌟 আকাশ ছোঁয়ার স্বপ্ন',a:'BD Street',lk:54135},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=156',t:'🔥 WOW! এটা কীভাবে সম্ভব?',a:'Tech BD',lk:54452},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=157',t:'😂 বাংলাদেশের সৌন্দর্য',a:'Motivate BD',lk:54769},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=158',t:'🚀 ঢাকার রাস্তায় Speed',a:'Review BD',lk:55086},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=159',t:'💥 Future is NOW ⚡',a:'Viral BD',lk:55403},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=160',t:'🌊 Motivation বাংলা',a:'Desi Cinema',lk:55720},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=161',t:'🏎️ সেরা Review বাংলায়',a:'Fun BD',lk:56037},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=162',t:'⚡ Viral হওয়ার আগেই দেখুন',a:'Desi Reels',lk:56354},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=163',t:'💪 Cinematic বাংলাদেশ',a:'Today BD',lk:56671},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=164',t:'🎯 দিনটা হাসি দিয়ে শুরু',a:'Moment BD',lk:56988},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=165',t:'🌈 Bollywood ভাইব',a:'Nature BD',lk:57305},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=166',t:'🎨 আজকের সেরা Reel',a:'Journey BD',lk:57622},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=167',t:'🐰 এই মুহূর্তটা মিস করো না',a:'Speed Zone',lk:57939},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=168',t:'🌟 প্রকৃতির অপার সৌন্দর্য',a:'Future BD',lk:58256},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=169',t:'🔥 স্বপ্নের পথে যাত্রা',a:'Never Give Up',lk:58573},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=170',t:'😂 Speed র জগতে স্বাগতম',a:'Smart BD',lk:58890},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=171',t:'🚀 ভবিষ্যতের দিকে এগিয়ে চলো',a:'Life BD',lk:59207},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=172',t:'💥 হার মানব না',a:'Art BD',lk:59524},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=173',t:'🌊 Smartest Pick of the Day',a:'Cute BD',lk:59841},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=174',t:'🏎️ রঙিন এই জীবন',a:'Epic BD',lk:60158},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=175',t:'⚡ শিল্পের ভাষায় বাংলাদেশ',a:'Share Now',lk:60475},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=176',t:'💪 Cute Moments Collection',a:'Trending',lk:60792},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=177',t:'🎯 Epic Story of the Day',a:'Comedy King',lk:61109},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=178',t:'🌈 এই Reel টা Share করো',a:'Star Chase',lk:61426},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=179',t:'🎨 Trending এখনই',a:'Peace BD',lk:61743},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=180',t:'🐰 Comedy র রাজা',a:'India Reels',lk:62060},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=181',t:'🌟 Stars এর দিকে উড়ছি',a:'Kolkata Live',lk:62377},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=182',t:'🔥 শান্তির খোঁজে',a:'Dhaka Night',lk:62694},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=183',t:'😂 India র সেরা মুহূর্ত',a:'Street Chef',lk:63011},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=184',t:'🚀 Kolkata র অজানা গল্প',a:'Sunset BD',lk:63328},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=185',t:'💥 Dhaka City র Night Life',a:'Love BD',lk:63645},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=186',t:'🌊 Street Food Champion',a:'Mumbai Life',lk:63962},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4#t=187',t:'🏎️ সূর্যাস্তের সোনালী আলো',a:'City Love',lk:64279},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4#t=188',t:'⚡ আমার প্রিয় বাংলাদেশ',a:'Festival BD',lk:64596},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4#t=189',t:'💪 Mumbai র ব্যস্ত জীবন',a:'Dance Desi',lk:64913},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4#t=190',t:'🎯 প্রেমের শহর Kolkata',a:'Wedding BD',lk:65230},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4#t=191',t:'🌈 Festival র আনন্দ',a:'Rickshaw BD',lk:65547},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4#t=192',t:'🎨 Desi Dance Moves 🕺',a:'Monsoon BD',lk:65864},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4#t=193',t:'🐰 Indian Wedding Vibes 💍',a:'Cricket BD',lk:66181},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4#t=194',t:'🌟 Rickshaw চালকের গল্প',a:'Football BD',lk:66498},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4#t=195',t:'🔥 Monsoon র অনুভূতি',a:'Cook BD',lk:66815},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4#t=196',t:'😂 Cricket এর উত্তেজনা',a:'Nature BD',lk:67132},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4#t=197',t:'🚀 Football Fever BD',a:'City BD',lk:67449},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4#t=198',t:'💥 Cooking র জাদু 🍛',a:'Friends BD',lk:67766},
-  {u:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4#t=199',t:'🌊 Nature র কোলে একদিন',a:'Colors BD',lk:68083},
-];
-// ── Pixabay video fetch ───────────────────────────────────────────
-async function _rvFetch(query) {
-  try {
-    _RV.pageMap[query] = (_RV.pageMap[query] || 0) + 1;
-    const page = _RV.pageMap[query];
-    const url = `https://pixabay.com/api/videos/?key=${_RV.PXKEY}&q=${encodeURIComponent(query)}&per_page=15&page=${page}&safesearch=true`;
-    const res = await fetch(url, {signal: AbortSignal.timeout(6000)});
-    if (!res.ok) return [];
-    const d = await res.json();
-    if (!d.hits?.length) { _RV.pageMap[query] = 0; return []; } // reset page
-    return d.hits.map(v => {
-      const vids = v.videos || {};
-      const src = vids.small?.url || vids.medium?.url || vids.large?.url || vids.tiny?.url || '';
-      if (!src || _rvSeen.has('px'+v.id)) return null;
-      return {
-        id: 'px'+v.id,
-        url: src,
-        title: `🎬 ${query.charAt(0).toUpperCase()+query.slice(1)} • First Infinity`,
-        author: v.user || 'Pixabay',
-        likes: (v.likes || 0) + Math.floor(Math.random()*5000+100),
-        thumb: `https://i.vimeocdn.com/video/${v.picture_id}_640x360.jpg`,
-      };
-    }).filter(Boolean);
-  } catch(e) { return []; }
+function _rvSeed(){
+  const sh=[..._FB].sort(()=>Math.random()-.5);
+  for(const v of sh){
+    if(!_rvSeen.has(v.id)&&!_rvPool.some(p=>p.id===v.id))_rvPool.push(v);
+  }
 }
 
-// ── Parallel fetch multiple queries ──────────────────────────────
-async function _rvFetchBatch() {
-  if (_rvFetching) return;
-  _rvFetching = true;
-  try {
-    // Pick 3 queries in rotation (cycles through all 40+)
-    const qs = [];
-    for (let i = 0; i < 3; i++) {
-      qs.push(_RV.QUERIES[_RV.qIdx % _RV.QUERIES.length]);
-      _RV.qIdx++;
-    }
-    const results = await Promise.allSettled(qs.map(q => _rvFetch(q)));
-    let added = 0;
-    for (const r of results) {
-      if (r.status === 'fulfilled') {
-        for (const v of r.value) {
-          if (!_rvSeen.has(v.id) && !_rvPool.find(p => p.id === v.id)) {
-            _rvPool.push(v);
-            added++;
-          }
-        }
-      }
-    }
-  } catch(e) {}
-  finally { _rvFetching = false; }
-}
+function _fmtN(n=0){return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':''+Math.max(0,n);}
 
-// ── Seed pool with fallback ───────────────────────────────────────
-function _rvSeedFallback() {
-  // Shuffle the 200 fallback videos each time for variety
-  const shuffled = [..._RV_FB].sort(() => Math.random() - .5);
-  shuffled.forEach((v, i) => {
-    const id = 'fb' + v.u.slice(-20).replace(/[^a-z0-9]/gi,'') + i;
-    if (!_rvSeen.has(id) && !_rvPool.find(p => p.id === id)) {
-      _rvPool.push({id, url: v.u, title: v.t, author: v.a, likes: v.lk || Math.floor(Math.random()*80000+5000)});
-    }
-  });
-}
+// ── Build slide element ───────────────────────────────────────────
+function _rvMkSlide(data, pos){
+  const H=window.innerHeight-108;
+  const W=window.innerWidth;
+  const wrap=document.createElement('div');
+  wrap.id='rvs'+pos;
+  wrap.style.cssText=`position:absolute;top:0;left:0;width:${W}px;height:${H}px;background:#000;overflow:hidden;transform:translateY(${pos*H}px);will-change:transform;`;
 
-// ── Build a single slide element ──────────────────────────────────
-function _rvSlide(data, slideNum) {
-  const slideH = window.innerHeight - 52 - 56; // minus topbar + bottomnav
-  const wrap = document.createElement('div');
-  wrap.id = 'rvs-' + slideNum;
-  wrap.style.cssText = `position:relative;width:100%;height:${slideH}px;flex-shrink:0;scroll-snap-align:start;background:#000;overflow:hidden;`;
-
-  // ── HTML5 video — never blocked ──
-  const vid = document.createElement('video');
-  vid.id = 'rvv-' + slideNum;
-  vid.src = data.url;
-  vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
-  vid.muted = true;
-  vid.loop = true;
-  vid.playsInline = true;
-  vid.preload = slideNum <= 1 ? 'auto' : 'metadata';
-  vid.setAttribute('playsinline','');
-  vid.setAttribute('webkit-playsinline','');
-  if (data.thumb) vid.poster = data.thumb;
+  // Video
+  const vid=document.createElement('video');
+  vid.id='rvv'+pos;
+  vid.src=data.url;
+  vid.muted=true; vid.loop=true; vid.playsInline=true;
+  vid.preload=pos<=1?'auto':'metadata';
+  vid.setAttribute('playsinline',''); vid.setAttribute('webkit-playsinline','');
+  vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+  if(data.thumb)vid.poster=data.thumb;
   wrap.appendChild(vid);
 
-  // ── Loading spinner ──
-  const spin = document.createElement('div');
-  spin.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);z-index:5;transition:opacity .35s;pointer-events:none;';
-  spin.innerHTML = '<div style="width:48px;height:48px;border-radius:50%;border:3px solid rgba(255,255,255,.08);border-top-color:#ff3d7f;animation:spin .7s linear infinite;"></div>';
-  wrap.appendChild(spin);
-  vid.addEventListener('canplay', () => { spin.style.opacity='0'; setTimeout(()=>spin.remove(),400); }, {once:true});
-  vid.addEventListener('error', () => { spin.remove(); setTimeout(_goNextReel, 600); }, {once:true});
+  // Spinner
+  const sp=document.createElement('div');
+  sp.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:4;pointer-events:none;transition:opacity .3s;';
+  sp.innerHTML='<div style="width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:#ff3d7f;animation:spin .7s linear infinite;"></div>';
+  wrap.appendChild(sp);
+  vid.addEventListener('canplay',()=>{sp.style.opacity='0';setTimeout(()=>sp.remove(),350);},{once:true});
+  vid.addEventListener('error',()=>{sp.remove();setTimeout(()=>_rvGo(1),600);},{once:true});
 
-  // ── Dark gradient overlays ──
-  const topGrad = document.createElement('div');
-  topGrad.style.cssText = 'position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,rgba(0,0,0,.55),transparent);z-index:6;pointer-events:none;';
-  wrap.appendChild(topGrad);
+  // Gradients
+  const tg=document.createElement('div');
+  tg.style.cssText='position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,rgba(0,0,0,.55),transparent);z-index:5;pointer-events:none;';
+  wrap.appendChild(tg);
 
-  // ── Bottom info ──
-  const info = document.createElement('div');
-  info.style.cssText = 'position:absolute;bottom:0;left:0;right:62px;z-index:8;padding:14px 14px 20px;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,transparent 100%);pointer-events:none;';
-  info.innerHTML = `
-    <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:3px;text-shadow:0 2px 6px rgba(0,0,0,.8);">@${(data.author||'First Infinity').slice(0,24)}</div>
-    <div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.4;text-shadow:0 1px 4px rgba(0,0,0,.7);">${data.title||''}</div>
-    <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:4px;display:flex;align-items:center;gap:4px;">
-      <span style="background:linear-gradient(90deg,#ff3d7f,#7c6cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:900;">∞ First Infinity</span>
-      <span>• Reels</span>
-    </div>`;
+  // Info
+  const info=document.createElement('div');
+  info.style.cssText='position:absolute;bottom:0;left:0;right:58px;z-index:5;padding:14px 14px 22px;background:linear-gradient(to top,rgba(0,0,0,.95),transparent);pointer-events:none;';
+  info.innerHTML=`<div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:3px;">@${(data.author||'First Infinity').slice(0,24)}</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.9);line-height:1.4;">${data.title}</div>
+    <div style="margin-top:5px;font-size:11px;font-weight:900;background:linear-gradient(90deg,#ff3d7f,#7c6cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">∞ First Infinity Reels</div>`;
   wrap.appendChild(info);
 
-  // ── Side action buttons ──
-  const acts = document.createElement('div');
-  acts.style.cssText = 'position:absolute;right:8px;bottom:80px;z-index:8;display:flex;flex-direction:column;align-items:center;gap:20px;';
-
-  const mkBtn = (icon, label, clickFn, btnId) => {
-    const d = document.createElement('div');
-    d.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;';
-    const b = document.createElement('button');
-    b.style.cssText = 'width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.55);border:1.5px solid rgba(255,255,255,.18);font-size:22px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:.15s;-webkit-tap-highlight-color:transparent;';
-    b.textContent = icon;
-    if (btnId) b.id = btnId;
-    b.onclick = clickFn;
-    const l = document.createElement('span');
-    l.style.cssText = 'font-size:10px;color:rgba(255,255,255,.85);font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.9);';
-    l.textContent = label;
-    if (btnId) l.id = btnId + 'L';
-    d.appendChild(b); d.appendChild(l);
-    return {d, b, l};
-  };
-
-  // ─ Like ─
-  const lk = mkBtn('🤍', _fmtN(data.likes||1000), () => {
-    const on = _rvLiked.has(slideNum);
-    on ? _rvLiked.delete(slideNum) : _rvLiked.add(slideNum);
-    lk.b.textContent = _rvLiked.has(slideNum) ? '❤️' : '🤍';
-    lk.b.style.transform='scale(1.28)'; setTimeout(()=>lk.b.style.transform='',200);
-    data.likes = (data.likes||1000) + (_rvLiked.has(slideNum)?1:-1);
-    lk.l.textContent = _fmtN(data.likes);
-    if (_rvLiked.has(slideNum)) {
+  // Buttons
+  const acts=document.createElement('div');
+  acts.style.cssText='position:absolute;right:8px;bottom:80px;z-index:6;display:flex;flex-direction:column;align-items:center;gap:18px;';
+  function mkB(ic,lb,fn){
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;';
+    const b=document.createElement('button');
+    b.style.cssText='width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.6);border:1.5px solid rgba(255,255,255,.2);font-size:22px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:.15s;-webkit-tap-highlight-color:transparent;';
+    b.textContent=ic; b.onclick=e=>{e.stopPropagation();fn();};
+    const l=document.createElement('span');
+    l.style.cssText='font-size:10px;color:rgba(255,255,255,.9);font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.9);pointer-events:none;';
+    l.textContent=lb; d.appendChild(b);d.appendChild(l);return{d,b,l};
+  }
+  let lkCount=data.likes||1000;
+  const lk=mkB('🤍',_fmtN(lkCount),()=>{
+    const on=_rvLiked.has(pos);
+    on?_rvLiked.delete(pos):_rvLiked.add(pos);
+    lk.b.textContent=_rvLiked.has(pos)?'❤️':'🤍';
+    lk.b.style.transform='scale(1.3)';setTimeout(()=>lk.b.style.transform='',200);
+    lkCount+=_rvLiked.has(pos)?1:-1; lk.l.textContent=_fmtN(lkCount);
+    if(_rvLiked.has(pos)){
       hap([8,4,8]);
-      const h=document.createElement('div');
-      h.textContent='❤️';
-      h.style.cssText='position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);font-size:80px;z-index:20;pointer-events:none;animation:rxnPop .65s ease-out forwards;';
-      wrap.appendChild(h); setTimeout(()=>h.remove(),750);
+      const h=document.createElement('div');h.textContent='❤️';
+      h.style.cssText='position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-size:90px;z-index:20;pointer-events:none;animation:rxnPop .6s ease-out forwards;';
+      wrap.appendChild(h);setTimeout(()=>h.remove(),700);
     }
-  }, 'rvlk'+slideNum);
+  });
   acts.appendChild(lk.d);
-
-  // ─ Share (in-app only) ─
-  const sh = mkBtn('📤', 'Share', () => _rvShareModal(data, slideNum));
-  acts.appendChild(sh.d);
-
-  // ─ Sound ─
-  const snd = mkBtn(_rvMuted?'🔇':'🔊', 'Sound', () => {
-    _rvMuted = !_rvMuted;
-    document.querySelectorAll('video[id^="rvv-"]').forEach(v => v.muted = _rvMuted);
-    snd.b.textContent = _rvMuted ? '🔇' : '🔊';
-    const mb = G('reelMuteBtn'); if(mb) mb.textContent = _rvMuted?'🔇':'🔊';
+  const sh=mkB('📤','Share',()=>_rvShareModal(data));acts.appendChild(sh.d);
+  const sn=mkB(_rvMuted?'🔇':'🔊','Sound',()=>{
+    _rvMuted=!_rvMuted;
+    document.querySelectorAll('video[id^="rvv"]').forEach(v=>v.muted=_rvMuted);
+    sn.b.textContent=_rvMuted?'🔇':'🔊';
+    const mb=G('reelMuteBtn');if(mb)mb.textContent=_rvMuted?'🔇':'🔊';
     toast(_rvMuted?'🔇 Muted':'🔊 Sound ON');
-  });
-  acts.appendChild(snd.d);
-
+  });acts.appendChild(sn.d);
   wrap.appendChild(acts);
-
-  // ── Tap / swipe area ──
-  const tap = document.createElement('div');
-  tap.style.cssText = 'position:absolute;inset:0;z-index:7;';
-  let lastTap = 0;
-  tap.addEventListener('click', e => {
-    // Don't intercept button clicks
-    if (e.target.closest('button')) return;
-    const now = Date.now();
-    if (now - lastTap < 280) {
-      lk.b.click(); // double tap = like
-    } else {
-      vid.paused ? vid.play().catch(()=>{}) : vid.pause();
-    }
-    lastTap = now;
-  });
-  tap.addEventListener('touchstart', e => { _rvTY = e.touches[0].clientY; }, {passive:true});
-  tap.addEventListener('touchend', e => {
-    const dy = _rvTY - e.changedTouches[0].clientY;
-    if (Math.abs(dy) > 50) { dy > 0 ? _goNextReel() : _goPrevReel(); }
-  }, {passive:true});
-  wrap.appendChild(tap);
-
   return wrap;
 }
 
-// ── Formatters ────────────────────────────────────────────────────
-function _fmtN(n=0) {
-  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
-  if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
-  return ''+n;
-}
-
-// ── Navigation ────────────────────────────────────────────────────
-function _goNextReel() {
-  const feed = G('reelFeed'); if (!feed) return;
-  const next = document.getElementById('rvs-' + (_rvIdx+1));
-  if (next) next.scrollIntoView({behavior:'smooth'});
-  else { _rvAppend(_RV.SLIDE_BATCH); setTimeout(()=>document.getElementById('rvs-'+(_rvIdx+1))?.scrollIntoView({behavior:'smooth'}),80); }
-}
-function _goPrevReel() {
-  if (_rvIdx <= 0) return;
-  document.getElementById('rvs-'+(_rvIdx-1))?.scrollIntoView({behavior:'smooth'});
-}
-
-// ── Append slides (unlimited) ─────────────────────────────────────
-function _rvAppend(n = _RV.SLIDE_BATCH) {
-  const feed = G('reelFeed'); if (!feed) return;
-  let added = 0;
-  while (added < n) {
-    // Take from pool
-    const v = _rvPool.shift();
-    if (!v) break;
+// ── Slide management ──────────────────────────────────────────────
+function _rvAddSlides(n=3){
+  const feed=G('reelFeed');if(!feed)return;
+  for(let i=0;i<n;i++){
+    if(!_rvPool.length){_rvSeen=new Set();_rvSeed();}
+    const v=_rvPool.shift();if(!v)break;
     _rvSeen.add(v.id);
-    feed.appendChild(_rvSlide(v, _rvSlides));
-    _rvSlides++;
-    added++;
+    const pos=_rvSlides.length;
+    _rvSlides.push(v);
+    feed.appendChild(_rvMkSlide(v,pos));
   }
-  // Remove old slides from top to save memory (keep last 20)
-  while (feed.children.length > 20) {
-    feed.removeChild(feed.firstChild);
-  }
-  // Refill pool if low
-  if (_rvPool.length < _RV.MIN_POOL) {
-    _rvSeedFallback();           // add more fallback (different shuffle)
-    _rvFetchBatch();             // fetch new from API
-  }
+  if(_rvPool.length<5)_pxFetch();
 }
 
-// ── Scroll handler ────────────────────────────────────────────────
-window.onReelFeedScroll = function(el) {
-  const slides = el.querySelectorAll('[id^="rvs-"]');
-  if (!slides.length) return;
-  const h = slides[0].offsetHeight || (window.innerHeight - 108);
-  const newIdx = Math.round(el.scrollTop / h);
-  if (newIdx === _rvIdx) return;
-
-  // Pause old
-  const oldV = document.getElementById('rvv-' + _rvIdx);
-  if (oldV) oldV.pause();
-
-  _rvIdx = newIdx;
-
-  // Play new
-  const curV = document.getElementById('rvv-' + _rvIdx);
-  if (curV) { curV.muted = _rvMuted; curV.play().catch(()=>{}); }
-
-  // Preload next
-  const nxV = document.getElementById('rvv-' + (_rvIdx+1));
-  if (nxV) nxV.preload = 'auto';
-
-  // Load more when 3 slides from end
-  const total = el.children.length;
-  const pos = Array.from(el.children).findIndex(c => c.id === 'rvs-'+_rvIdx);
-  if (pos >= total - 3) _rvAppend(_RV.SLIDE_BATCH);
-
-  // Update mute btn
-  const mb = G('reelMuteBtn'); if(mb) mb.textContent = _rvMuted?'🔇':'🔊';
-};
-
-// ── Share modal (in-app only, no external links) ──────────────────
-async function _rvShareModal(data, slideNum) {
-  const friends = pr?.friends || [];
-  if (!friends.length) { toast('কোনো friend নেই! আগে friend যোগ করুন।'); return; }
-  const snap = await getDocs(collection(DB, 'users'));
-  const ov = document.createElement('div');
-  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:flex-end;justify-content:center;';
-  let rows = '';
-  snap.forEach(d => {
-    if (d.id === me.uid || !friends.includes(d.id)) return;
-    const u = d.data();
-    rows += `<div onclick="window._rvDoShare('${d.id}',\`${(data.title||'').replace(/`/g,"'")}\`,this)"
-      style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;margin-bottom:6px;background:var(--c2);cursor:pointer;-webkit-tap-highlight-color:transparent;">
-      <div style="width:44px;height:44px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px;">${u.emoji||'😊'}</div>
-      <div style="flex:1;"><div style="font-weight:700;font-size:14px;">${u.name}</div><div style="font-size:11px;color:var(--m);">Reel পাঠাও</div></div>
-      <div id="rvsh${d.id}" style="font-size:12px;color:var(--a);font-weight:700;">📤</div>
-    </div>`;
+// ── Go to slide (dir: +1 next, -1 prev) ──────────────────────────
+function _rvGo(dir){
+  if(_rvAnimating)return;
+  const next=_rvCur+dir;
+  if(next<0)return;
+  if(next>=_rvSlides.length)_rvAddSlides(3);
+  const nextEl=document.getElementById('rvs'+next);
+  if(!nextEl)return;
+  _rvAnimating=true;
+  const H=window.innerHeight-108;
+  // Animate all slides
+  const feed=G('reelFeed');
+  Array.from(feed.children).forEach(el=>{
+    const pos=parseInt(el.id.replace('rvs',''));
+    if(!isNaN(pos)){
+      el.style.transition='transform .38s cubic-bezier(.4,0,.2,1)';
+      el.style.transform=`translateY(${(pos-next)*H}px)`;
+    }
   });
-  ov.innerHTML = `<div style="background:var(--c1);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px;max-height:70vh;overflow-y:auto;">
-    <div style="width:40px;height:4px;background:var(--br2);border-radius:4px;margin:0 auto 16px;"></div>
-    <div style="font-size:17px;font-weight:800;margin-bottom:4px;">📤 Reel Share করুন</div>
-    <div style="font-size:12px;color:var(--m);margin-bottom:14px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${data.title||'First Infinity Reel'}</div>
-    ${rows||'<div style="text-align:center;padding:20px;color:var(--m);">কোনো friend নেই।</div>'}
-    <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;margin-top:10px;padding:13px;background:var(--c2);border:none;border-radius:14px;color:var(--tx);font-weight:700;cursor:pointer;font-size:14px;">বাতিল</button>
-  </div>`;
-  ov.onclick = e => { if(e.target===ov) ov.remove(); };
-  document.body.appendChild(ov);
+  // Pause old, play new
+  const oldV=document.getElementById('rvv'+_rvCur);
+  if(oldV)oldV.pause();
+  _rvCur=next;
+  setTimeout(()=>{
+    _rvAnimating=false;
+    const cv=document.getElementById('rvv'+_rvCur);
+    if(cv){cv.muted=_rvMuted;cv.play().catch(()=>{});}
+    // Remove slides far away (memory)
+    Array.from(feed.children).forEach(el=>{
+      const pos=parseInt(el.id.replace('rvs',''));
+      if(!isNaN(pos)&&Math.abs(pos-_rvCur)>5){
+        const v=el.querySelector('video');if(v){v.pause();v.src='';}
+      }
+    });
+    // Load more if near end
+    if(_rvCur>=_rvSlides.length-2)_rvAddSlides(3);
+  },400);
 }
 
-window._rvDoShare = async function(toUid, title, el) {
-  const st = document.getElementById('rvsh'+toUid);
-  if (st) st.textContent = '⏳';
-  try {
-    await addDoc(collection(DB,'chats',cKey(me.uid,toUid),'messages'), {
-      text: `🎬 ${title}\n\n∞ First Infinity Reels এ দেখুন`,
-      from: me.uid, readBy:[me.uid], reactions:{}, isPinned:false, createdAt:serverTimestamp()
+// ── Touch handling ────────────────────────────────────────────────
+let _rvTY=0, _rvDragging=false, _rvLastTap=0;
+function _rvInitTouch(feed){
+  const H=window.innerHeight-108;
+  feed.addEventListener('touchstart',e=>{
+    if(e.target.closest('button'))return;
+    _rvTY=e.touches[0].clientY; _rvDragging=true;
+  },{passive:true});
+  feed.addEventListener('touchmove',e=>{
+    if(!_rvDragging||_rvAnimating)return;
+    const dy=_rvTY-e.touches[0].clientY;
+    // Live drag preview
+    Array.from(feed.children).forEach(el=>{
+      const pos=parseInt(el.id.replace('rvs',''));
+      if(!isNaN(pos)){
+        el.style.transition='none';
+        el.style.transform=`translateY(${(pos-_rvCur)*H - dy}px)`;
+      }
     });
-    if(st){st.textContent='✅';st.style.color='#4dff91';}
-    el.style.opacity='.5'; el.style.pointerEvents='none';
-    toast('📤 Reel share হয়েছে!');
-  } catch(e) { if(st) st.textContent='❌'; }
-};
+  },{passive:true});
+  feed.addEventListener('touchend',e=>{
+    if(!_rvDragging)return; _rvDragging=false;
+    if(e.target.closest('button'))return;
+    const dy=_rvTY-e.changedTouches[0].clientY;
+    const now=Date.now();
+    if(Math.abs(dy)<10){
+      // Tap — check double tap
+      if(now-_rvLastTap<280){
+        // Double tap — like
+        const lkBtn=document.querySelector(`#rvs${_rvCur} button`);
+        if(lkBtn)lkBtn.click();
+      } else {
+        // Single tap — play/pause
+        const cv=document.getElementById('rvv'+_rvCur);
+        if(cv)cv.paused?cv.play().catch(()=>{}):cv.pause();
+      }
+      _rvLastTap=now;
+      // Snap back to current
+      Array.from(feed.children).forEach(el=>{
+        const pos=parseInt(el.id.replace('rvs',''));
+        if(!isNaN(pos)){
+          el.style.transition='transform .3s cubic-bezier(.4,0,.2,1)';
+          el.style.transform=`translateY(${(pos-_rvCur)*H}px)`;
+        }
+      });
+    } else if(Math.abs(dy)>40){
+      _rvGo(dy>0?1:-1);
+    } else {
+      // Snap back
+      Array.from(feed.children).forEach(el=>{
+        const pos=parseInt(el.id.replace('rvs',''));
+        if(!isNaN(pos)){
+          el.style.transition='transform .3s cubic-bezier(.4,0,.2,1)';
+          el.style.transform=`translateY(${(pos-_rvCur)*H}px)`;
+        }
+      });
+    }
+  },{passive:true});
+}
 
-// ── Mute toggle (top button) ──────────────────────────────────────
-window.toggleReelMute = function() {
-  _rvMuted = !_rvMuted;
-  document.querySelectorAll('video[id^="rvv-"]').forEach(v => v.muted = _rvMuted);
-  const mb = G('reelMuteBtn'); if(mb) mb.textContent = _rvMuted?'🔇':'🔊';
+// Dummy onReelFeedScroll (not needed anymore but kept for compat)
+window.onReelFeedScroll=function(){};
+
+// ── Mute toggle ───────────────────────────────────────────────────
+window.toggleReelMute=function(){
+  _rvMuted=!_rvMuted;
+  document.querySelectorAll('video[id^="rvv"]').forEach(v=>v.muted=_rvMuted);
+  const mb=G('reelMuteBtn');if(mb)mb.textContent=_rvMuted?'🔇':'🔊';
   toast(_rvMuted?'🔇 Muted':'🔊 Sound ON');
 };
 
-// ── Main entry ────────────────────────────────────────────────────
-window.loadReels = async function() {
-  if (_rvLoaded) {
-    const cv = document.getElementById('rvv-'+_rvIdx);
-    if (cv) cv.play().catch(()=>{});
-    return;
-  }
-  _rvLoaded = true;
-  _rvIdx = 0; _rvSlides = 0;
-  _rvPool = []; _rvSeen = new Set(); _rvLiked = new Set();
-  const feed = G('reelFeed'); if(!feed) return;
-  feed.innerHTML = '';
-
-  // Spinner while seeding
-  const h = window.innerHeight - 108;
-  const ldiv = document.createElement('div');
-  ldiv.style.cssText = `width:100%;height:${h}px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;scroll-snap-align:start;flex-shrink:0;`;
-  ldiv.innerHTML = `<div style="width:56px;height:56px;border-radius:50%;border:3px solid rgba(255,255,255,.08);border-top-color:#ff3d7f;animation:spin .8s linear infinite;margin-bottom:16px;"></div>
-    <div style="background:linear-gradient(90deg,#ff3d7f,#7c6cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:18px;font-weight:900;margin-bottom:6px;">∞ First Infinity</div>
-    <div style="color:rgba(255,255,255,.4);font-size:13px;">Reels লোড হচ্ছে...</div>`;
-  feed.appendChild(ldiv);
-
-  // Seed fallback pool immediately
-  _rvSeedFallback();
-
-  // Remove spinner, add real slides
-  feed.innerHTML = '';
-  _rvAppend(5);
-
-  // Play first
-  setTimeout(() => {
-    const v = document.getElementById('rvv-0');
-    if (v) { v.muted = true; v.play().catch(()=>{}); }
-  }, 150);
-
-  // Fetch API content in background
-  _rvFetchBatch();
+// ── Share modal ───────────────────────────────────────────────────
+async function _rvShareModal(data){
+  const friends=pr?.friends||[];
+  if(!friends.length){toast('কোনো friend নেই!');return;}
+  const snap=await getDocs(collection(DB,'users'));
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:flex-end;justify-content:center;';
+  let rows='';
+  snap.forEach(d=>{
+    if(d.id===me.uid||!friends.includes(d.id))return;
+    const u=d.data();
+    rows+=`<div onclick="window._rvSend('${d.id}',\`${(data.title||'').replace(/`/g,"'")}\`,this)" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;margin-bottom:6px;background:var(--c2);cursor:pointer;">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px;">${u.emoji||'😊'}</div>
+      <div style="flex:1;"><div style="font-weight:700;">${u.name}</div></div>
+      <span id="rvsh${d.id}" style="color:var(--a);font-weight:700;">📤</span>
+    </div>`;
+  });
+  ov.innerHTML=`<div style="background:var(--c1);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px;max-height:70vh;overflow-y:auto;">
+    <div style="width:40px;height:4px;background:var(--br2);border-radius:4px;margin:0 auto 16px;"></div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:14px;">📤 Reel Share করুন</div>
+    ${rows||'<div style="text-align:center;padding:20px;color:var(--m);">কোনো friend নেই।</div>'}
+    <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;margin-top:10px;padding:13px;background:var(--c2);border:none;border-radius:14px;color:var(--tx);font-weight:700;cursor:pointer;">বাতিল</button>
+  </div>`;
+  ov.onclick=e=>{if(e.target===ov)ov.remove();};
+  document.body.appendChild(ov);
+}
+window._rvSend=async function(uid,title,el){
+  const st=document.getElementById('rvsh'+uid);if(st)st.textContent='⏳';
+  try{
+    await addDoc(collection(DB,'chats',cKey(me.uid,uid),'messages'),{
+      text:`🎬 ${title}\n∞ First Infinity Reels`,from:me.uid,readBy:[me.uid],reactions:{},isPinned:false,createdAt:serverTimestamp()
+    });
+    if(st){st.textContent='✅';st.style.color='#4dff91';}
+    el.style.opacity='.5';el.style.pointerEvents='none';toast('📤 Reel share হয়েছে!');
+  }catch(e){if(st)st.textContent='❌';}
 };
 
-window.loadMoreReels = () => _rvAppend(_RV.SLIDE_BATCH);
-window.reelNext = _goNextReel;
-window.reelPrev = _goPrevReel;
+// ── Main load ─────────────────────────────────────────────────────
+window.loadReels=async function(){
+  if(_rvLoaded){
+    const cv=document.getElementById('rvv'+_rvCur);
+    if(cv)cv.play().catch(()=>{});return;
+  }
+  _rvLoaded=true; _rvCur=0; _rvSlides=[]; _rvPool=[]; _rvSeen=new Set(); _rvLiked=new Set();
+  const feed=G('reelFeed');if(!feed)return;
+  feed.innerHTML='';
+  _rvSeed();
+  _rvAddSlides(5);
+  _rvInitTouch(feed);
+  setTimeout(()=>{
+    const v=document.getElementById('rvv0');
+    if(v){v.muted=true;v.play().catch(()=>{});}
+  },200);
+  _pxFetch();
+};
+window.reelNext=()=>_rvGo(1);
+window.reelPrev=()=>_rvGo(-1);
+window.loadMoreReels=()=>_rvAddSlides(3);
 
 window.changeChatPass=function(){
   const hasPw=!!(localStorage.getItem('fi_sp')||'');
