@@ -747,8 +747,11 @@ input:-webkit-autofill:focus {
       </div>
     </div>
     <!-- REELS -->
-    <div id="pg-reels" style="display:none;height:calc(100vh - 104px);overflow:hidden;background:#000;position:relative;">
-      <div id="reelsFeed" style="height:100%;display:flex;flex-direction:column;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;"></div>
+    <div id="pg-reels" style="display:none;position:fixed;top:52px;bottom:56px;left:0;right:0;background:#000;overflow:hidden;">
+      <div id="reelsFeed" style="width:100%;height:100%;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior:none;" onscroll="onReelScroll(this)">
+      </div>
+      <!-- Mute/unmute button -->
+      <button id="reelMuteBtn" onclick="toggleReelMute()" style="position:absolute;top:12px;right:12px;z-index:50;width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.65);border:2px solid rgba(255,255,255,.3);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);">🔇</button>
     </div>
     <!-- SETTINGS -->
     <div id="pg-settings" style="display:none">
@@ -1991,252 +1994,277 @@ window.pickProfilePic=()=>{
 };
 
 // ══════════════════════════════════════════════════════════
-// REELS — YouTube Shorts style, auto-play, no thumbnail
+// REELS — YouTube IFrame API, autoplay, error-skip, no logo
 // ══════════════════════════════════════════════════════════
-const SHORTS_POOL=[
-  {id:'LXb3EKWsInQ',t:'😂 Funny'},{id:'iik25wqIuFo',t:'🌊 Ocean'},
-  {id:'V-_O7nl0Ii0',t:'🎵 Music'},{id:'pBy1zgt0XPc',t:'🔥 Trending'},
-  {id:'XsX3ATc3FbA',t:'😎 Cool'},{id:'vgk-bnBaOJ4',t:'🤣 Hilarious'},
-  {id:'07MbnN7kqKQ',t:'🌟 Amazing'},{id:'ZaI2IlHwmgQ',t:'🎶 Vibe'},
-  {id:'uYSiVBfzBgA',t:'💫 Aesthetic'},{id:'xm3YgoEiEDc',t:'😆 LOL'},
-  {id:'E0ozmU9cJDg',t:'🏆 Epic'},{id:'cdqKGAOs7L8',t:'🎤 Music'},
-  {id:'NUsoVlDFqZg',t:'✨ Satisfying'},{id:'IGfRkXA7Hy4',t:'🚀 WOW'},
-  {id:'ztiQMtkgB1o',t:'🎸 Guitar'},{id:'Zi_XLOBDo_Y',t:'😍 Beautiful'},
-  {id:'qSwgfBLDXqg',t:'💪 Motivation'},{id:'MBdVXkSdhwU',t:'🌈 Colorful'},
-  {id:'k85mRPqvMbE',t:'🔥 Fire'},{id:'hY7m5jjJ9mM',t:'🎵 Beat Drop'},
-  {id:'nfWlot6h_JM',t:'🎤 Taylor'},{id:'CevxZvSJLk8',t:'🎵 Katy Perry'},
-  {id:'OPf0YbXqDm0',t:'🕺 Uptown Funk'},{id:'7wtfhZwyrcc',t:'🎶 Bruno Mars'},
-  {id:'gdZLi9oWNZg',t:'🎧 Billie Eilish'},{id:'lYBUbBu4W08',t:'🤘 Linkin Park'},
-  {id:'92BWAZzMNwQ',t:'⚡ Imagine Dragons'},{id:'60ItHLz5WEA',t:'🎵 Alan Walker'},
-  {id:'RgKAFK5djSk',t:'👑 Wiz Khalifa'},{id:'JGwWNGJdvx8',t:'❤️ Ed Sheeran'},
-  {id:'hT_nvWreIhg',t:'🎵 Counting Stars'},{id:'slNnMSKAMrQ',t:'🎤 Miley Cyrus'},
-  {id:'lp-EBllgBho',t:'💃 Dua Lipa'},{id:'d020hcWA_NI',t:'🎵 Adele'},
-  {id:'09R8_2nJtjg',t:'🎸 Maroon 5'},{id:'2Vv-BfVoq4g',t:'💕 Perfect'},
-  {id:'QkF3oxziUI4',t:'🎵 Charlie Puth'},{id:'yyDkOEeEBgg',t:'🎵 Bollywood'},
-  {id:'CYEaI9y4Xgc',t:'🎵 BTS'},{id:'TT4PHY0CkDo',t:'🖤 BLACKPINK'},
-  {id:'ulXU3oFlwZo',t:'🎶 K-Pop'},{id:'IcrbM1l_BoI',t:'🎵 Avicii'},
-  {id:'gCYcHz2k5x0',t:'🎧 DJ Snake'},{id:'EF_xdvn52As',t:'🌴 Tropical'},
-  {id:'1ZYbU82GVz4',t:'🎵 Marshmello'},{id:'fJ9rUzIMcZQ',t:'👑 Queen'},
-  {id:'y6Sxv-sUYtM',t:'🎵 Pop Mix'},{id:'3JZ_D3ELwOQ',t:'🎵 Gorillaz'},
-  {id:'WPni755-Krg',t:'🎵 Future Bass'},{id:'GNgVOJsIMKU',t:'🌙 Night Vibes'},
+const REEL_VIDS=[
+  'LXb3EKWsInQ','iik25wqIuFo','V-_O7nl0Ii0','pBy1zgt0XPc','XsX3ATc3FbA',
+  'vgk-bnBaOJ4','07MbnN7kqKQ','ZaI2IlHwmgQ','uYSiVBfzBgA','xm3YgoEiEDc',
+  'E0ozmU9cJDg','cdqKGAOs7L8','NUsoVlDFqZg','IGfRkXA7Hy4','ztiQMtkgB1o',
+  'Zi_XLOBDo_Y','qSwgfBLDXqg','MBdVXkSdhwU','k85mRPqvMbE','hY7m5jjJ9mM',
+  'nfWlot6h_JM','CevxZvSJLk8','OPf0YbXqDm0','7wtfhZwyrcc','gdZLi9oWNZg',
+  'lYBUbBu4W08','92BWAZzMNwQ','60ItHLz5WEA','RgKAFK5djSk','JGwWNGJdvx8',
+  'hT_nvWreIhg','slNnMSKAMrQ','lp-EBllgBho','d020hcWA_NI','09R8_2nJtjg',
+  '2Vv-BfVoq4g','QkF3oxziUI4','yyDkOEeEBgg','CYEaI9y4Xgc','TT4PHY0CkDo',
+  'ulXU3oFlwZo','IcrbM1l_BoI','gCYcHz2k5x0','EF_xdvn52As','1ZYbU82GVz4',
+  'fJ9rUzIMcZQ','y6Sxv-sUYtM','3JZ_D3ELwOQ','WPni755-Krg','GNgVOJsIMKU',
 ];
+let _rMuted=true,_rQueue=[],_rSeen=new Set(),_rIdx=0,_rPlayers={},_rCurSlide=0;
 
-let _seenReels=new Set(),_reelQueue=[],_reelCardIdx=0,_reelObserver=null;
-
-function _nextBatch(n){
-  if(_reelQueue.length<n){
-    if(_seenReels.size>=SHORTS_POOL.length)_seenReels.clear();
-    const unseen=SHORTS_POOL.filter(v=>!_seenReels.has(v.id));
-    _reelQueue.push(...[...unseen].sort(()=>Math.random()-.5));
-  }
-  const b=_reelQueue.splice(0,n);
-  b.forEach(v=>_seenReels.add(v.id));
-  return b;
+function _rShuffle(){
+  if(_rSeen.size>=REEL_VIDS.length)_rSeen.clear();
+  const unseen=REEL_VIDS.filter(v=>!_rSeen.has(v));
+  _rQueue.push(...[...unseen].sort(()=>Math.random()-.5));
 }
 
-function _makeReelSlide(v){
-  const idx=_reelCardIdx++;
-  const wrap=document.createElement('div');
-  wrap.style.cssText='position:relative;width:100%;height:100%;flex-shrink:0;background:#000;overflow:hidden;';
-  wrap.dataset.vid=v.id;
-  wrap.dataset.title=v.t;
-  // Directly embed iframe — autoplay from start
-  const src=`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&mute=0&rel=0&modestbranding=1&playsinline=1&controls=1&fs=1&iv_load_policy=3&loop=1&playlist=${v.id}`;
-  wrap.innerHTML=`
-    <iframe id="ri-${idx}"
-      src="${src}"
-      style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;pointer-events:all;"
-      allow="autoplay;encrypted-media;picture-in-picture;fullscreen;accelerometer;gyroscope"
-      allowfullscreen
-      referrerpolicy="strict-origin-when-cross-origin">
-    </iframe>
-    <div style="position:absolute;bottom:80px;right:12px;display:flex;flex-direction:column;gap:16px;z-index:10;">
-      <button onclick="shareReelToChat('${v.id}','${v.t}')" style="width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.6);border:none;color:#fff;font-size:20px;cursor:pointer;backdrop-filter:blur(8px)">📤</button>
-    </div>
-    <div style="position:absolute;bottom:16px;left:12px;right:64px;z-index:10;">
-      <div style="font-size:14px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.8)">${v.t}</div>
-    </div>`;
-  return wrap;
+function _rNextId(){
+  if(_rQueue.length<3)_rShuffle();
+  const id=_rQueue.shift();
+  _rSeen.add(id);
+  return id;
 }
 
-window.loadReels=function(){
-  const cnt=G('reelsFeed');if(!cnt)return;
-  const batch=_nextBatch(3);
-  batch.forEach(v=>{
-    const slide=_makeReelSlide(v);
-    cnt.appendChild(slide);
+window.toggleReelMute=function(){
+  _rMuted=!_rMuted;
+  const btn=G('reelMuteBtn');
+  if(btn)btn.textContent=_rMuted?'🔇':'🔊';
+  // Apply to all active players
+  Object.values(_rPlayers).forEach(p=>{
+    try{_rMuted?p.mute():p.unMute();}catch(e){}
   });
-  // Observe last slide → load more when near bottom
-  const last=cnt.lastElementChild;
-  if(last){
-    if(_reelObserver)_reelObserver.disconnect();
-    _reelObserver=new IntersectionObserver(entries=>{
-      if(entries[0].isIntersecting)loadReels();
-    },{threshold:0.5});
-    _reelObserver.observe(last);
-  }
 };
 
-window.loadMoreReels=loadReels;
+function _makeReelSlide(videoId,slideIdx){
+  const div=document.createElement('div');
+  div.style.cssText='position:relative;width:100%;height:100vh;scroll-snap-align:start;background:#000;flex-shrink:0;overflow:hidden;';
+  div.id='rslide-'+slideIdx;
+  div.dataset.vid=videoId;
+  // iframe container — oversized to hide YouTube logo/controls bar
+  div.innerHTML=`
+    <div id="rplayer-${slideIdx}" style="position:absolute;top:-60px;left:-1px;width:calc(100% + 2px);height:calc(100% + 120px);pointer-events:auto;"></div>
+    <div style="position:absolute;inset:0;pointer-events:none;z-index:5;">
+    </div>
+    <div style="position:absolute;bottom:70px;right:12px;z-index:10;display:flex;flex-direction:column;gap:14px;">
+      <button onclick="shareReelChat('${videoId}',${slideIdx})" 
+        style="width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,.7);border:2px solid rgba(255,255,255,.25);color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);">📤</button>
+    </div>`;
+  return div;
+}
 
-// Share reel to chat
-window.shareReelToChat=async function(videoId,title){
+function _initReelPlayer(slideIdx,videoId){
+  if(!window.YT||!window.YT.Player)return;
+  if(_rPlayers[slideIdx])return;
+  try{
+    _rPlayers[slideIdx]=new YT.Player('rplayer-'+slideIdx,{
+      videoId:videoId,
+      playerVars:{
+        autoplay:slideIdx===0?1:0,
+        mute:1,// MUST be 1 for autoplay on mobile
+        controls:1,
+        playsinline:1,
+        rel:0,
+        modestbranding:1,
+        iv_load_policy:3,
+        fs:0,
+        loop:1,
+        playlist:videoId,
+        origin:location.origin,
+      },
+      events:{
+        onReady:e=>{
+          if(!_rMuted)try{e.target.unMute();}catch(x){}
+          if(slideIdx===_rCurSlide)e.target.playVideo();
+        },
+        onStateChange:e=>{
+          // YT.PlayerState.ENDED=0, load next reel
+          if(e.data===0){
+            const feed=G('reelsFeed');
+            if(feed){
+              const nextSlide=_rIdx; // next slide already appended
+              const el=document.getElementById('rslide-'+nextSlide);
+              if(el)el.scrollIntoView({behavior:'smooth'});
+            }
+          }
+        },
+        onError:e=>{
+          // Video can't be embedded — try next
+          console.log('YT error',e.data,'on slide',slideIdx);
+          const cur=document.getElementById('rslide-'+slideIdx);
+          if(cur){
+            const nv=_rNextId();
+            const next=_makeReelSlide(nv,_rIdx);
+            G('reelsFeed').insertBefore(next,cur.nextSibling);
+            setTimeout(()=>_initReelPlayer(_rIdx,nv),200);
+            _rIdx++;
+            cur.remove();// remove broken slide
+          }
+        }
+      }
+    });
+  }catch(ex){console.log('player init error',ex);}
+}
+
+window.onReelScroll=function(el){
+  const h=el.clientHeight;
+  const idx=Math.round(el.scrollTop/h);
+  if(idx===_rCurSlide)return;
+  // Pause previous
+  try{if(_rPlayers[_rCurSlide])_rPlayers[_rCurSlide].pauseVideo();}catch(e){}
+  _rCurSlide=idx;
+  // Play current
+  const slide=el.children[idx];
+  if(slide){
+    const vid=slide.dataset.vid;
+    if(!_rPlayers[idx])_initReelPlayer(idx,vid);
+    else try{_rPlayers[idx].playVideo();if(!_rMuted)_rPlayers[idx].unMute();}catch(e){}
+  }
+  // Preload next slides
+  for(let i=idx+1;i<=idx+2;i++){
+    const s=el.children[i];
+    if(s&&!_rPlayers[i])_initReelPlayer(i,s.dataset.vid);
+  }
+  // Add more slides when near end
+  if(idx>=el.children.length-3)_addReelSlides(3);
+};
+
+function _addReelSlides(n){
+  const feed=G('reelsFeed');if(!feed)return;
+  for(let i=0;i<n;i++){
+    const vid=_rNextId();
+    const slide=_makeReelSlide(vid,_rIdx);
+    feed.appendChild(slide);
+    _rIdx++;
+  }
+}
+
+function _loadYTApi(){
+  return new Promise(res=>{
+    if(window.YT&&window.YT.Player){res();return;}
+    window.onYouTubeIframeAPIReady=res;
+    if(!document.getElementById('yt-api-script')){
+      const s=document.createElement('script');
+      s.id='yt-api-script';
+      s.src='https://www.youtube.com/iframe_api';
+      document.head.appendChild(s);
+    }
+  });
+}
+
+window.loadReels=async function(){
+  const feed=G('reelsFeed');if(!feed)return;
+  if(feed.children.length>0)return;// already loaded
+  _rQueue=[];_rSeen=new Set();_rIdx=0;_rPlayers={};_rCurSlide=0;
+  // Add initial slides
+  _addReelSlides(5);
+  // Load YouTube IFrame API
+  await _loadYTApi();
+  // Init first player
+  const first=feed.children[0];
+  if(first)_initReelPlayer(0,first.dataset.vid);
+  // Preload next 2
+  setTimeout(()=>{
+    for(let i=1;i<=2;i++){
+      const s=feed.children[i];
+      if(s)_initReelPlayer(i,s.dataset.vid);
+    }
+  },1500);
+};
+
+window.loadMoreReels=function(){_addReelSlides(3);};
+
+window.shareReelChat=async function(videoId,slideIdx){
   const friends=pr?.friends||[];
   if(!friends.length)return toast('No friends yet!');
   const snap=await getDocs(collection(DB,'users'));
   const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:flex-end;justify-content:center';
-  let html=`<div style="background:var(--c1);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px;max-height:70vh;overflow-y:auto">
-    <div style="font-weight:800;font-size:16px;margin-bottom:4px">📤 Share to Friend</div>
-    <div style="font-size:12px;color:var(--m);margin-bottom:14px">🎬 ${title}</div>`;
-  let hasFriends=false;
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:flex-end;justify-content:center;';
+  let html=`<div style="background:var(--c1);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px;max-height:70vh;overflow-y:auto;">
+    <div style="font-weight:800;font-size:16px;margin-bottom:14px;">📤 Share Reel to Friend</div>`;
+  let found=false;
   snap.forEach(d=>{
     if(d.id===me.uid||!friends.includes(d.id))return;
-    hasFriends=true;
-    const u=d.data();
-    html+=`<div onclick="doShareReel('${videoId}','${title.replace(/'/g,'')}','${d.id}',this)" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;cursor:pointer;margin-bottom:6px;background:var(--c2)">
-      <div style="width:44px;height:44px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px">${u.emoji||'😊'}</div>
-      <div style="font-weight:700;flex:1">${u.name}</div>
-      <div id="sr-${d.id}" style="font-size:12px;color:var(--m)">Tap</div>
+    found=true;const u=d.data();
+    html+=`<div onclick="doShareReel('${videoId}','${d.id}',this)" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;cursor:pointer;margin-bottom:6px;background:var(--c2);">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px;">${u.emoji||'😊'}</div>
+      <div style="font-weight:700;flex:1;">${u.name}</div>
+      <div id="sr2-${d.id}" style="font-size:12px;color:var(--m);">Tap</div>
     </div>`;
   });
-  if(!hasFriends)html+='<div style="color:var(--m);text-align:center;padding:20px">No friends to share with</div>';
-  html+=`<button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;margin-top:8px;background:var(--c2);border:none;border-radius:14px;padding:14px;color:var(--tx);font-weight:700;cursor:pointer">✖ Close</button></div>`;
-  modal.innerHTML=html;
-  modal.onclick=e=>{if(e.target===modal)modal.remove();};
+  if(!found)html+='<div style="color:var(--m);text-align:center;padding:20px;">No friends to share with</div>';
+  html+=`<button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;margin-top:8px;background:var(--c2);border:none;border-radius:14px;padding:14px;color:var(--tx);font-weight:700;cursor:pointer;">✕ Close</button></div>`;
+  modal.innerHTML=html;modal.onclick=e=>{if(e.target===modal)modal.remove();};
   document.body.appendChild(modal);
 };
 
-window.doShareReel=async function(videoId,title,toUid,el){
-  const st=document.getElementById('sr-'+toUid);
+window.doShareReel=async function(videoId,toUid,el){
+  const st=document.getElementById('sr2-'+toUid);
   if(st)st.textContent='...';
   try{
     const key=cKey(me.uid,toUid);
     await addDoc(collection(DB,'chats',key,'messages'),{
-      text:`🎬 ${title}\nhttps://youtu.be/${videoId}`,
+      text:`🎬 Shared a reel\nhttps://youtu.be/${videoId}`,
       from:me.uid,readBy:[me.uid],reactions:{},isPinned:false,createdAt:serverTimestamp()
     });
-    if(st){st.textContent='✅ Sent';st.style.color='#4dff91';}
+    if(st){st.textContent='✅ Sent!';st.style.color='#4dff91';}
     el.style.opacity='0.5';el.style.pointerEvents='none';
+    toast('📤 Reel shared!');
   }catch(e){if(st)st.textContent='❌';}
 };
-// ══════════════════════════════════════════════════════════
-// CHAT PASSWORD CHANGE & RESET
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// CHAT PASSWORD CHANGE
+// ══════════════════════════════════════════════
 window.changeChatPass=function(){
-  const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
-  modal.innerHTML=`
-    <div style="background:var(--c1);border-radius:20px;width:100%;max-width:400px;padding:24px;">
-      <div style="font-size:18px;font-weight:800;margin-bottom:16px;">🔐 Change Chat Password</div>
+  const hasPw=!!(localStorage.getItem('fi_sp')||'');
+  const m=document.createElement('div');
+  m.id='cpM';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  m.innerHTML=`
+    <div style="background:var(--c1);border-radius:22px;width:100%;max-width:380px;padding:24px;border:1px solid var(--br);">
+      <div style="font-size:20px;font-weight:800;margin-bottom:18px;">🔐 Chat Password</div>
+      ${hasPw?`<div style="margin-bottom:12px;">
+        <div style="font-size:11px;color:var(--m);font-weight:700;margin-bottom:5px;letter-spacing:1px;">CURRENT PASSWORD</div>
+        <input id="cpOld" type="password" placeholder="Enter current password" readonly onfocus="this.removeAttribute('readonly')"
+          style="width:100%;background:var(--c2);border:1.5px solid var(--br);border-radius:12px;padding:12px 14px;color:var(--tx);font-size:15px;box-sizing:border-box;outline:none;">
+      </div>`:'<div style="font-size:13px;color:var(--m);margin-bottom:14px;">Set a new chat lock password:</div>'}
       <div style="margin-bottom:12px;">
-        <div style="font-size:12px;color:var(--m);margin-bottom:6px;font-weight:700;">CURRENT PASSWORD</div>
-        <input id="cp-old" type="password" placeholder="Enter current password" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 14px;color:var(--tx);font-size:14px;box-sizing:border-box;outline:none;" readonly onfocus="this.removeAttribute('readonly')">
+        <div style="font-size:11px;color:var(--m);font-weight:700;margin-bottom:5px;letter-spacing:1px;">NEW PASSWORD</div>
+        <input id="cpNew" type="password" placeholder="Min 4 characters" readonly onfocus="this.removeAttribute('readonly')"
+          style="width:100%;background:var(--c2);border:1.5px solid var(--br);border-radius:12px;padding:12px 14px;color:var(--tx);font-size:15px;box-sizing:border-box;outline:none;">
       </div>
-      <div style="margin-bottom:12px;">
-        <div style="font-size:12px;color:var(--m);margin-bottom:6px;font-weight:700;">NEW PASSWORD</div>
-        <input id="cp-new" type="password" placeholder="Enter new password" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 14px;color:var(--tx);font-size:14px;box-sizing:border-box;outline:none;" readonly onfocus="this.removeAttribute('readonly')">
+      <div style="margin-bottom:18px;">
+        <div style="font-size:11px;color:var(--m);font-weight:700;margin-bottom:5px;letter-spacing:1px;">CONFIRM PASSWORD</div>
+        <input id="cpConf" type="password" placeholder="Retype new password" readonly onfocus="this.removeAttribute('readonly')"
+          onkeydown="if(event.key==='Enter')saveChatPw()"
+          style="width:100%;background:var(--c2);border:1.5px solid var(--br);border-radius:12px;padding:12px 14px;color:var(--tx);font-size:15px;box-sizing:border-box;outline:none;">
       </div>
-      <div style="margin-bottom:20px;">
-        <div style="font-size:12px;color:var(--m);margin-bottom:6px;font-weight:700;">CONFIRM NEW PASSWORD</div>
-        <input id="cp-confirm" type="password" placeholder="Retype new password" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 14px;color:var(--tx);font-size:14px;box-sizing:border-box;outline:none;" readonly onfocus="this.removeAttribute('readonly')">
-      </div>
-      <div id="cp-err" style="color:#ff3d7f;font-size:13px;margin-bottom:12px;display:none;"></div>
+      <div id="cpErr" style="color:#ff3d7f;font-size:13px;min-height:18px;margin-bottom:10px;font-weight:600;"></div>
       <div style="display:flex;gap:10px;">
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="flex:1;background:var(--c2);border:none;border-radius:12px;padding:14px;color:var(--tx);font-weight:700;cursor:pointer;">Cancel</button>
-        <button onclick="doChangeChatPass()" style="flex:2;background:var(--grad);border:none;border-radius:12px;padding:14px;color:#fff;font-weight:700;cursor:pointer;">✅ Update Password</button>
-      </div>
-      <div style="text-align:center;margin-top:12px;">
-        <span onclick="resetChatPass()" style="color:var(--m);font-size:12px;cursor:pointer;text-decoration:underline;">Forgot password? Reset (deletes all chats)</span>
+        <button onclick="document.getElementById('cpM').remove()"
+          style="flex:1;background:var(--c2);border:none;border-radius:13px;padding:13px;color:var(--tx);font-weight:700;font-size:14px;cursor:pointer;">Cancel</button>
+        <button onclick="saveChatPw()"
+          style="flex:2;background:var(--grad);border:none;border-radius:13px;padding:13px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">✅ Save</button>
       </div>
     </div>`;
-  document.body.appendChild(modal);
+  document.body.appendChild(m);
 };
 
-window.doChangeChatPass=async function(){
-  const oldP=document.getElementById('cp-old')?.value;
-  const newP=document.getElementById('cp-new')?.value;
-  const conf=document.getElementById('cp-confirm')?.value;
-  const errEl=document.getElementById('cp-err');
-  const showErr=m=>{if(errEl){errEl.textContent=m;errEl.style.display='block';}};
-  if(!oldP||!newP||!conf)return showErr('Please fill all fields');
-  if(newP.length<6)return showErr('New password must be at least 6 characters');
-  if(newP!==conf)return showErr('Passwords do not match ❌');
-  // Verify old password
-  const savedPass=localStorage.getItem('fi_chat_pass_'+me.uid)||me.email?.split('@')[0];
-  if(oldP!==savedPass){
-    // Try Firebase re-auth
-    try{
-      const {updatePassword,EmailAuthProvider,reauthenticateWithCredential}=await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js');
-      const cred=EmailAuthProvider.credential(me.email,oldP);
-      await reauthenticateWithCredential(me,cred);
-      await updatePassword(me,newP);
-      localStorage.setItem('fi_chat_pass_'+me.uid,newP);
-      document.querySelector('div[style*=fixed][style*=9999]')?.remove();
-      toast('✅ Password changed successfully!');
-    }catch(e){showErr('Current password is wrong ❌');}
-    return;
-  }
-  try{
-    const {updatePassword,EmailAuthProvider,reauthenticateWithCredential}=await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js');
-    const cred=EmailAuthProvider.credential(me.email,oldP);
-    await reauthenticateWithCredential(me,cred);
-    await updatePassword(me,newP);
-    localStorage.setItem('fi_chat_pass_'+me.uid,newP);
-    document.querySelector('div[style*=fixed][style*=9999]')?.remove();
-    toast('✅ Password changed!');
-  }catch(e){showErr('Error: '+e.message);}
+window.saveChatPw=function(){
+  const cur=localStorage.getItem('fi_sp')||'';
+  const oldEl=document.getElementById('cpOld');
+  const old=oldEl?oldEl.value:'';
+  const n=(document.getElementById('cpNew')?.value||'').trim();
+  const n2=(document.getElementById('cpConf')?.value||'').trim();
+  const errEl=document.getElementById('cpErr');
+  const err=msg=>{if(errEl)errEl.textContent=msg;};
+  if(cur&&old!==cur)return err('❌ Current password is wrong!');
+  if(n.length<4)return err('❌ New password too short (min 4 chars)');
+  if(n!==n2)return err('❌ Passwords do not match!');
+  localStorage.setItem('fi_sp',n);
+  savedPass=n;
+  chatLocked=false;// unlock immediately after change
+  document.getElementById('cpM')?.remove();
+  toast('✅ Chat password updated!');
 };
 
-window.resetChatPass=function(){
-  const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
-  modal.innerHTML=`
-    <div style="background:var(--c1);border-radius:20px;width:100%;max-width:400px;padding:24px;">
-      <div style="font-size:18px;font-weight:800;margin-bottom:8px;color:#ff3d7f;">⚠️ Reset Password</div>
-      <div style="font-size:13px;color:var(--m);margin-bottom:16px;line-height:1.6;">This will delete ALL your chat messages and reset your password. This cannot be undone!</div>
-      <div style="margin-bottom:12px;">
-        <div style="font-size:12px;color:var(--m);margin-bottom:6px;font-weight:700;">NEW PASSWORD</div>
-        <input id="rp-new" type="password" placeholder="New password (min 6 chars)" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 14px;color:var(--tx);font-size:14px;box-sizing:border-box;outline:none;" readonly onfocus="this.removeAttribute('readonly')">
-      </div>
-      <div style="margin-bottom:20px;">
-        <input id="rp-conf" type="password" placeholder="Confirm new password" style="width:100%;background:var(--c2);border:1px solid var(--br);border-radius:12px;padding:12px 14px;color:var(--tx);font-size:14px;box-sizing:border-box;outline:none;" readonly onfocus="this.removeAttribute('readonly')">
-      </div>
-      <div id="rp-err" style="color:#ff3d7f;font-size:13px;margin-bottom:12px;display:none;"></div>
-      <div style="display:flex;gap:10px;">
-        <button onclick="document.querySelectorAll('div[style*=fixed]').forEach(m=>m.remove())" style="flex:1;background:var(--c2);border:none;border-radius:12px;padding:14px;color:var(--tx);font-weight:700;cursor:pointer;">Cancel</button>
-        <button onclick="doResetChatPass()" style="flex:2;background:#ff3d7f;border:none;border-radius:12px;padding:14px;color:#fff;font-weight:700;cursor:pointer;">🗑 Reset Everything</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-};
-
-window.doResetChatPass=async function(){
-  const newP=document.getElementById('rp-new')?.value;
-  const conf=document.getElementById('rp-conf')?.value;
-  const errEl=document.getElementById('rp-err');
-  if(!newP||newP.length<6)return errEl&&(errEl.textContent='Min 6 chars',errEl.style.display='block');
-  if(newP!==conf)return errEl&&(errEl.textContent='Passwords do not match',errEl.style.display='block');
-  toast('🗑 Deleting all chats...');
-  try{
-    // Delete all messages in all chats involving me
-    const friends=pr?.friends||[];
-    const {writeBatch}=await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
-    for(const uid of friends){
-      const key=cKey(me.uid,uid);
-      const msgs=await getDocs(collection(DB,'chats',key,'messages'));
-      const batch=writeBatch(DB);
-      msgs.forEach(d=>batch.delete(d.ref));
-      if(msgs.size>0)await batch.commit();
-    }
-    // Update Firebase password
-    const {updatePassword}=await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js');
-    await updatePassword(me,newP);
-    localStorage.setItem('fi_chat_pass_'+me.uid,newP);
-    document.querySelectorAll('div[style*=fixed]').forEach(m=>m.remove());
-    toast('✅ Password reset! All chats cleared.');
-  }catch(e){toast('Error: '+e.message);}
-};
 
 </script>
 </body>
