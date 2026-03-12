@@ -144,7 +144,7 @@ body.th-light .topbar{background:rgba(255,255,255,.96);}
 .t-r{display:flex;gap:5px;align-items:center;}
 .ib{width:36px;height:36px;background:var(--c2);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;transition:.15s;}
 .ib:active{background:rgba(0,212,255,.2);transform:scale(.9);}
-.n-dot{position:absolute;top:3px;right:3px;width:9px;height:9px;background:var(--a2);border-radius:50%;border:2px solid var(--bg);}
+.n-dot{position:absolute;top:3px;right:3px;min-width:17px;height:17px;background:#ff3d7f;border-radius:9px;border:2px solid var(--bg);font-size:9px;font-weight:800;color:#fff;line-height:13px;text-align:center;padding:0 3px;box-sizing:border-box;}
 .d-pill{background:rgba(77,255,145,.1);border:1px solid rgba(77,255,145,.2);border-radius:20px;padding:3px 9px;font-size:10px;color:var(--a3);font-weight:700;}
 
 /* ── PAGE ── */
@@ -1226,7 +1226,10 @@ input:-webkit-autofill:focus {
     <div class="t-r">
       <div class="d-pill" id="d-pill" onclick="showDataUsage()" style="cursor:pointer;">&#128190; 0 KB</div>
       <button class="ib" onclick="sw('settings')">&#9881;&#65039;</button>
-      <button class="ib" id="n-ib" onclick="sw('notif')"><div class="n-dot" id="n-dot" style="display:none"></div>&#128276;</button>
+      <button class="ib" id="n-ib" onclick="sw('notif')" style="position:relative;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span id="n-dot" style="display:none;position:absolute;top:4px;right:4px;min-width:16px;height:16px;background:#ff3d7f;border-radius:8px;border:2px solid var(--bg);font-size:9px;font-weight:800;color:#fff;line-height:12px;text-align:center;padding:0 3px;"></span>
+      </button>
       <button class="ib" onclick="doLogout()">&#128682;</button>
     </div>
   </div>
@@ -1252,12 +1255,30 @@ input:-webkit-autofill:focus {
     <!-- CHAT -->
     <div id="pg-chat" style="display:none">
       <div id="frSecChat"></div>
-      <div class="sec-h"><div class="sec-t">&#128172; Messages</div><div class="sec-a" onclick="showDisc()">&#43; Find Friends</div></div>
+      <!-- Telegram-style header -->
+      <div style="padding:12px 14px 8px;background:var(--bg);position:sticky;top:0;z-index:10;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:20px;font-weight:900;">💬 Messages</div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="showDisc()" style="width:36px;height:36px;border-radius:50%;background:var(--c2);border:none;font-size:18px;cursor:pointer;color:var(--tx);">🔍</button>
+            <button onclick="window.showCreateGroup()" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7c6cff,#ff3d7f);border:none;font-size:18px;cursor:pointer;color:#fff;" title="New Group">✏️</button>
+          </div>
+        </div>
+        <!-- Tabs: DMs | Groups | Channels -->
+        <div style="display:flex;gap:6px;">
+          <button id="ct-dm" onclick="window.switchChatTab('dm')" style="flex:1;padding:7px 0;border-radius:20px;border:none;background:var(--a);color:#fff;font-size:12px;font-weight:700;cursor:pointer;">💬 DMs</button>
+          <button id="ct-group" onclick="window.switchChatTab('group')" style="flex:1;padding:7px 0;border-radius:20px;border:none;background:var(--c2);color:var(--m);font-size:12px;font-weight:700;cursor:pointer;">👥 Groups</button>
+          <button id="ct-channel" onclick="window.switchChatTab('channel')" style="flex:1;padding:7px 0;border-radius:20px;border:none;background:var(--c2);color:var(--m);font-size:12px;font-weight:700;cursor:pointer;">📢 Channels</button>
+        </div>
+      </div>
       <div id="chatList"><div class="ld">Loading...</div></div>
     </div>
     <!-- NOTIF -->
-    <div id="pg-notif" style="display:none">
-      <div class="sec-h"><div class="sec-t">&#128276; Notifications</div></div>
+    <div id="pg-notif" class="pw" style="display:none;">
+      <div style="padding:14px 16px 8px;background:var(--bg);position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:20px;font-weight:900;">🔔 Notifications</div>
+        <button onclick="window.markAllRead()" style="font-size:12px;font-weight:700;color:var(--a);background:none;border:none;cursor:pointer;padding:4px 8px;">All read ✓</button>
+      </div>
       <div id="notifList"></div>
     </div>
     <!-- PROFILE -->
@@ -1291,6 +1312,11 @@ input:-webkit-autofill:focus {
       </div>
       <!-- Mute button top-right -->
       <button id="reelMuteBtn" onclick="toggleReelMute()" style="position:absolute;top:12px;right:12px;z-index:40;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.3);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);">🔇</button>
+    </div>
+
+    <!-- LEARN -->
+    <div id="pg-learn" class="pw" style="display:none;overflow-y:auto;background:var(--bg);">
+      <div id="learnContent"></div>
     </div>
 
     <!-- GAMES -->
@@ -1342,6 +1368,7 @@ input:-webkit-autofill:focus {
     <button class="bn" id="bn-chat" onclick="sw('chat')"><span class="bni">&#128172;</span>Chat<div class="bn-badge" id="cBdg" style="display:none">0</div></button>
     <button class="bn" id="bn-reels" onclick="sw('reels')"><span class="bni">&#127909;</span>Reels</button>
     <button class="bn" id="bn-games" onclick="sw('games')"><span class="bni">&#127918;</span>Games</button>
+    <button class="bn" id="bn-learn" onclick="sw('learn')" style="position:relative;"><span class="bni">&#127979;</span>Learn<span style="position:absolute;top:6px;right:6px;background:linear-gradient(135deg,#ff3d7f,#7c6cff);color:#fff;font-size:8px;font-weight:800;padding:1px 4px;border-radius:6px;">NEW</span></button>
     <button class="bn" id="bn-profile" onclick="sw('profile')"><span class="bni">&#128100;</span>Profile</button>
   </nav>
 </div>
@@ -1479,29 +1506,90 @@ input:-webkit-autofill:focus {
     </div>
   </div>
 </div>
-<!-- Story -->
-<div class="m-bg" id="stM">
-  <div class="sheet">
-    <div class="sh-d"><div class="sh-t">&#10024; Add Story</div><button class="sh-x" onclick="G('stM').classList.remove('vis')">&#215;</button></div>
-    <div style="text-align:center;font-size:60px;margin-bottom:8px" id="stIcEl">&#10024;</div>
-    <img id="stImgPrev" style="width:100%;border-radius:14px;margin-bottom:8px;display:none;max-height:200px;object-fit:cover" alt="">
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <div class="sh-opt" onclick="pickStoryImg()" style="flex:1">&#128247; Add Photo</div>
-      <div class="sh-opt" id="stImgRemBtn" style="display:none;flex:1;color:#ff3d7f" onclick="removeStoryImg()">&#215; Remove</div>
+<!-- ═══ STORY CREATE ═══ -->
+<div id="stM" style="display:none;position:fixed;inset:0;z-index:1099;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1100;display:flex;flex-direction:column;" id="stCreate" onclick="event.stopPropagation()">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;flex-shrink:0;">
+      <button onclick="G('stM').style.display='none'" style="width:36px;height:36px;background:rgba(255,255,255,.1);border:none;border-radius:50%;color:#fff;font-size:20px;cursor:pointer;">‹</button>
+      <div style="font-size:17px;font-weight:800;color:#fff;flex:1;">📸 Create Story</div>
+      <button onclick="addStory()" id="stShareBtn" style="padding:8px 18px;background:linear-gradient(135deg,#ff3d7f,#7c6cff);border:none;border-radius:20px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;">Share ✨</button>
     </div>
-    <textarea class="sh-ta" id="stTxt" placeholder="Write your story..." style="min-height:60px"></textarea>
-    <div class="mood-row" id="stMoodRow"></div>
-    <button class="btn-g" onclick="addStory()">Share Story &#10024;</button>
+
+    <!-- Preview area -->
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:0 20px;position:relative;">
+      <div id="stPreviewBox" style="width:100%;max-width:340px;aspect-ratio:9/16;border-radius:20px;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+        <img id="stImgPrev" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;border-radius:20px;" alt="">
+        <div id="stIcEl" style="font-size:64px;z-index:2;text-shadow:0 4px 20px rgba(0,0,0,.5);">✨</div>
+        <div id="stTxtPrev" style="z-index:2;font-size:18px;font-weight:700;color:#fff;text-align:center;padding:0 20px;text-shadow:0 2px 10px rgba(0,0,0,.8);max-width:100%;word-break:break-word;"></div>
+        <!-- Timer bar -->
+        <div style="position:absolute;top:10px;left:10px;right:10px;height:3px;background:rgba(255,255,255,.2);border-radius:4px;">
+          <div style="height:100%;width:100%;background:#fff;border-radius:4px;opacity:.8;"></div>
+        </div>
+        <!-- User name overlay -->
+        <div style="position:absolute;top:20px;left:14px;right:14px;display:flex;align-items:center;gap:8px;z-index:3;">
+          <div id="stPrevAv" style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid #fff;">😊</div>
+          <div id="stPrevNm" style="color:#fff;font-size:13px;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.8);">You</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div style="padding:14px 16px 20px;flex-shrink:0;background:rgba(0,0,0,.7);">
+      <!-- Text input -->
+      <div style="position:relative;margin-bottom:12px;">
+        <textarea id="stTxt" placeholder="কিছু লিখুন..." rows="2"
+          oninput="document.getElementById('stTxtPrev').textContent=this.value"
+          style="width:100%;padding:12px 14px;border-radius:16px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-size:15px;resize:none;box-sizing:border-box;outline:none;backdrop-filter:blur(6px);"
+          placeholder="আপনার story তে কিছু লিখুন..."></textarea>
+      </div>
+      <!-- Action row -->
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <button onclick="pickStoryImg()" style="flex:1;padding:11px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">📷 Photo</button>
+        <button onclick="removeStoryImg()" id="stImgRemBtn" style="display:none;flex:1;padding:11px;background:rgba(255,61,127,.2);border:1.5px solid rgba(255,61,127,.4);border-radius:14px;color:#ff3d7f;font-size:13px;font-weight:700;cursor:pointer;">🗑️ Remove</button>
+      </div>
+      <!-- Icon picker -->
+      <div id="stMoodRow" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;"></div>
+    </div>
   </div>
 </div>
-<!-- Story View -->
-<div class="m-bg cnt" id="svM" onclick="this.classList.remove('vis')">
-  <div class="sv-box">
-    <div style="font-size:54px;margin-bottom:10px" id="svEm">&#10024;</div>
-    <img id="svImg" style="width:100%;max-height:280px;object-fit:cover;border-radius:14px;margin-bottom:10px;display:none" alt="">
-    <div style="font-size:16px;line-height:1.6;margin-bottom:9px" id="svTx"></div>
-    <div style="font-size:12px;color:var(--m)" id="svAu"></div>
-    <div style="font-size:11px;color:var(--m);margin-top:14px;opacity:.5">Tap to close &bull; 5s</div>
+
+<!-- ═══ STORY VIEWER (FB/IG style) ═══ -->
+<div id="svM" style="display:none;position:fixed;inset:0;background:#000;z-index:1000;">
+  <!-- Progress bars -->
+  <div id="svProgress" style="display:flex;gap:4px;padding:10px 12px 0;position:absolute;top:0;left:0;right:0;z-index:10;">
+  </div>
+  <!-- Header -->
+  <div style="position:absolute;top:20px;left:0;right:0;z-index:10;display:flex;align-items:center;gap:10px;padding:10px 14px;">
+    <div id="svAvatar" style="width:38px;height:38px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid #fff;flex-shrink:0;">😊</div>
+    <div style="flex:1;">
+      <div id="svAuthorName" style="font-size:14px;font-weight:800;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.8);"></div>
+      <div id="svTime" style="font-size:11px;color:rgba(255,255,255,.7);"></div>
+    </div>
+    <button id="svDel" onclick="deleteMyStory(window._viewStoryId)" style="display:none;background:rgba(255,61,127,.2);border:1.5px solid rgba(255,61,127,.4);border-radius:20px;padding:5px 12px;color:#ff3d7f;font-size:12px;font-weight:700;cursor:pointer;">🗑️ Delete</button>
+    <button onclick="closeStoryView()" style="width:34px;height:34px;background:rgba(0,0,0,.4);border:none;border-radius:50%;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+  </div>
+  <!-- Content -->
+  <div style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;">
+    <img id="svImg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;" alt="">
+    <div id="svEmTx" style="z-index:2;display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px;">
+      <div id="svEm" style="font-size:80px;text-shadow:0 4px 20px rgba(0,0,0,.5);"></div>
+      <div id="svTx" style="font-size:20px;font-weight:700;color:#fff;text-align:center;line-height:1.5;text-shadow:0 2px 10px rgba(0,0,0,.8);max-width:90%;"></div>
+    </div>
+    <!-- Nav areas (tap left/right) -->
+    <div onclick="window._svNav(-1)" style="position:absolute;left:0;top:0;bottom:0;width:35%;z-index:5;cursor:pointer;"></div>
+    <div onclick="window._svNav(1)" style="position:absolute;right:0;top:0;bottom:0;width:35%;z-index:5;cursor:pointer;"></div>
+  </div>
+  <!-- Views + Reactions -->
+  <div style="padding:14px 16px 24px;background:linear-gradient(to top,rgba(0,0,0,.9),transparent);position:absolute;bottom:0;left:0;right:0;z-index:10;">
+    <div id="svViewCount" style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:10px;"></div>
+    <!-- Reaction buttons -->
+    <div id="svRxn" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    <!-- Reply input -->
+    <div id="svReplyRow" style="display:flex;gap:8px;margin-top:10px;">
+      <input id="svReplyInp" placeholder="Reply to story..." style="flex:1;padding:10px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:14px;outline:none;" onkeydown="if(event.key==='Enter')window.replyToStory()">
+      <button onclick="window.replyToStory()" style="width:40px;height:40px;border-radius:50%;background:var(--grad);border:none;color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;">➤</button>
+    </div>
   </div>
 </div>
 <!-- Forward -->
@@ -1637,10 +1725,11 @@ const ED={
   '✈️':['🚗','🚕','🚙','🚌','🏎','🚓','🚑','🚒','🚐','🛻','🚚','🛵','🏍','🚲','🛴','🛹','⛽','🚨','🚦','🛑','🚧','⚓','⛵','🚤','🛥','🚢','✈️','🛩','🛫','🛬','🪂','💺','🚁','🚀','🛸','🪐','🌍','🌎','🌏','🗺','🧭','🏔','⛰','🌋','🗻','🏕','🏖','🏜','🏝','🏞','🏟','🏛','🧱','🏘','🏚','🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','💒','🗼','🗽','⛪','🕌','🛕','🕍','⛩','🕋'],
   '💡':['💼','📁','📂','🗂','📅','📆','📇','📈','📉','📊','📋','📌','📍','📎','🖇','📏','📐','✂️','🗃','🗄','🗑','🔒','🔓','🔏','🔐','🔑','🗝','🔨','⛏','⚒','🛠','🗡','⚔️','🔫','🛡','🔧','🪛','🔩','⚙️','🔗','⛓','🪝','🧲','🪜','⚗️','🧪','🧫','🧬','🔬','🔭','📡','💉','🩸','💊','🩹','🩺','🚪','🛏','🛋','🪑','🚽','🚿','🛁','🧴','🧷','🧹','🧺','🧻','🪣','🧼','🪥','🧽','🧯','🛒','💡','🔦','🕯','🪔','💰','🪙','💴','💵','💶','💷','💸','💳','📱','📲','☎️','📞','📟','📠','📺','📻','⌚','📷','📸','📹','🎥','📽','🎞','🔋','🔌','💻','⌨️','🖥','🖨','🖱','💾','💿','📀','🖊','📝','✏️','📚','📖'],
   '🔴':['🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔺','🔻','🔷','🔶','🔹','🔸','🔲','🔳','▪️','▫️','◾','◽','◼️','◻️','🟥','🟧','🟨','🟩','🟦','🟪','⬛','⬜','🟫','✅','☑️','❌','❎','➕','➖','➗','✖️','♾','‼️','⁉️','❓','❔','❕','❗','〰️','🔃','🔄','🔙','🔚','🔛','🔜','🔝','🆗','🆕','🆙','🆓','🆒','🆘','🆚','🚫','🔞','📵','⚠️','☢️','☣️','⬆️','➡️','⬇️','⬅️','↕️','↔️','↩️','↪️','⤴️','⤵️','🔀','🔁','🔂','🔼','🔽','⏩','⏪','⏭','⏮','⏸','⏹','⏺'],
+  '💻':['💻','⌨️','🖥','🖨','🖱','📱','📲','🔋','🔌','💾','💿','📀','🖊','📝','✏️','📚','📖','🔬','🔭','📡','⚙️','🔧','🪛','🔩','🛠','🔗','⛓','🧪','🧫','🧬','🤖','👾','🕹','🎮','📊','📈','📉','📋','📌','📍','🗂','📁','📂','🗃','🗄','🔒','🔓','🔏','🔐','🔑','🗝','⚗️','🧲','💡','🔦','🌐','📡','☁️','⚡','🔥','💥','🎯','🏆','🥇','🎓','📜','🏅','✅','❌','⚠️','🚀','🛸','🌌','🌍','🔮','💎','👑','🧙','🦸','🧑‍💻','🧑‍🎨','🧑‍🚀','🧑‍🎤','🧑‍🔬','🧑‍🏫','👨‍💻','👩‍💻'],
   '🇧🇩':['🇧🇩','🇺🇸','🇬🇧','🇮🇳','🇯🇵','🇰🇷','🇨🇳','🇷🇺','🇩🇪','🇫🇷','🇮🇹','🇧🇷','🇨🇦','🇦🇺','🇸🇦','🇵🇰','🇹🇷','🇮🇩','🇳🇬','🇦🇫','🇲🇾','🇸🇬','🇦🇪','🇵🇭','🇻🇳','🇹🇭','🇮🇷','🇮🇶','🇸🇾','🇪🇬','🏳️','🏴','🏁','🚩','🏳️‍🌈']
 };
-const ECAT=['😀','👋','❤️','🐶','🍎','⚽','✈️','💡','🔴','🇧🇩'];
-const ENMS=['Smileys','Hands','Hearts','Nature','Food','Sports','Travel','Objects','Symbols','Flags'];
+const ECAT=['😀','👋','❤️','🐶','🍎','⚽','✈️','💡','🔴','💻','🇧🇩'];
+const ENMS=['Smileys','Hands','Hearts','Nature','Food','Sports','Travel','Objects','Symbols','Tech/CSE','Flags'];
 
 // UTILS
 const G=id=>document.getElementById(id);window.G=G;
@@ -2038,78 +2127,251 @@ window.pubPost=async()=>{
 };
 
 // STORIES
-function loadStories(){const w=G('sRow');const q=query(collection(DB,'stories'),orderBy('createdAt','desc'),limit(50));const u=onSnapshot(q,snap=>{w.innerHTML=`<div class="s-item" onclick="G('stM').classList.add('vis')"><div class="s-ring" style="background:var(--c2)"><div class="s-av">➕</div></div><div class="s-lbl">Story</div></div>`;snap.forEach(d=>{const s={id:d.id,...d.data()};const seen=(s.viewedBy||[]).includes(me?.uid);const el=document.createElement('div');el.className='s-item';el.onclick=()=>viewStory(s);el.innerHTML=`<div class="s-ring ${seen?'seen':'new'}"><div class="s-av">${s.emoji||'😊'}</div></div><div class="s-lbl">${s.author?.split(' ')[0]||'?'}</div>`;w.appendChild(el);});trackData(200);});subs.push(u);}
-window.setStIc=(btn,e)=>{stIcon=e;G('stIcEl').textContent=e;document.querySelectorAll('#stMoodRow .m-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');};
-let stImg=null;
-window.pickStoryImg=()=>{
-  const i=document.createElement('input');i.type='file';i.accept='image/*';
-  i.onchange=async e=>{
-    const f=e.target.files[0];if(!f)return;
-    const r=new FileReader();
-    r.onload=async ev=>{
-      const comp=await compImg(ev.target.result,0.6);
-      stImg=comp;
-      G('stImgPrev').src=comp;G('stImgPrev').style.display='block';
-      G('stImgRemBtn').style.display='flex';
-      toast('📷 Photo added to story!');
-    };r.readAsDataURL(f);
-  };i.click();
+function loadStories(){
+  const w=G('sRow'); if(!w)return;
+  const now=Date.now();
+  const q=query(collection(DB,'stories'),orderBy('createdAt','desc'),limit(60));
+  const u=onSnapshot(q,snap=>{
+    // Filter expired (>24h) and auto-delete them
+    const valid=[];
+    snap.forEach(d=>{
+      const s={id:d.id,...d.data()};
+      const created=s.createdAt?.toDate?.()?.getTime()||0;
+      if(now-created>86400000){
+        // Auto-delete expired story
+        deleteDoc(doc(DB,'stories',d.id)).catch(()=>{});
+        return;
+      }
+      valid.push(s);
+    });
+
+    // Group by author
+    const byAuthor={};
+    valid.forEach(s=>{
+      if(!byAuthor[s.authorId])byAuthor[s.authorId]=[];
+      byAuthor[s.authorId].push(s);
+    });
+
+    // Build row
+    w.innerHTML='';
+    // Add story button (own)
+    const addBtn=document.createElement('div');
+    addBtn.className='s-item';
+    addBtn.onclick=()=>openStoryCreate();
+    const myStories=byAuthor[me?.uid]||[];
+    addBtn.innerHTML=`<div style="position:relative;width:58px;height:58px;border-radius:50%;background:var(--c2);border:2.5px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;" ontouchstart="this.style.transform='scale(.9)'" ontouchend="this.style.transform=''">
+      ${myStories.length?`<img src="${myStories[0].imageUrl||''}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;${myStories[0].imageUrl?'':'display:none'}">
+      <span style="font-size:26px;z-index:1;">${myStories[0].emoji||'✨'}</span>`:
+      '<span style="font-size:28px;">➕</span>'}
+      <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--grad);border-radius:50%;border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">+</div>
+    </div>
+    <div class="s-lbl">Your Story</div>`;
+    w.appendChild(addBtn);
+
+    // Others' stories
+    Object.entries(byAuthor).forEach(([uid,stories])=>{
+      if(uid===me?.uid)return;
+      const latest=stories[0];
+      const seen=stories.every(s=>(s.viewedBy||[]).includes(me?.uid));
+      const el=document.createElement('div');
+      el.className='s-item';
+      el.onclick=()=>openStoryViewer(stories,0);
+      const ring=seen?'background:var(--m)':'background:linear-gradient(135deg,#ff3d7f,#7c6cff,#00d4ff)';
+      el.innerHTML=`<div style="width:62px;height:62px;border-radius:50%;padding:2.5px;${ring};flex-shrink:0;cursor:pointer;">
+        <div style="width:100%;height:100%;border-radius:50%;background:var(--bg);padding:2px;position:relative;overflow:hidden;">
+          ${latest.imageUrl?`<img src="${latest.imageUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;">`:
+          `<div style="width:100%;height:100%;border-radius:50%;background:var(--c2);display:flex;align-items:center;justify-content:center;font-size:24px;">${latest.emoji||'✨'}</div>`}
+        </div>
+      </div>
+      <div class="s-lbl" style="color:${seen?'var(--m)':'var(--tx)'};font-weight:${seen?'400':'700'};">${(latest.author||'?').split(' ')[0]}</div>`;
+      w.appendChild(el);
+    });
+  });
+  subs.push(u);
+}
+
+
+
+function closeStoryView(){
+  const sv=G('svM');
+  if(sv)sv.style.display='none';
+  clearTimeout(window._svTimer);
+  clearInterval(window._svBarTimer);
+  window._svStories=null;
+  window._svCurIdx=0;
+}
+window.closeStoryView=closeStoryView;
+
+// ── Story viewer (multi-story per user, progress bars) ────────────
+let _svStories=[], _svCurIdx=0, _svTimer=null, _svBarTimer=null;
+
+window.openStoryViewer=function(stories,idx){
+  _svStories=stories; _svCurIdx=idx||0;
+  _showStory(_svCurIdx);
+  G('svM').style.display='flex';
 };
-window.removeStoryImg=()=>{stImg=null;G('stImgPrev').src='';G('stImgPrev').style.display='none';G('stImgRemBtn').style.display='none';};
-window.addStory=async()=>{
-  const txt=G('stTxt').value.trim()||'';
-  if(!txt&&!stImg)return toast('Write something or add a photo!');
-  const btn=document.querySelector('#stM .btn-g');if(btn){btn.disabled=true;btn.textContent='Sharing...';}
-  try{
-    let imgUrl=null;
-    if(stImg){toast('📤 Uploading...');imgUrl=await uploadToImgBB(stImg);}
-    await addDoc(collection(DB,'stories'),{text:txt||'📸',icon:stIcon,imageUrl:imgUrl||null,author:pr?.name||'?',emoji:pr?.emoji||'😊',authorId:me.uid,viewedBy:[],createdAt:serverTimestamp()});
-    G('stM').classList.remove('vis');G('stTxt').value='';stImg=null;G('stImgPrev').src='';G('stImgPrev').style.display='none';G('stImgRemBtn').style.display='none';
-    toast('Story shared ✨');
-  }catch(e){toast('Failed: '+e.message);}
-  if(btn){btn.disabled=false;btn.textContent='Share Story ✨';}
+
+window._svNav=function(dir){
+  clearTimeout(_svTimer); clearInterval(_svBarTimer);
+  const next=_svCurIdx+dir;
+  if(next<0){closeStoryView();return;}
+  if(next>=_svStories.length){closeStoryView();return;}
+  _svCurIdx=next; _showStory(_svCurIdx);
 };
-window.viewStory=async s=>{
-  // Check 24hr expiry
-  if(s.expiresAt){
-    const exp=s.expiresAt.toDate?s.expiresAt.toDate():new Date(s.expiresAt);
-    if(exp<new Date()){
-      deleteDoc(doc(DB,'stories',s.id)).catch(()=>{});
-      return toast('This story has expired 🕐');
-    }
-  }
-  G('svEm').textContent=s.emoji||'😊';
+
+function _showStory(i){
+  const s=_svStories[i];
+  if(!s)return closeStoryView();
+  window._viewStoryId=s.id;
+
+  // Progress bars
+  const pb=G('svProgress');
+  if(pb){pb.innerHTML=_svStories.map((_,j)=>`
+    <div style="flex:1;height:3px;background:rgba(255,255,255,.3);border-radius:4px;overflow:hidden;">
+      <div id="svbar${j}" style="height:100%;width:${j<i?'100':j===i?'0':'0'}%;background:#fff;border-radius:4px;transition:none;"></div>
+    </div>`).join('');}
+
+  // Content
+  G('svEm').textContent=s.emoji||'✨';
   G('svTx').textContent=s.text||'';
-  G('svAu').textContent='— '+s.author+(s.viewedBy?.length?' • '+s.viewedBy.length+' views':'');
-  const svImg=G('svImg');
-  if(s.imageUrl){svImg.src=s.imageUrl;svImg.style.display='block';}else{svImg.style.display='none';}
-  // Show reactions
-  const rxns=s.reactions||{};
-  const rxCounts={'❤️':0,'😂':0,'😮':0,'😢':0,'🔥':0,'👏':0};
-  Object.values(rxns).forEach(r=>{if(rxCounts[r]!==undefined)rxCounts[r]++;});
-  const svR=G('svRxn');
-  if(svR)svR.innerHTML=Object.entries(rxCounts).map(([e,n])=>`<button onclick="reactStory('${s.id}','${e}')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 10px;color:#fff;cursor:pointer;font-size:14px">${e}${n>0?' '+n:''}</button>`).join('');
-  // Own story: show delete button
+  G('svAvatar').textContent=s.emoji||'😊';
+  G('svAuthorName').textContent=s.author||'';
+  const created=s.createdAt?.toDate?.();
+  G('svTime').textContent=created?tAgo(created):'';
+  const img=G('svImg');
+  if(s.imageUrl){img.src=s.imageUrl;img.style.display='block';G('svEmTx').style.display='none';}
+  else{img.style.display='none';G('svEmTx').style.display='flex';}
+
+  // Delete btn
   const svD=G('svDel');
-  if(svD)svD.style.display=s.authorId===me.uid?'block':'none';
-  if(svD)svD.onclick=()=>deleteMyStory(s.id);
-  G('svM').classList.add('vis');
-  viewingStoryId=s.id;
-  setTimeout(()=>G('svM').classList.remove('vis'),s.imageUrl?8000:5000);
-  if(s.authorId!==me.uid)await updateDoc(doc(DB,'stories',s.id),{viewedBy:arrayUnion(me.uid)}).catch(()=>{});
-};
+  if(svD)svD.style.display=s.authorId===me?.uid?'inline-block':'none';
+
+  // Views
+  const vc=G('svViewCount');
+  if(vc){const views=(s.viewedBy||[]).length;vc.textContent=views?`👁 ${views} view${views>1?'s':''}`:'';}
+
+  // Reactions
+  const rxns=s.reactions||{};
+  const rxCounts={};
+  Object.values(rxns).forEach(r=>{rxCounts[r]=(rxCounts[r]||0)+1;});
+  const svR=G('svRxn');
+  if(svR){
+    const myRxn=rxns[me?.uid];
+    svR.innerHTML=['❤️','😂','😮','😢','🔥','👏','😍','🤯'].map(e=>`
+      <button onclick="window.reactStory('${s.id}','${e}')" style="padding:6px 12px;border-radius:20px;border:1.5px solid ${myRxn===e?'#fff':'rgba(255,255,255,.25)'};background:${myRxn===e?'rgba(255,255,255,.25)':'rgba(0,0,0,.3)'};color:#fff;font-size:16px;cursor:pointer;backdrop-filter:blur(4px);">
+        ${e}${rxCounts[e]?` <span style="font-size:11px;font-weight:700;">${rxCounts[e]}</span>`:''}
+      </button>`).join('');
+  }
+
+  // Show/hide reply row
+  const rr=G('svReplyRow');
+  if(rr)rr.style.display=s.authorId===me?.uid?'none':'flex';
+
+  // Auto-advance + progress bar animation
+  const dur=s.imageUrl?7000:5000;
+  clearInterval(_svBarTimer);
+  const bar=document.getElementById('svbar'+i);
+  if(bar){
+    let elapsed=0; const step=50;
+    _svBarTimer=setInterval(()=>{
+      elapsed+=step;
+      bar.style.width=(elapsed/dur*100)+'%';
+      if(elapsed>=dur){clearInterval(_svBarTimer);}
+    },step);
+  }
+  clearTimeout(_svTimer);
+  _svTimer=setTimeout(()=>window._svNav(1),dur);
+
+  // Mark viewed
+  if(s.authorId!==me?.uid)updateDoc(doc(DB,'stories',s.id),{viewedBy:arrayUnion(me.uid)}).catch(()=>{});
+}
 
 window.reactStory=async(storyId,emoji)=>{
   if(!me?.uid)return;
   await updateDoc(doc(DB,'stories',storyId),{['reactions.'+me.uid]:emoji}).catch(()=>{});
-  toast(emoji+' Reaction added!');
+  hap([4,2,4]);
+  toast(emoji+' Reaction!');
+  // Refresh reactions UI
+  if(_svStories[_svCurIdx]?.id===storyId){
+    if(!_svStories[_svCurIdx].reactions)_svStories[_svCurIdx].reactions={};
+    _svStories[_svCurIdx].reactions[me.uid]=emoji;
+    const rxns=_svStories[_svCurIdx].reactions||{};
+    const rxCounts={};
+    Object.values(rxns).forEach(r=>{rxCounts[r]=(rxCounts[r]||0)+1;});
+    const svR=G('svRxn');
+    if(svR)svR.innerHTML=['❤️','😂','😮','😢','🔥','👏','😍','🤯'].map(e=>`
+      <button onclick="window.reactStory('${storyId}','${e}')" style="padding:6px 12px;border-radius:20px;border:1.5px solid ${emoji===e?'#fff':'rgba(255,255,255,.25)'};background:${emoji===e?'rgba(255,255,255,.25)':'rgba(0,0,0,.3)'};color:#fff;font-size:16px;cursor:pointer;">
+        ${e}${rxCounts[e]?` <span style="font-size:11px;">${rxCounts[e]}</span>`:''}
+      </button>`).join('');
+  }
 };
+
 window.deleteMyStory=async(id)=>{
-  if(!confirm('Delete this story?'))return;
-  await deleteDoc(doc(DB,'stories',id)).catch(()=>{});
-  G('svM').classList.remove('vis');
-  toast('🗑 Story deleted!');
+  if(!id)return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  ov.innerHTML=`<div style="background:var(--c1);border-radius:20px;padding:24px;width:100%;max-width:320px;text-align:center;">
+    <div style="font-size:32px;margin-bottom:10px;">🗑️</div>
+    <div style="font-size:16px;font-weight:800;margin-bottom:6px;">Story Delete করবে?</div>
+    <div style="font-size:13px;color:var(--m);margin-bottom:20px;">এটা সবার জন্য মুছে যাবে</div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="this.closest('[style*=fixed]').remove()" style="flex:1;padding:12px;background:var(--c2);border:none;border-radius:14px;color:var(--m);font-weight:700;cursor:pointer;">বাতিল</button>
+      <button onclick="window._confirmDelStory('${id}',this.closest('[style*=fixed]'))" style="flex:1;padding:12px;background:#ff3d7f;border:none;border-radius:14px;color:#fff;font-weight:700;cursor:pointer;">🗑️ Delete</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
 };
+window._confirmDelStory=async(id,ov)=>{
+  await deleteDoc(doc(DB,'stories',id)).catch(()=>{});
+  ov?.remove(); closeStoryView();
+  toast('🗑️ Story deleted!');
+};
+
+window.replyToStory=async function(){
+  const inp=G('svReplyInp'); if(!inp)return;
+  const txt=inp.value.trim(); if(!txt)return;
+  const s=_svStories[_svCurIdx]; if(!s)return;
+  // Send as message to story author
+  try{
+    await addDoc(collection(DB,'chats',cKey(me.uid,s.authorId),'messages'),{
+      text:`💬 Story reply: ${txt}`,from:me.uid,readBy:[me.uid],reactions:{},isPinned:false,createdAt:serverTimestamp()
+    });
+    inp.value=''; toast('✅ Reply sent!');
+  }catch(e){toast('Error sending reply');}
+};
+
+window.addStory=async()=>{
+  const txt=G('stTxt')?.value.trim()||'';
+  if(!txt&&!stImg)return toast('কিছু লিখুন বা photo যোগ করুন!');
+  const btn=G('stShareBtn');if(btn){btn.disabled=true;btn.textContent='Sharing...';}
+  try{
+    let imgUrl=null;
+    if(stImg){toast('📤 Uploading...');imgUrl=await uploadToImgBB(stImg);}
+    const expireAt=new Date(Date.now()+86400000); // 24 hours
+    await addDoc(collection(DB,'stories'),{
+      text:txt||'',icon:stIcon,imageUrl:imgUrl||null,
+      author:pr?.name||'?',emoji:pr?.emoji||'😊',
+      authorId:me.uid,viewedBy:[],reactions:{},
+      createdAt:serverTimestamp(),expiresAt:expireAt
+    });
+    const m=G('stM');if(m)m.style.display='none';
+    G('stTxt').value='';stImg=null;
+    const prev=G('stImgPrev');if(prev){prev.src='';prev.style.display='none';}
+    G('stImgRemBtn').style.display='none';
+    document.getElementById('stTxtPrev').textContent='';
+    toast('✨ Story shared! 24 ঘণ্টা দেখা যাবে');
+  }catch(e){toast('Failed: '+e.message);}
+  if(btn){btn.disabled=false;btn.textContent='Share ✨';}
+};
+
+// Fix stM open (was using classList.add('vis'), now uses style.display)
+window.openStoryCreate=function(){
+  const m=G('stM');if(!m)return;
+  m.style.display='flex';
+  const av=G('stPrevAv');if(av)av.textContent=pr?.emoji||'😊';
+  const nm=G('stPrevNm');if(nm)nm.textContent=pr?.name||'You';
+};
+
 
 // CHAT LIST
 async function loadChatList(){
@@ -2268,7 +2530,8 @@ let tapT=0;
 el.addEventListener('click',e=>{
   if(swping){swping=false;return;}
   const now=Date.now();
-  if(now-tapT<300){addMRxn(m.id,'❤️');tapT=0;}
+  if(now-tapT<300){addMRxn(m.id,'❤️');tapT=0; // quick ❤️ on double tap
+  }
   else tapT=now;
 });
 
@@ -2281,7 +2544,20 @@ function showCtx(m,el){ctxMsg=m;const ctx=G('ctxM');ctx.classList.add('show');co
 window.ctxReply=()=>{if(!ctxMsg)return;triggerReply(ctxMsg);G('ctxM').classList.remove('show');};
 window.ctxFwd=()=>{fwdMsg=ctxMsg;G('ctxM').classList.remove('show');showFwdList();};
 window.ctxPin=async()=>{if(!ctxMsg)return;const key=cKey(me.uid,chatU.uid);await updateDoc(doc(DB,'chats',key,'messages',ctxMsg.id),{isPinned:!ctxMsg.isPinned});G('ctxM').classList.remove('show');toast(ctxMsg.isPinned?'Unpinned':'📌 Pinned!');};
-window.ctxRxn=()=>{if(!ctxMsg)return;G('ctxM').classList.remove('show');addMRxn(ctxMsg.id,'❤️');};
+window.ctxRxn=()=>{
+  if(!ctxMsg)return;
+  G('ctxM').classList.remove('show');
+  // Show reaction picker
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);';
+  const rxns=['❤️','😂','😮','😢','😡','👍','👎','🔥','🎉','💯','😍','🤯'];
+  ov.innerHTML=`<div style="background:var(--c1);border-radius:24px;padding:16px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:280px;border:1px solid var(--br);box-shadow:0 8px 32px rgba(0,0,0,.5);">
+    ${rxns.map(e=>`<button onclick="addMRxn('${ctxMsg.id}','${e}');this.closest('[style*=fixed]').remove()" style="width:44px;height:44px;font-size:26px;background:var(--c2);border:none;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;">${e}</button>`).join('')}
+    <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;margin-top:4px;padding:8px;background:transparent;border:none;color:var(--m);font-size:13px;cursor:pointer;">বাতিল</button>
+  </div>`;
+  ov.onclick=e=>{if(e.target===ov)ov.remove();};
+  document.body.appendChild(ov);
+};
 window.ctxDel=async()=>{if(!ctxMsg||ctxMsg.from!==me.uid)return toast('You can only delete your own messages');const key=cKey(me.uid,chatU.uid);await deleteDoc(doc(DB,'chats',key,'messages',ctxMsg.id));G('ctxM').classList.remove('show');toast('Message deleted');};
 window.addMRxn=async(msgId,em)=>{if(!chatU)return;const key=cKey(me.uid,chatU.uid);const mRef=doc(DB,'chats',key,'messages',msgId);const snap=await getDoc(mRef);if(!snap.exists())return;const rxns=snap.data().reactions||{};const arr=rxns[em]||[];const idx=arr.indexOf(me.uid);if(idx>-1)arr.splice(idx,1);else arr.push(me.uid);rxns[em]=arr;await updateDoc(mRef,{reactions:rxns});};
 window.clrReply=()=>{replyMsg=null;G('rp-bar').classList.remove('vis');};
@@ -2356,29 +2632,194 @@ window.showLkM=()=>{const ta=G('mta');G('lkTxt').value=ta.value.slice(ta.selecti
 window.insLink=()=>{const txt=G('lkTxt').value.trim()||G('lkUrl').value;const url=G('lkUrl').value.trim();if(!url||url==='https://')return toast('Enter a URL!');const ta=G('mta');const p=ta.selectionStart;ta.value=ta.value.slice(0,p)+`[${txt}](${url})`+ta.value.slice(ta.selectionEnd);G('lkM').classList.remove('vis');ta.focus();};
 
 // REAL-TIME NOTIFICATIONS from Firebase
+function _checkNotifBadge(){
+  if(!me)return;
+  const readKey='fi_nread_'+me.uid;
+  const lastRead=parseInt(localStorage.getItem(readKey)||'0');
+  // Quick count of pending friend requests + recent post interactions
+  let count=0;
+  getDocs(query(collection(DB,'friendRequests'),where('to','==',me.uid),where('status','==','pending')))
+  .then(s=>{count+=s.size;if(count>0){const dot=G('n-dot');if(dot){dot.style.display='inline-block';dot.textContent=count>9?'9+':count;}}}).catch(()=>{});
+}
+
 function loadNotifs(){
   const list=G('notifList');
-  list.innerHTML=skelChats();
-  // Listen to recent posts liked by others
-  const postsQ=query(collection(DB,'posts'),where('authorId','==',me.uid),orderBy('createdAt','desc'),limit(20));
-  getDocs(postsQ).then(snap=>{
-    const items=[];
+  if(!list)return;
+  list.innerHTML='<div style="padding:20px;text-align:center;color:var(--m);">Loading...</div>';
+
+  const items=[];
+  let pending=3;
+  function done(){
+    pending--;
+    if(pending>0)return;
+    items.sort((a,b)=>(b.ts||0)-(a.ts||0));
+    if(!items.length){
+      list.innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--m);">
+        <div style="font-size:56px;margin-bottom:12px;opacity:.4;">🔔</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px;">কোনো notification নেই</div>
+        <div style="font-size:13px;">Post এ reaction, comment, friend request — সব এখানে দেখাবে</div>
+      </div>`;
+      G('n-dot').style.display='none';
+      return;
+    }
+    const unread=items.filter(i=>i.unread).length;
+    const dot=G('n-dot');
+    if(dot){
+      if(unread>0){dot.style.display='inline-block';dot.textContent=unread>9?'9+':unread;}
+      else dot.style.display='none';
+    }
+    list.innerHTML=items.map(n=>{
+      const bg=n.unread?'background:rgba(0,212,255,.05);':'';
+      return`<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--br);cursor:pointer;${bg}" onclick="${n.action||''}">
+        <!-- Avatar + icon badge -->
+        <div style="position:relative;flex-shrink:0;">
+          <div style="width:46px;height:46px;border-radius:50%;background:${n.avatarBg||'var(--c2)'};display:flex;align-items:center;justify-content:center;font-size:22px;">${n.avatar||'😊'}</div>
+          <div style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-radius:50%;background:${n.iconBg};display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--bg);">${n.icon}</div>
+        </div>
+        <!-- Text -->
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13.5px;line-height:1.45;color:var(--tx);">${n.text}</div>
+          ${n.sub?`<div style="font-size:12px;color:var(--m);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${n.sub}</div>`:''}
+          <div style="font-size:11px;color:var(--m);margin-top:4px;">${tAgo(n.time?.toDate?.())||'just now'}</div>
+        </div>
+        ${n.unread?'<div style="width:8px;height:8px;border-radius:50%;background:var(--a);flex-shrink:0;margin-top:5px;"></div>':''}
+        ${n.thumb?`<img src="${n.thumb}" style="width:44px;height:44px;border-radius:10px;object-fit:cover;flex-shrink:0;" loading="lazy">`:''}
+      </div>`;
+    }).join('');
+  }
+
+  const readKey='fi_nread_'+me.uid;
+  const lastRead=parseInt(localStorage.getItem(readKey)||'0');
+
+  // ── 1. Own posts: likes, reactions, comments ──────────────────
+  getDocs(query(collection(DB,'posts'),where('authorId','==',me.uid),orderBy('createdAt','desc'),limit(30)))
+  .then(snap=>{
     snap.forEach(d=>{
-      const p=d.data();
+      const p=d.data();const pts=p.createdAt?.seconds||0;
+      // Likes
       const likers=(p.likes||[]).filter(u=>u!==me.uid);
-      if(likers.length>0)items.push({ic:'❤️',tx:`<strong>${likers.length} ${likers.length===1?'person':'people'}</strong> liked your post`,sub:(p.text||'📷').slice(0,40),t:p.createdAt});
-      if(p.commentCount>0)items.push({ic:'💬',tx:`<strong>${p.commentCount} comment${p.commentCount>1?'s':''}</strong> on your post`,sub:(p.text||'📷').slice(0,40),t:p.createdAt});
+      if(likers.length){
+        const ts=pts;
+        items.push({
+          icon:'❤️',iconBg:'#ff3d7f',
+          avatar:p.authorEmoji||pr?.emoji||'😊',
+          avatarBg:'var(--grad)',
+          text:`<b>${likers.length}জন</b> তোমার post টি like করেছে`,
+          sub:(p.text||'📷 Photo').slice(0,50),
+          thumb:p.imageUrl||null,
+          time:p.createdAt,ts,
+          unread:ts>lastRead,
+          action:"sw('feed')"
+        });
+      }
+      // Reactions
+      const rxns=p.reactions||{};
+      const rxnEmojis=Object.keys(rxns).filter(e=>rxns[e]?.length&&(rxns[e]||[]).some(u=>u!==me.uid));
+      if(rxnEmojis.length){
+        const total=rxnEmojis.reduce((s,e)=>(rxns[e]||[]).filter(u=>u!==me.uid).length+s,0);
+        items.push({
+          icon:rxnEmojis[0],iconBg:'#7c6cff',
+          avatar:p.authorEmoji||pr?.emoji||'😊',avatarBg:'var(--c2)',
+          text:`<b>${total}জন</b> তোমার post এ reaction দিয়েছে ${rxnEmojis.join('')}`,
+          sub:(p.text||'📷 Photo').slice(0,50),
+          thumb:p.imageUrl||null,
+          time:p.createdAt,ts:pts,
+          unread:pts>lastRead,
+          action:"sw('feed')"
+        });
+      }
+      // Comments
+      if(p.commentCount>0){
+        const ts2=pts+1;
+        items.push({
+          icon:'💬',iconBg:'#00d4ff',
+          avatar:p.authorEmoji||pr?.emoji||'😊',avatarBg:'var(--c2)',
+          text:`তোমার post এ <b>${p.commentCount}টি comment</b> পড়েছে`,
+          sub:(p.text||'📷 Photo').slice(0,50),
+          thumb:p.imageUrl||null,
+          time:p.createdAt,ts:ts2,
+          unread:ts2>lastRead,
+          action:"sw('feed')"
+        });
+      }
     });
-    // Friend requests
-    const frQ=query(collection(DB,'friendRequests'),where('to','==',me.uid),where('status','==','pending'));
-    getDocs(frQ).then(frSnap=>{
-      frSnap.forEach(d=>{const r=d.data();items.push({ic:'👥',tx:`<strong>${r.fromName}</strong> sent you a friend request`,sub:'Tap to respond',t:r.createdAt,onclick:"sw('chat')"});});
-      items.sort((a,b)=>(b.t?.seconds||0)-(a.t?.seconds||0));
-      list.innerHTML=items.length?items.map(n=>`<div class="ni${n.unread?' unread':''}"><div class="ni-ic">${n.ic}</div><div class="ni-body" ${n.onclick?'onclick="'+n.onclick+'" style="cursor:pointer"':''}><div class="ni-tx">${n.tx}</div><div class="ni-sub">${n.sub||''}</div><div class="ni-t">${tAgo(n.t?.toDate?.())}</div></div></div>`).join('')
-        :'<div class="empty">No notifications yet 🔔<br>When friends interact with you, notifications will show here</div>';
+    done();
+  }).catch(()=>done());
+
+  // ── 2. Friend requests ────────────────────────────────────────
+  getDocs(query(collection(DB,'friendRequests'),where('to','==',me.uid),orderBy('createdAt','desc'),limit(20)))
+  .then(snap=>{
+    snap.forEach(d=>{
+      const r=d.data();const ts=r.createdAt?.seconds||0;
+      if(r.status==='pending'){
+        items.push({
+          icon:'👋',iconBg:'#4dff91',
+          avatar:r.fromEmoji||'😊',avatarBg:'var(--c2)',
+          text:`<b>${r.fromName}</b> তোমাকে friend request পাঠিয়েছে`,
+          sub:'Tap to respond →',
+          time:r.createdAt,ts,
+          unread:ts>lastRead,
+          action:"sw('chat')"
+        });
+      } else if(r.status==='accepted'){
+        items.push({
+          icon:'🤝',iconBg:'#4dff91',
+          avatar:r.fromEmoji||'😊',avatarBg:'var(--c2)',
+          text:`<b>${r.fromName}</b> তোমার friend request accept করেছে!`,
+          sub:'এখন message করতে পারো',
+          time:r.createdAt,ts,
+          unread:ts>lastRead,
+          action:"sw('chat')"
+        });
+      }
     });
-  }).catch(()=>{list.innerHTML='<div class="empty">Could not load notifications</div>';});
+    done();
+  }).catch(()=>done());
+
+  // ── 3. Story views & reactions ────────────────────────────────
+  getDocs(query(collection(DB,'stories'),where('authorId','==',me.uid),orderBy('createdAt','desc'),limit(10)))
+  .then(snap=>{
+    snap.forEach(d=>{
+      const s=d.data();const ts=s.createdAt?.seconds||0;
+      const viewers=(s.viewedBy||[]).filter(u=>u!==me.uid);
+      if(viewers.length){
+        items.push({
+          icon:'👁️',iconBg:'#ffd740',
+          avatar:s.emoji||pr?.emoji||'😊',avatarBg:'var(--c2)',
+          text:`<b>${viewers.length}জন</b> তোমার story দেখেছে`,
+          sub:(s.text||'Story').slice(0,40),
+          time:s.createdAt,ts,
+          unread:ts>lastRead,
+          action:''
+        });
+      }
+      const rxns=s.reactions||{};
+      const rxnList=Object.values(rxns);
+      if(rxnList.length){
+        items.push({
+          icon:rxnList[0]||'😍',iconBg:'#ff3d7f',
+          avatar:s.emoji||pr?.emoji||'😊',avatarBg:'var(--c2)',
+          text:`<b>${rxnList.length}জন</b> তোমার story তে react করেছে`,
+          sub:(s.text||'Story').slice(0,40),
+          time:s.createdAt,ts:ts+1,
+          unread:ts>lastRead,
+          action:''
+        });
+      }
+    });
+    done();
+  }).catch(()=>done());
 }
+
+window.markAllRead=function(){
+  const readKey='fi_nread_'+me.uid;
+  localStorage.setItem(readKey,Math.floor(Date.now()/1000).toString());
+  const dot=G('n-dot');if(dot)dot.style.display='none';
+  // Re-render without unread dots
+  document.querySelectorAll('#notifList [style*="rgba(0,212"]').forEach(el=>{el.style.background='';});
+  document.querySelectorAll('#notifList [style*="width:8px"]').forEach(el=>{if(el.style.borderRadius==='50%'&&el.style.background.includes('var(--a)'))el.remove();});
+  toast('✅ সব notification পড়া হয়েছে');
+};
 
 // PROFILE
 window.loadProfile=async function(uid){
@@ -2600,7 +3041,9 @@ let pullY=0,pulling=false;
 })();
 
 window.sw=p=>{
-  ['feed','chat','reels','notif','profile','settings','games'].forEach(x=>{
+  // Auto mute reels when leaving
+  if(typeof _rvLeave==='function' && G('pg-reels')?.style.display!=='none' && p!=='reels') _rvLeave();
+  ['feed','chat','reels','notif','profile','settings','games','learn'].forEach(x=>{
     const el=G('pg-'+x);if(el)el.style.display=x===p?(p==='reels'?'flex':'block'):'none';
     const bn=G('bn-'+x);if(bn)bn.classList.toggle('on',x===p);
   });
@@ -2614,20 +3057,20 @@ window.sw=p=>{
       setTimeout(()=>G('mlPw')?.focus(),320);
     }else loadChatList();
   }
-  if(p==='games'){loadGames();}
+  if(p==='games')loadGames();
+  if(p==='learn')loadLearn();
   if(p==='reels'){
     if(!_rvLoaded)loadReels();
     else{
-      const cv=document.getElementById('rvv-'+_rvIdx);
+      const cv=document.getElementById('rvv'+_rvCur);
       if(cv)cv.play().catch(()=>{});
     }
   }
-  if(p==='games')loadGames();
   if(p==='profile')loadProfile(me?.uid);
   if(p==='notif')loadNotifs();
   if(p==='settings')initTG();
-  G('ep').classList.remove('vis');
-  G('ctxM').classList.remove('show');
+  G('ep')?.classList.remove('vis');
+  G('ctxM')?.classList.remove('show');
 };
 window.openImg=url=>{G('iv-img').src=url;G('img-view').classList.add('vis');};
 window.setTab=t=>{showAuthView(t==='l'?'vLogin':'vReg');};
@@ -2684,47 +3127,85 @@ window.pickProfilePic=()=>{
 // ════════════════════════════════════════════════════════
 // FIRST INFINITY REELS — UNLIMITED, NO REPEAT, SMOOTH SCROLL
 // One video at a time. Swipe up = next. Never repeats.
-// ═// ════════════════════════════════════════════════════════════
-// FIRST INFINITY REELS — TIKTOK-STYLE, UNLIMITED, NO REPEAT
-// Pure JS slide control (no CSS scroll-snap bugs)
-// One swipe = exactly one video. Never repeats.
-// ════════════════════════════════════════════════════════════
+// ═// ════════════════════════════════════════════════════════════════
+// FIRST INFINITY REELS — UNLIMITED SMOOTH SCROLL, NO REPEAT
+// Content: Programming / CSE / AI / Tech (global, no country limit)
+// Scroll engine: JS translateY (TikTok-style, buttery smooth)
+// Sound: auto ON when entering reels, auto OFF when leaving
+// ════════════════════════════════════════════════════════════════
 
-// ── 200 unique fallback clips ─────────────────────────────────────
+// ── Tech/CSE/AI content pool (200 unique clips) ───────────────────
 const _FB = [];
 (()=>{
+  // Base Google CDN videos — vary start time for unique feel
   const V = [
-    ['ForBiggerBlazes',    '🔥 এটা দেখে মাথা নষ্ট হবে!'],
-    ['ForBiggerFun',       '😂 এত হাসলে পেট ব্যথা পাবে!'],
-    ['ForBiggerJoyrides',  '🚀 Speed এর রাজা বাংলাদেশ!'],
-    ['ForBiggerMeltdowns', '💥 WOW — বিশ্বাসই হচ্ছে না!'],
-    ['ForBiggerEscapes',   '🌊 বাংলাদেশের অসাধারণ দৃশ্য!'],
-    ['SubaruOutbackOnStreetAndDirt','🏎️ ঢাকার রাস্তায় থ্রিল!'],
-    ['TearsOfSteel',       '⚡ ভবিষ্যৎ এসে গেছে!'],
-    ['WeAreGoingOnBullrun','💪 হার মানব না কখনো!'],
-    ['WhatCarCanYouGetForAGrand','😎 Smart Review বাংলায়'],
-    ['VolkswagenGTIReview','🌈 আজকের Viral Clip!'],
-    ['ElephantsDream',     '🎨 Cinematic India Vibes!'],
-    ['BigBuckBunny',       '🐰 হাসির ভিডিও — মিস করো না!'],
-    ['Sintel',             '🌟 Bollywood Style Epic!'],
+    ['ForBiggerBlazes',    '🔥 এই Trick না জানলে Developer হওয়া যাবে না!'],
+    ['ForBiggerFun',       '😂 Programmer দের Real Life — এটা সত্যি!'],
+    ['ForBiggerJoyrides',  '🚀 AI দিয়ে 10x Fast Code করার উপায়!'],
+    ['ForBiggerMeltdowns', '💥 এই Bug টা খুঁজতে 3 দিন লেগেছিল!'],
+    ['ForBiggerEscapes',   '🌐 Full Stack Developer হওয়ার Road Map!'],
+    ['SubaruOutbackOnStreetAndDirt','⚡ Python vs JavaScript — কোনটা শিখবে?'],
+    ['TearsOfSteel',       '🤖 ChatGPT দিয়ে Code লেখার Pro Tips!'],
+    ['WeAreGoingOnBullrun','💻 VSCode এর Secret Features — জানতাই না!'],
+    ['WhatCarCanYouGetForAGrand','🧠 Data Structures শেখার সহজ উপায়!'],
+    ['VolkswagenGTIReview','🔢 Binary, Hex, Octal — 5 মিনিটে শিখুন!'],
+    ['ElephantsDream',     '🎯 Algorithm Interview Tips — Google, Meta!'],
+    ['BigBuckBunny',       '🐍 Python কে Beginner দের ভাষা বলে কেন?'],
+    ['Sintel',             '🌟 Machine Learning কীভাবে কাজ করে?'],
   ];
-  const A = ['BD Viral','Funny Zone','Desi Reels','India Viral','BD Nature',
-             'Speed BD','Tech Zone','Motivate BD','Smart BD','Trending BD',
-             'Cinema Desi','Fun BD','Epic Zone'];
+  const A = ['CSE Tips BD','Code With Me','AI Daily','Dev Secrets','Tech Shorts',
+             'Python BD','Algo Zone','ML Basics','Web Dev BD','Code Ninja',
+             'AI World','Hack Zone','Dev Life'];
+  const titles = [
+    '💻 এই 5টা VS Code Extension না থাকলে কাজ করা যায় না!',
+    '🤖 AI কীভাবে Code নিজেই লিখতে শিখল?',
+    '🔥 GitHub Copilot দিয়ে 5 মিনিটে App বানাও!',
+    '🧠 Neural Network কী? সহজ ভাষায় বোঝো!',
+    '⚡ Time Complexity O(1) থেকে O(n²) — Visual Guide',
+    '🐛 Debugging করার সবচেয়ে Smart উপায়!',
+    '🌐 REST API vs GraphQL — কোনটা Use করবে?',
+    '📊 Database Design করার Rules — Beginner Guide',
+    '🔒 Cybersecurity তে Career করতে চাইলে এটা দেখো!',
+    '🚀 Docker কী? 3 মিনিটে বুঝে নাও!',
+    '🎮 Game Development শুরু করবে কীভাবে?',
+    '📱 React Native দিয়ে First App বানানোর গল্প!',
+    '💡 Recursion বুঝতে পারছ না? এই Example দেখো!',
+    '🔑 JWT Token Authentication — Step by Step',
+    '🌳 Binary Search Tree — Visual Explanation!',
+    '⚙️ Operating System কীভাবে কাজ করে?',
+    '🏗️ System Design Interview — Basics থেকে শুরু!',
+    '📈 Big Data কী এবং কীভাবে কাজ করে?',
+    '🤯 Quantum Computing কী এটা কি সত্যিই হবে?',
+    '🔮 GPT-4 vs Gemini vs Claude — কে সেরা?',
+    '🐍 Python List Comprehension — 1 Line এ Magic!',
+    '📦 NPM Package বানানো এত সহজ?',
+    '🎯 Clean Code লেখার 10টা Rule!',
+    '🌊 Async/Await JavaScript — সহজ Guide!',
+    '💾 Cache কীভাবে কাজ করে?',
+    '🔗 Blockchain কী? Technical Explanation!',
+    '🤝 Open Source Contribute করা শুরু করো!',
+    '🏆 Competitive Programming শুরু করবে কীভাবে?',
+    '🌍 Cloud Computing AWS vs GCP vs Azure!',
+    '🔧 Linux Command Line — Must Know Commands!',
+  ];
   for(let i=0;i<200;i++){
     const f=V[i%V.length];
+    const t=titles[i%titles.length];
     _FB.push({id:'fb'+i,
-      url:`https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/${f[0]}.mp4#t=${i}`,
-      title:f[1], author:A[i%A.length], likes:3000+(i*479%77000)});
+      url:`https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/${f[0]}.mp4#t=${i%60}`,
+      title:t, author:A[i%A.length], likes:5000+(i*613%85000)});
   }
 })();
 
-// ── Pixabay API ───────────────────────────────────────────────────
+// ── Pixabay API — CSE/AI/Tech queries (global, no country filter) ─
 const _PXK='47338836-f5d6e7c8b9a0b1c2d3e4f5a6b';
-const _PXQ=['india dance','bollywood funny','bangladesh viral','desi comedy',
-  'india festival','funny moments','south asia','kolkata street','dhaka city',
-  'indian wedding','holi festival','monsoon india','cricket india',
-  'street food india','funny animals','cute moments','viral moment','comedy'];
+const _PXQ=[
+  'programming','artificial intelligence','machine learning','coding',
+  'software developer','data science','computer','technology',
+  'robot ai','neural network','python programming','javascript',
+  'cybersecurity','cloud computing','startup tech','hackathon',
+  'web development','mobile app','algorithm','database',
+];
 let _pxQi=0, _pxPages={}, _pxBusy=false;
 
 async function _pxFetch(){
@@ -2732,8 +3213,10 @@ async function _pxFetch(){
   try{
     const q=_PXQ[_pxQi%_PXQ.length]; _pxQi++;
     _pxPages[q]=(_pxPages[q]||0)+1;
-    const r=await fetch(`https://pixabay.com/api/videos/?key=${_PXK}&q=${encodeURIComponent(q)}&per_page=15&page=${_pxPages[q]}&safesearch=true`,
-      {signal:AbortSignal.timeout(6000)});
+    const r=await fetch(
+      `https://pixabay.com/api/videos/?key=${_PXK}&q=${encodeURIComponent(q)}&per_page=15&page=${_pxPages[q]}&safesearch=true`,
+      {signal:AbortSignal.timeout(7000)}
+    );
     if(!r.ok)throw 0;
     const d=await r.json();
     if(!d.hits?.length){_pxPages[q]=0;return;}
@@ -2742,74 +3225,77 @@ async function _pxFetch(){
       const url=vs.small?.url||vs.medium?.url||vs.large?.url||'';
       if(!url)continue;
       const id='px'+v.id;
-      // Skip if already shown OR already in pool
       if(_rvPool.some(p=>p.id===id))continue;
-      _rvPool.push({id,url,title:`🎬 ${q.charAt(0).toUpperCase()+q.slice(1)} — First Infinity`,
-        author:v.user||'Pixabay',likes:(v.likes||0)+Math.floor(Math.random()*9000+100),
+      _rvPool.push({id,url,
+        title:`🎬 ${q.charAt(0).toUpperCase()+q.slice(1)} — First Infinity`,
+        author:v.user||'Tech Creator',
+        likes:(v.likes||0)+Math.floor(Math.random()*9000+200),
         thumb:`https://i.vimeocdn.com/video/${v.picture_id}_640x360.jpg`});
     }
   }catch(e){}finally{_pxBusy=false;}
 }
 
 // ── State ─────────────────────────────────────────────────────────
-let _rvLoaded=false, _rvMuted=true, _rvCur=0;
-let _rvSeen=new Set(), _rvPool=[], _rvLiked=new Set();
-let _rvSlides=[];   // array of slide data in DOM order
-let _rvAnimating=false;
-let _rvCycle=0;      // cycle counter — ensures unique DOM ids every cycle
+let _rvLoaded=false, _rvMuted=false, _rvCur=0; // muted=false → sound ON by default
+let _rvPool=[], _rvLiked=new Set();
+let _rvSlides=[], _rvCycle=0;
+let _rvAnim=false, _rvTY=0, _rvDrag=false, _rvLastTap=0;
 
 function _rvSeed(){
   const sh=[..._FB].sort(()=>Math.random()-.5);
   for(const v of sh){
-    if(!_rvSeen.has(v.id)&&!_rvPool.some(p=>p.id===v.id))_rvPool.push(v);
+    if(!_rvPool.some(p=>p.id===v.id)) _rvPool.push(v);
   }
 }
-
 function _fmtN(n=0){return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':''+Math.max(0,n);}
 
-// ── Build slide element ───────────────────────────────────────────
-function _rvMkSlide(data, pos){
-  const H=window.innerHeight-108;
-  const W=window.innerWidth;
-  const wrap=document.createElement('div');
-  wrap.id='rvs'+pos;
-  wrap.style.cssText=`position:absolute;top:0;left:0;width:${W}px;height:${H}px;background:#000;overflow:hidden;transform:translateY(${pos*H}px);will-change:transform;`;
+// ── Build one slide ───────────────────────────────────────────────
+function _rvMkSlide(data, num){
+  const H = window.innerHeight - 108;
+  const wrap = document.createElement('div');
+  wrap.id = 'rvs'+num;
+  wrap.style.cssText = `position:absolute;top:0;left:0;width:100%;height:${H}px;background:#000;overflow:hidden;transform:translateY(${num*H}px);will-change:transform;`;
 
   // Video
-  const vid=document.createElement('video');
-  vid.id='rvv'+pos;
-  vid.src=data.url;
-  vid.muted=true; vid.loop=true; vid.playsInline=true;
-  vid.preload=pos<=1?'auto':'metadata';
+  const vid = document.createElement('video');
+  vid.id = 'rvv'+num;
+  vid.src = data.url;
+  vid.muted = _rvMuted;
+  vid.loop = true; vid.playsInline = true;
+  vid.preload = num <= 1 ? 'auto' : 'metadata';
   vid.setAttribute('playsinline',''); vid.setAttribute('webkit-playsinline','');
-  vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
-  if(data.thumb)vid.poster=data.thumb;
+  vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+  if(data.thumb) vid.poster = data.thumb;
   wrap.appendChild(vid);
 
   // Spinner
-  const sp=document.createElement('div');
-  sp.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:4;pointer-events:none;transition:opacity .3s;';
-  sp.innerHTML='<div style="width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:#ff3d7f;animation:spin .7s linear infinite;"></div>';
+  const sp = document.createElement('div');
+  sp.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:4;pointer-events:none;transition:opacity .3s;';
+  sp.innerHTML = '<div style="width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:#ff3d7f;animation:spin .7s linear infinite;"></div>';
   wrap.appendChild(sp);
   vid.addEventListener('canplay',()=>{sp.style.opacity='0';setTimeout(()=>sp.remove(),350);},{once:true});
-  vid.addEventListener('error',()=>{sp.remove();setTimeout(()=>_rvGo(1),600);},{once:true});
+  vid.addEventListener('error',()=>{sp.remove();setTimeout(()=>_rvGo(1),700);},{once:true});
 
   // Gradients
-  const tg=document.createElement('div');
-  tg.style.cssText='position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,rgba(0,0,0,.55),transparent);z-index:5;pointer-events:none;';
+  const tg = document.createElement('div');
+  tg.style.cssText = 'position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,rgba(0,0,0,.6),transparent);z-index:5;pointer-events:none;';
   wrap.appendChild(tg);
 
-  // Info
-  const info=document.createElement('div');
-  info.style.cssText='position:absolute;bottom:0;left:0;right:58px;z-index:5;padding:14px 14px 22px;background:linear-gradient(to top,rgba(0,0,0,.95),transparent);pointer-events:none;';
-  info.innerHTML=`<div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:3px;">@${(data.author||'First Infinity').slice(0,24)}</div>
-    <div style="font-size:12px;color:rgba(255,255,255,.9);line-height:1.4;">${data.title}</div>
-    <div style="margin-top:5px;font-size:11px;font-weight:900;background:linear-gradient(90deg,#ff3d7f,#7c6cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">∞ First Infinity Reels</div>`;
+  // Info bar
+  const info = document.createElement('div');
+  info.style.cssText = 'position:absolute;bottom:0;left:0;right:60px;z-index:5;padding:14px 14px 22px;background:linear-gradient(to top,rgba(0,0,0,.95),transparent);pointer-events:none;';
+  info.innerHTML = `
+    <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:3px;text-shadow:0 1px 6px rgba(0,0,0,.9);">@${(data.author||'Tech Creator').slice(0,24)}</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.92);line-height:1.5;">${data.title}</div>
+    <div style="margin-top:5px;display:flex;align-items:center;gap:5px;">
+      <span style="font-size:11px;font-weight:900;background:linear-gradient(90deg,#ff3d7f,#7c6cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">∞ First Infinity</span>
+      <span style="font-size:10px;color:rgba(255,255,255,.35);">• Reels</span>
+    </div>`;
   wrap.appendChild(info);
 
-  // Buttons
-  const acts=document.createElement('div');
-  acts.style.cssText='position:absolute;right:8px;bottom:80px;z-index:6;display:flex;flex-direction:column;align-items:center;gap:18px;';
+  // Action buttons
+  const acts = document.createElement('div');
+  acts.style.cssText = 'position:absolute;right:8px;bottom:80px;z-index:6;display:flex;flex-direction:column;align-items:center;gap:18px;';
   function mkB(ic,lb,fn){
     const d=document.createElement('div');
     d.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;';
@@ -2817,167 +3303,172 @@ function _rvMkSlide(data, pos){
     b.style.cssText='width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.6);border:1.5px solid rgba(255,255,255,.2);font-size:22px;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:.15s;-webkit-tap-highlight-color:transparent;';
     b.textContent=ic; b.onclick=e=>{e.stopPropagation();fn();};
     const l=document.createElement('span');
-    l.style.cssText='font-size:10px;color:rgba(255,255,255,.9);font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.9);pointer-events:none;';
-    l.textContent=lb; d.appendChild(b);d.appendChild(l);return{d,b,l};
+    l.style.cssText='font-size:10px;color:rgba(255,255,255,.9);font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.9);';
+    l.textContent=lb; d.appendChild(b);d.appendChild(l); return{d,b,l};
   }
-  let lkCount=data.likes||1000;
-  const lk=mkB('🤍',_fmtN(lkCount),()=>{
-    const on=_rvLiked.has(pos);
-    on?_rvLiked.delete(pos):_rvLiked.add(pos);
-    lk.b.textContent=_rvLiked.has(pos)?'❤️':'🤍';
-    lk.b.style.transform='scale(1.3)';setTimeout(()=>lk.b.style.transform='',200);
-    lkCount+=_rvLiked.has(pos)?1:-1; lk.l.textContent=_fmtN(lkCount);
-    if(_rvLiked.has(pos)){
+
+  // Like
+  let lkCnt = data.likes||1000;
+  const lk=mkB('🤍',_fmtN(lkCnt),()=>{
+    const on=_rvLiked.has(num);
+    on?_rvLiked.delete(num):_rvLiked.add(num);
+    lk.b.textContent=_rvLiked.has(num)?'❤️':'🤍';
+    lk.b.style.transform='scale(1.3)'; setTimeout(()=>lk.b.style.transform='',200);
+    lkCnt+=_rvLiked.has(num)?1:-1; lk.l.textContent=_fmtN(lkCnt);
+    if(_rvLiked.has(num)){
       hap([8,4,8]);
-      const h=document.createElement('div');h.textContent='❤️';
+      const h=document.createElement('div');
+      h.textContent='❤️';
       h.style.cssText='position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-size:90px;z-index:20;pointer-events:none;animation:rxnPop .6s ease-out forwards;';
-      wrap.appendChild(h);setTimeout(()=>h.remove(),700);
+      wrap.appendChild(h); setTimeout(()=>h.remove(),700);
     }
   });
   acts.appendChild(lk.d);
-  const sh=mkB('📤','Share',()=>_rvShareModal(data));acts.appendChild(sh.d);
-  const sn=mkB(_rvMuted?'🔇':'🔊','Sound',()=>{
+
+  // Share (in-app only)
+  const sh=mkB('📤','Share',()=>_rvShareModal(data));
+  acts.appendChild(sh.d);
+
+  // Mute button (shows current global mute state)
+  const snd=mkB(_rvMuted?'🔇':'🔊','Sound',()=>{
     _rvMuted=!_rvMuted;
     document.querySelectorAll('video[id^="rvv"]').forEach(v=>v.muted=_rvMuted);
-    sn.b.textContent=_rvMuted?'🔇':'🔊';
-    const mb=G('reelMuteBtn');if(mb)mb.textContent=_rvMuted?'🔇':'🔊';
+    snd.b.textContent=_rvMuted?'🔇':'🔊';
+    const mb=G('reelMuteBtn'); if(mb) mb.textContent=_rvMuted?'🔇':'🔊';
     toast(_rvMuted?'🔇 Muted':'🔊 Sound ON');
-  });acts.appendChild(sn.d);
+  });
+  acts.appendChild(snd.d);
   wrap.appendChild(acts);
   return wrap;
 }
 
-// ── Slide management ──────────────────────────────────────────────
-function _rvAddSlides(n=3){
-  const feed=G('reelFeed');if(!feed)return;
+// ── Add slides ────────────────────────────────────────────────────
+function _rvAdd(n=3){
+  const feed=G('reelFeed'); if(!feed) return;
   for(let i=0;i<n;i++){
-    // Refill pool if empty — shuffle FB again (NO seen reset, use counter for unique DOM ids)
     if(!_rvPool.length){
-      // Add shuffled FB pool — give each a fresh unique id so DOM ids are always unique
+      // Reseed with new cycle (different shuffle = feels new)
       const sh=[..._FB].sort(()=>Math.random()-.5);
-      for(const v of sh){
-        // New pool entry with unique id each cycle
-        _rvPool.push({...v, id:v.id+'_c'+(_rvCycle++)});
-      }
-      _pxFetch(); // also try to get fresh API content
+      sh.forEach(v=>_rvPool.push({...v,id:v.id+'_'+(_rvCycle++)}));
+      _pxFetch();
     }
-    const v=_rvPool.shift();if(!v)break;
+    const v=_rvPool.shift(); if(!v) break;
     const pos=_rvSlides.length;
     _rvSlides.push(v);
     feed.appendChild(_rvMkSlide(v,pos));
   }
-  if(_rvPool.length<5)_pxFetch();
+  if(_rvPool.length<5) _pxFetch();
 }
 
-// ── Go to slide (dir: +1 next, -1 prev) ──────────────────────────
+// ── Smooth slide navigation ───────────────────────────────────────
 function _rvGo(dir){
-  if(_rvAnimating)return;
+  if(_rvAnim) return;
   const next=_rvCur+dir;
-  if(next<0)return;
-  if(next>=_rvSlides.length)_rvAddSlides(3);
+  if(next<0) return;
+  if(next>=_rvSlides.length) _rvAdd(3);
   const nextEl=document.getElementById('rvs'+next);
-  if(!nextEl)return;
-  _rvAnimating=true;
+  if(!nextEl) return;
+  _rvAnim=true;
   const H=window.innerHeight-108;
-  // Animate all slides
+  // Animate all slides with cubic-bezier (YouTube/TikTok feel)
   const feed=G('reelFeed');
   Array.from(feed.children).forEach(el=>{
-    const pos=parseInt(el.id.replace('rvs',''));
-    if(!isNaN(pos)){
-      el.style.transition='transform .38s cubic-bezier(.4,0,.2,1)';
-      el.style.transform=`translateY(${(pos-next)*H}px)`;
+    const p=parseInt(el.id.replace('rvs',''));
+    if(!isNaN(p)){
+      el.style.transition='transform .35s cubic-bezier(.25,.46,.45,.94)';
+      el.style.transform=`translateY(${(p-next)*H}px)`;
     }
   });
-  // Pause old, play new
+  // Pause old video
   const oldV=document.getElementById('rvv'+_rvCur);
-  if(oldV)oldV.pause();
+  if(oldV) oldV.pause();
   _rvCur=next;
   setTimeout(()=>{
-    _rvAnimating=false;
+    _rvAnim=false;
+    // Play current with sound ON (auto sound when entering reels)
     const cv=document.getElementById('rvv'+_rvCur);
-    if(cv){cv.muted=_rvMuted;cv.play().catch(()=>{});}
-    // Remove slides far away (memory)
-    Array.from(feed.children).forEach(el=>{
-      const pos=parseInt(el.id.replace('rvs',''));
-      if(!isNaN(pos)&&Math.abs(pos-_rvCur)>5){
-        const v=el.querySelector('video');if(v){v.pause();v.src='';}
-      }
-    });
-    // Load more if near end
-    if(_rvCur>=_rvSlides.length-2)_rvAddSlides(3);
-  },400);
+    if(cv){cv.muted=_rvMuted; cv.play().catch(()=>{});}
+    // Preload next
+    const nv=document.getElementById('rvv'+(_rvCur+1));
+    if(nv) nv.preload='auto';
+    // Load more when near end
+    if(_rvCur>=_rvSlides.length-2) _rvAdd(3);
+  },360);
 }
 
-// ── Touch handling ────────────────────────────────────────────────
-let _rvTY=0, _rvDragging=false, _rvLastTap=0;
+// ── Touch handler ─────────────────────────────────────────────────
 function _rvInitTouch(feed){
-  const H=window.innerHeight-108;
+  const H=()=>window.innerHeight-108;
   feed.addEventListener('touchstart',e=>{
-    if(e.target.closest('button'))return;
-    _rvTY=e.touches[0].clientY; _rvDragging=true;
+    if(e.target.closest('button')) return;
+    _rvTY=e.touches[0].clientY; _rvDrag=true;
   },{passive:true});
   feed.addEventListener('touchmove',e=>{
-    if(!_rvDragging||_rvAnimating)return;
+    if(!_rvDrag||_rvAnim) return;
     const dy=_rvTY-e.touches[0].clientY;
-    // Live drag preview
     Array.from(feed.children).forEach(el=>{
-      const pos=parseInt(el.id.replace('rvs',''));
-      if(!isNaN(pos)){
+      const p=parseInt(el.id.replace('rvs',''));
+      if(!isNaN(p)){
         el.style.transition='none';
-        el.style.transform=`translateY(${(pos-_rvCur)*H - dy}px)`;
+        el.style.transform=`translateY(${(p-_rvCur)*H()-dy}px)`;
       }
     });
   },{passive:true});
   feed.addEventListener('touchend',e=>{
-    if(!_rvDragging)return; _rvDragging=false;
-    if(e.target.closest('button'))return;
+    if(!_rvDrag) return; _rvDrag=false;
+    if(e.target.closest('button')) return;
     const dy=_rvTY-e.changedTouches[0].clientY;
-    const now=Date.now();
-    if(Math.abs(dy)<10){
-      // Tap — check double tap
-      if(now-_rvLastTap<280){
-        // Double tap — like
-        const lkBtn=document.querySelector(`#rvs${_rvCur} button`);
-        if(lkBtn)lkBtn.click();
-      } else {
-        // Single tap — play/pause
-        const cv=document.getElementById('rvv'+_rvCur);
-        if(cv)cv.paused?cv.play().catch(()=>{}):cv.pause();
-      }
-      _rvLastTap=now;
-      // Snap back to current
-      Array.from(feed.children).forEach(el=>{
-        const pos=parseInt(el.id.replace('rvs',''));
-        if(!isNaN(pos)){
-          el.style.transition='transform .3s cubic-bezier(.4,0,.2,1)';
-          el.style.transform=`translateY(${(pos-_rvCur)*H}px)`;
-        }
-      });
-    } else if(Math.abs(dy)>40){
+    if(Math.abs(dy)>45){
       _rvGo(dy>0?1:-1);
     } else {
-      // Snap back
+      // Snap back smoothly
       Array.from(feed.children).forEach(el=>{
-        const pos=parseInt(el.id.replace('rvs',''));
-        if(!isNaN(pos)){
-          el.style.transition='transform .3s cubic-bezier(.4,0,.2,1)';
-          el.style.transform=`translateY(${(pos-_rvCur)*H}px)`;
+        const p=parseInt(el.id.replace('rvs',''));
+        if(!isNaN(p)){
+          el.style.transition='transform .3s cubic-bezier(.25,.46,.45,.94)';
+          el.style.transform=`translateY(${(p-_rvCur)*H()}px)`;
         }
       });
+      // Tap / double tap
+      const now=Date.now();
+      if(now-_rvLastTap<280 && Math.abs(dy)<10){
+        // Double tap = like
+        const lkBtn=document.querySelector(`#rvs${_rvCur} button`);
+        if(lkBtn) lkBtn.click();
+      } else if(Math.abs(dy)<10){
+        const cv=document.getElementById('rvv'+_rvCur);
+        if(cv) cv.paused?cv.play().catch(()=>{}):cv.pause();
+      }
+      _rvLastTap=now;
     }
   },{passive:true});
 }
 
-// Dummy onReelFeedScroll (not needed anymore but kept for compat)
 window.onReelFeedScroll=function(){};
 
-// ── Mute toggle ───────────────────────────────────────────────────
+// ── Mute toggle (top bar button) ──────────────────────────────────
 window.toggleReelMute=function(){
   _rvMuted=!_rvMuted;
   document.querySelectorAll('video[id^="rvv"]').forEach(v=>v.muted=_rvMuted);
-  const mb=G('reelMuteBtn');if(mb)mb.textContent=_rvMuted?'🔇':'🔊';
+  const mb=G('reelMuteBtn'); if(mb) mb.textContent=_rvMuted?'🔇':'🔊';
   toast(_rvMuted?'🔇 Muted':'🔊 Sound ON');
 };
+
+// ── Auto sound ON when entering reels ────────────────────────────
+function _rvEnter(){
+  _rvMuted=false;
+  document.querySelectorAll('video[id^="rvv"]').forEach(v=>v.muted=false);
+  const mb=G('reelMuteBtn'); if(mb) mb.textContent='🔊';
+  const cv=document.getElementById('rvv'+_rvCur);
+  if(cv) cv.play().catch(()=>{});
+}
+
+// ── Auto sound OFF when leaving reels ────────────────────────────
+function _rvLeave(){
+  _rvMuted=true;
+  document.querySelectorAll('video[id^="rvv"]').forEach(v=>{v.muted=true; v.pause();});
+  const mb=G('reelMuteBtn'); if(mb) mb.textContent='🔇';
+}
 
 // ── Share modal ───────────────────────────────────────────────────
 async function _rvShareModal(data){
@@ -3006,37 +3497,559 @@ async function _rvShareModal(data){
   document.body.appendChild(ov);
 }
 window._rvSend=async function(uid,title,el){
-  const st=document.getElementById('rvsh'+uid);if(st)st.textContent='⏳';
+  const st=document.getElementById('rvsh'+uid); if(st)st.textContent='⏳';
   try{
     await addDoc(collection(DB,'chats',cKey(me.uid,uid),'messages'),{
-      text:`🎬 ${title}\n∞ First Infinity Reels`,from:me.uid,readBy:[me.uid],reactions:{},isPinned:false,createdAt:serverTimestamp()
+      text:`💻 ${title}\n∞ First Infinity Reels`,
+      from:me.uid,readBy:[me.uid],reactions:{},isPinned:false,createdAt:serverTimestamp()
     });
     if(st){st.textContent='✅';st.style.color='#4dff91';}
-    el.style.opacity='.5';el.style.pointerEvents='none';toast('📤 Reel share হয়েছে!');
+    el.style.opacity='.5'; el.style.pointerEvents='none';
+    toast('📤 Reel share হয়েছে!');
   }catch(e){if(st)st.textContent='❌';}
 };
 
 // ── Main load ─────────────────────────────────────────────────────
 window.loadReels=async function(){
   if(_rvLoaded){
-    const cv=document.getElementById('rvv'+_rvCur);
-    if(cv)cv.play().catch(()=>{});return;
+    _rvEnter(); // auto sound ON on revisit
+    return;
   }
-  _rvLoaded=true; _rvCur=0; _rvSlides=[]; _rvPool=[]; _rvSeen=new Set(); _rvLiked=new Set(); _rvCycle=0;
-  const feed=G('reelFeed');if(!feed)return;
+  _rvLoaded=true; _rvCur=0; _rvSlides=[]; _rvPool=[]; _rvLiked=new Set(); _rvCycle=0;
+  const feed=G('reelFeed'); if(!feed) return;
   feed.innerHTML='';
   _rvSeed();
-  _rvAddSlides(5);
+  _rvAdd(5);
   _rvInitTouch(feed);
+  // Auto play with sound ON
   setTimeout(()=>{
     const v=document.getElementById('rvv0');
-    if(v){v.muted=true;v.play().catch(()=>{});}
+    if(v){v.muted=false; v.play().catch(()=>{v.muted=true; v.play().catch(()=>{});});}
+    const mb=G('reelMuteBtn'); if(mb) mb.textContent='🔊';
   },200);
   _pxFetch();
 };
+
 window.reelNext=()=>_rvGo(1);
 window.reelPrev=()=>_rvGo(-1);
-window.loadMoreReels=()=>_rvAddSlides(3);
+window.loadMoreReels=()=>_rvAdd(3);
+window._rvLeave=_rvLeave;   // called by sw() when leaving reels
+
+// ════════════════════════════════════════════════════════════════
+// 📚 LEARN — CSE & Programming Playlists
+// Curated YouTube playlists for every CSE topic
+// Professional cards with topic, description, playlist link
+// ════════════════════════════════════════════════════════════════
+
+const LEARN_DATA = [
+  // ── PROGRAMMING LANGUAGES ──────────────────────────────────────
+  {
+    category: '🖥️ Programming Languages',
+    color: 'linear-gradient(135deg,#1a1a2e,#16213e)',
+    accent: '#7c6cff',
+    topics: [
+      {
+        id:'c-lang', icon:'🔷', title:'C Programming',
+        desc:'Beginner থেকে Advanced। Pointer, Array, Structure, File I/O সব কিছু।',
+        level:'Beginner', duration:'40+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3qAW8DT6I0XOxC23qnA4FL-'
+      },
+      {
+        id:'cpp', icon:'⚙️', title:'C++ Programming',
+        desc:'OOP, STL, Templates, Competitive Programming এর জন্য C++।',
+        level:'Intermediate', duration:'50+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3rZ5XBn1L8jnJtBGkCTRPMg'
+      },
+      {
+        id:'csharp', icon:'💜', title:'C# Programming',
+        desc:'.NET, Windows App, Unity Game Dev এর জন্য C# শিখুন।',
+        level:'Intermediate', duration:'60+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLdo4fOcmZ0oVxKLQCHpiUWun7vlJJvUiN'
+      },
+      {
+        id:'python', icon:'🐍', title:'Python Programming',
+        desc:'সবচেয়ে জনপ্রিয় ভাষা। AI/ML, Web, Automation সব কিছুতে ব্যবহার।',
+        level:'Beginner', duration:'100+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3qxnCmNRt6K0Pj5_DF4FLzk'
+      },
+      {
+        id:'java', icon:'☕', title:'Java Programming',
+        desc:'OOP, Android App, Backend Development এর জন্য Java।',
+        level:'Intermediate', duration:'80+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3rRkH5JCn5G0w_ZfQq3FKG0'
+      },
+      {
+        id:'javascript', icon:'🌐', title:'JavaScript',
+        desc:'Web এর ভাষা। DOM, ES6+, Async/Await, API call সব শিখুন।',
+        level:'Beginner', duration:'70+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pEY7kYjD5mJFO9x_LjzQBf'
+      },
+    ]
+  },
+  // ── DATA STRUCTURES & ALGORITHMS ───────────────────────────────
+  {
+    category: '📊 Data Structures & Algorithms',
+    color: 'linear-gradient(135deg,#0d1117,#1a2332)',
+    accent: '#4dff91',
+    topics: [
+      {
+        id:'dsa-basic', icon:'📦', title:'Data Structures Basics',
+        desc:'Array, LinkedList, Stack, Queue, Tree, Graph — Visual ভাবে বোঝো।',
+        level:'Beginner', duration:'45+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3qzPDFp2-YqmKw3L-nI3WBN'
+      },
+      {
+        id:'algo', icon:'⚡', title:'Algorithms',
+        desc:'Sorting, Searching, Dynamic Programming, Greedy, Graph Algorithms।',
+        level:'Intermediate', duration:'60+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pG7q8aDvQ8SC5C6eFmjPn9'
+      },
+      {
+        id:'cp', icon:'🏆', title:'Competitive Programming',
+        desc:'Codeforces, LeetCode, HackerRank জন্য Problem Solving শেখো।',
+        level:'Advanced', duration:'80+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pNjnFgzKWbHEcZ4KvPXBDR'
+      },
+    ]
+  },
+  // ── WEB DEVELOPMENT ─────────────────────────────────────────────
+  {
+    category: '🌐 Web Development',
+    color: 'linear-gradient(135deg,#0a0a1a,#1a1040)',
+    accent: '#00d4ff',
+    topics: [
+      {
+        id:'html-css', icon:'🎨', title:'HTML & CSS',
+        desc:'Web page বানানোর ভিত্তি। Flexbox, Grid, Responsive Design।',
+        level:'Beginner', duration:'30+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pFhR3GJQ1PLr2H6bsEdJ7x'
+      },
+      {
+        id:'react', icon:'⚛️', title:'React.js',
+        desc:'Facebook এর JavaScript Framework। Modern web app বানাও।',
+        level:'Intermediate', duration:'50+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pnUxJtJuJxjxN1k5GkRhMf'
+      },
+      {
+        id:'nodejs', icon:'🟢', title:'Node.js & Express',
+        desc:'JavaScript দিয়ে Backend server বানাও। REST API, Database।',
+        level:'Intermediate', duration:'40+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3oMxsbnGkRB5r7X3k8GLbVk'
+      },
+    ]
+  },
+  // ── DATABASE ────────────────────────────────────────────────────
+  {
+    category: '🗄️ Database',
+    color: 'linear-gradient(135deg,#0d1a0d,#1a2e1a)',
+    accent: '#ff9800',
+    topics: [
+      {
+        id:'sql', icon:'🗃️', title:'SQL & MySQL',
+        desc:'Database এর মূল ভাষা। SELECT, JOIN, Indexing, Stored Procedures।',
+        level:'Beginner', duration:'35+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3p0VGzXWFxk1wDFZ0EanmhP'
+      },
+      {
+        id:'mongodb', icon:'🍃', title:'MongoDB',
+        desc:'NoSQL Database। JSON-style document store। Node.js এর সাথে ব্যবহার।',
+        level:'Intermediate', duration:'25+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3q9_3m8Z-5Zb8zXhJXkRFNm'
+      },
+    ]
+  },
+  // ── AI / MACHINE LEARNING ───────────────────────────────────────
+  {
+    category: '🤖 AI & Machine Learning',
+    color: 'linear-gradient(135deg,#1a0d2e,#2e1a0d)',
+    accent: '#e040fb',
+    topics: [
+      {
+        id:'ml', icon:'🧠', title:'Machine Learning',
+        desc:'Supervised, Unsupervised Learning। Scikit-learn, TensorFlow দিয়ে।',
+        level:'Intermediate', duration:'60+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLeo1K3hjS3uvCeTYTeyfe0-rN5r8zn9rw'
+      },
+      {
+        id:'dl', icon:'🔮', title:'Deep Learning',
+        desc:'Neural Networks, CNN, RNN, Transformer। PyTorch, TensorFlow।',
+        level:'Advanced', duration:'50+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLeo1K3hjS3uu7CxAacxVndI4bE_o3BDtO'
+      },
+      {
+        id:'nlp', icon:'💬', title:'NLP & ChatGPT API',
+        desc:'Text processing, Sentiment Analysis, GPT API দিয়ে App বানাও।',
+        level:'Advanced', duration:'30+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLeo1K3hjS3uuvuAXhYjV2lMEShq2UYjqg'
+      },
+    ]
+  },
+  // ── COMPUTER SCIENCE CORE ───────────────────────────────────────
+  {
+    category: '🎓 CS Core Subjects',
+    color: 'linear-gradient(135deg,#1a1200,#2e2200)',
+    accent: '#ffd740',
+    topics: [
+      {
+        id:'os', icon:'💻', title:'Operating System',
+        desc:'Process, Thread, Memory Management, Deadlock, File System।',
+        level:'Intermediate', duration:'40+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pBhtd3bHMGSCkZ4YDwt1dT'
+      },
+      {
+        id:'network', icon:'🌍', title:'Computer Networks',
+        desc:'TCP/IP, OSI Model, HTTP, DNS, Routing। Network কীভাবে কাজ করে।',
+        level:'Intermediate', duration:'45+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3qrxNbS6JWqMsMq1bqfRSj9'
+      },
+      {
+        id:'dbms', icon:'📚', title:'DBMS Theory',
+        desc:'Normalization, Transaction, ACID Properties, ER Diagram।',
+        level:'Intermediate', duration:'35+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3ph3mLrnEcYXcGsT9p9HBVJ'
+      },
+      {
+        id:'oop', icon:'🏗️', title:'OOP Concepts',
+        desc:'Class, Object, Inheritance, Polymorphism, Encapsulation, Abstraction।',
+        level:'Beginner', duration:'25+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pjK4c7GxAMLk6e5RTaJK2V'
+      },
+    ]
+  },
+  // ── TOOLS & DEVOPS ──────────────────────────────────────────────
+  {
+    category: '🛠️ Tools & DevOps',
+    color: 'linear-gradient(135deg,#001a1a,#001a2e)',
+    accent: '#26c6da',
+    topics: [
+      {
+        id:'git', icon:'🐙', title:'Git & GitHub',
+        desc:'Version control শেখো। Branch, Merge, Pull Request, Open Source।',
+        level:'Beginner', duration:'20+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pFJhZJMIRMvKjBEjPP2kTG'
+      },
+      {
+        id:'linux', icon:'🐧', title:'Linux Command Line',
+        desc:'Terminal commands, Shell scripting, File system, Permission।',
+        level:'Beginner', duration:'30+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3p9MNwQYxc4z3Fv7cQ5WwMq'
+      },
+      {
+        id:'docker', icon:'🐳', title:'Docker & Kubernetes',
+        desc:'Container technology। App deployment সহজ করো। DevOps basics।',
+        level:'Intermediate', duration:'25+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3o-YNqxwCp3ZQNsB6mTm9cL'
+      },
+    ]
+  },
+];
+
+const LEVEL_COLOR = {
+  'Beginner': '#4dff91',
+  'Intermediate': '#ffd740',
+  'Advanced': '#ff6e40',
+};
+
+// ════════════════════════════════════════════════════════════════
+// 💬 MESSENGER UPGRADES — Groups, Channels, Tab switching
+// ════════════════════════════════════════════════════════════════
+
+let _chatTab = 'dm'; // 'dm' | 'group' | 'channel'
+
+window.switchChatTab = function(tab) {
+  _chatTab = tab;
+  ['dm','group','channel'].forEach(t => {
+    const b = document.getElementById('ct-'+t);
+    if (!b) return;
+    b.style.background = t === tab ? 'var(--a)' : 'var(--c2)';
+    b.style.color = t === tab ? '#fff' : 'var(--m)';
+  });
+  if (tab === 'dm') loadChatList();
+  else if (tab === 'group') loadGroupList();
+  else if (tab === 'channel') loadChannelList();
+};
+
+// ── Group list ─────────────────────────────────────────────────
+window.loadGroupList = async function() {
+  const cl = G('chatList'); if (!cl) return;
+  cl.innerHTML = '<div class="ld">Loading groups...</div>';
+  try {
+    const snap = await getDocs(query(collection(DB,'groups'), where('members','array-contains',me.uid), orderBy('updatedAt','desc')));
+    if (snap.empty) {
+      cl.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--m);">
+        <div style="font-size:48px;margin-bottom:12px;">👥</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:8px;">কোনো Group নেই</div>
+        <div style="font-size:13px;margin-bottom:20px;">নতুন group বানাও বা join করো</div>
+        <button onclick="window.showCreateGroup()" style="padding:12px 24px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;">✏️ Group বানাও</button>
+      </div>`;
+      return;
+    }
+    cl.innerHTML = '';
+    snap.forEach(d => {
+      const g = {id:d.id,...d.data()};
+      const el = document.createElement('div');
+      el.className = 'ch-item';
+      el.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--br);-webkit-tap-highlight-color:transparent;';
+      el.onclick = () => openGroupChat(g);
+      el.innerHTML = `
+        <div style="width:50px;height:50px;border-radius:18px;background:linear-gradient(135deg,#7c6cff,#ff3d7f);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">${g.icon||'👥'}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:700;color:var(--tx);">${g.name}</div>
+          <div style="font-size:12px;color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${g.members?.length||0} members • ${g.lastMsg||'No messages yet'}</div>
+        </div>
+        <div style="font-size:11px;color:var(--m);">${g.updatedAt?tAgo(g.updatedAt.toDate?.()):'now'}</div>`;
+      cl.appendChild(el);
+    });
+  } catch(e) {
+    cl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--m);">Groups load হয়নি। Index প্রয়োজন হতে পারে।</div>';
+    // Fallback without orderBy
+    try {
+      const snap2 = await getDocs(query(collection(DB,'groups'), where('members','array-contains',me.uid)));
+      if (snap2.empty) { cl.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--m);"><div style="font-size:48px;">👥</div><div style="margin-top:12px;font-size:15px;font-weight:700;">কোনো Group নেই</div><button onclick="window.showCreateGroup()" style="margin-top:16px;padding:12px 24px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;">✏️ Group বানাও</button></div>`; return; }
+      cl.innerHTML = '';
+      snap2.forEach(d => {
+        const g = {id:d.id,...d.data()};
+        const el = document.createElement('div');
+        el.className = 'ch-item';
+        el.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--br);';
+        el.onclick = () => openGroupChat(g);
+        el.innerHTML = `<div style="width:50px;height:50px;border-radius:18px;background:linear-gradient(135deg,#7c6cff,#ff3d7f);display:flex;align-items:center;justify-content:center;font-size:24px;">${g.icon||'👥'}</div><div style="flex:1;"><div style="font-size:15px;font-weight:700;">${g.name}</div><div style="font-size:12px;color:var(--m);">${g.members?.length||0} members</div></div>`;
+        cl.appendChild(el);
+      });
+    } catch(e2) {}
+  }
+};
+
+// ── Channel list ───────────────────────────────────────────────
+window.loadChannelList = async function() {
+  const cl = G('chatList'); if (!cl) return;
+  cl.innerHTML = '<div class="ld">Loading channels...</div>';
+  try {
+    const snap = await getDocs(collection(DB,'channels'));
+    if (snap.empty) {
+      cl.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--m);">
+        <div style="font-size:48px;margin-bottom:12px;">📢</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:8px;">কোনো Channel নেই</div>
+        <div style="font-size:13px;">Channel গুলো broadcast করার জন্য ব্যবহার করা হয়</div>
+      </div>`;
+      return;
+    }
+    cl.innerHTML = '';
+    snap.forEach(d => {
+      const ch = {id:d.id,...d.data()};
+      const joined = (ch.subscribers||[]).includes(me.uid);
+      const el = document.createElement('div');
+      el.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--br);';
+      el.innerHTML = `
+        <div style="width:50px;height:50px;border-radius:18px;background:linear-gradient(135deg,#00d4ff,#7c6cff);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">${ch.icon||'📢'}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:700;">${ch.name}</div>
+          <div style="font-size:12px;color:var(--m);">${ch.subscribers?.length||0} subscribers</div>
+        </div>
+        <button onclick="window.toggleChannel('${d.id}','${ch.name}',${joined},this)" style="padding:7px 14px;border-radius:20px;border:1.5px solid ${joined?'var(--br)':'var(--a)'};background:${joined?'var(--c2)':'var(--a)'};color:${joined?'var(--m)':'#fff'};font-size:12px;font-weight:700;cursor:pointer;">${joined?'Joined':'Join'}</button>`;
+      cl.appendChild(el);
+    });
+  } catch(e) { cl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--m);">Channel load হয়নি।</div>'; }
+};
+
+window.toggleChannel = async function(id, name, joined, btn) {
+  const ref = doc(DB,'channels',id);
+  if (joined) {
+    await updateDoc(ref, {subscribers: arrayRemove(me.uid)}).catch(()=>{});
+    btn.textContent = 'Join'; btn.style.background='var(--a)'; btn.style.color='#fff'; btn.style.borderColor='var(--a)';
+    toast(`Left ${name}`);
+  } else {
+    await updateDoc(ref, {subscribers: arrayUnion(me.uid)}).catch(()=>{});
+    btn.textContent = 'Joined'; btn.style.background='var(--c2)'; btn.style.color='var(--m)'; btn.style.borderColor='var(--br)';
+    toast(`✅ Joined ${name}!`);
+  }
+};
+
+// ── Create Group modal ─────────────────────────────────────────
+window.showCreateGroup = function() {
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:flex-end;justify-content:center;';
+  ov.innerHTML = `<div style="background:var(--c1);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 18px 36px;max-height:85vh;overflow-y:auto;">
+    <div style="width:40px;height:4px;background:var(--br2);border-radius:4px;margin:0 auto 18px;"></div>
+    <div style="font-size:18px;font-weight:900;margin-bottom:18px;">👥 New Group বানাও</div>
+
+    <!-- Group icon picker -->
+    <div style="font-size:11px;color:var(--m);font-weight:700;margin-bottom:8px;letter-spacing:1px;">GROUP ICON</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+      ${['👥','🎮','📚','💻','🏆','🔥','🌟','🎯','🎉','🐍','🤖','⚡'].map((ic,i)=>`<button id="gic${i}" onclick="window._selGIcon('${ic}',${i})" style="width:44px;height:44px;font-size:24px;background:${i===0?'var(--grad)':'var(--c2)'};border:2px solid ${i===0?'var(--a)':'var(--br)'};border-radius:14px;cursor:pointer;">${ic}</button>`).join('')}
+    </div>
+    <input type="hidden" id="gCreateIcon" value="👥">
+
+    <!-- Group name -->
+    <div style="font-size:11px;color:var(--m);font-weight:700;margin-bottom:6px;letter-spacing:1px;">GROUP NAME</div>
+    <input id="gCreateName" type="text" placeholder="Group এর নাম দাও..." maxlength="40"
+      style="width:100%;padding:13px 16px;border-radius:14px;border:1.5px solid var(--br);background:var(--c2);color:var(--tx);font-size:15px;box-sizing:border-box;outline:none;margin-bottom:16px;">
+
+    <!-- Description -->
+    <div style="font-size:11px;color:var(--m);font-weight:700;margin-bottom:6px;letter-spacing:1px;">DESCRIPTION (optional)</div>
+    <textarea id="gCreateDesc" placeholder="Group সম্পর্কে কিছু লিখুন..." rows="2"
+      style="width:100%;padding:13px 16px;border-radius:14px;border:1.5px solid var(--br);background:var(--c2);color:var(--tx);font-size:14px;box-sizing:border-box;outline:none;resize:none;margin-bottom:16px;"></textarea>
+
+    <!-- Add members from friends -->
+    <div style="font-size:11px;color:var(--m);font-weight:700;margin-bottom:8px;letter-spacing:1px;">MEMBERS যোগ করো</div>
+    <div id="gMemberList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px;">
+      <div class="ld">Loading friends...</div>
+    </div>
+
+    <button onclick="window.doCreateGroup()" style="width:100%;padding:14px;background:var(--grad);border:none;border-radius:16px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:10px;">✅ Group তৈরি করো</button>
+    <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;padding:13px;background:var(--c2);border:none;border-radius:16px;color:var(--m);font-size:14px;font-weight:700;cursor:pointer;">বাতিল</button>
+  </div>`;
+  ov.onclick = e => { if(e.target===ov) ov.remove(); };
+  document.body.appendChild(ov);
+
+  // Populate member list from friends
+  const friends = pr?.friends || [];
+  const ml = document.getElementById('gMemberList');
+  if (!friends.length) { ml.innerHTML = '<div style="color:var(--m);font-size:13px;">কোনো friend নেই।</div>'; return; }
+  getDocs(collection(DB,'users')).then(snap => {
+    ml.innerHTML = '';
+    snap.forEach(d => {
+      if (!friends.includes(d.id)) return;
+      const u = d.data();
+      const row = document.createElement('label');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--c2);border-radius:14px;cursor:pointer;';
+      row.innerHTML = `
+        <input type="checkbox" value="${d.id}" style="width:18px;height:18px;accent-color:var(--a);">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:20px;">${u.emoji||'😊'}</div>
+        <div style="flex:1;"><div style="font-size:14px;font-weight:700;">${u.name}</div></div>`;
+      ml.appendChild(row);
+    });
+  });
+
+  window._selGIcon = (ic, i) => {
+    document.getElementById('gCreateIcon').value = ic;
+    document.querySelectorAll('[id^="gic"]').forEach((b,bi) => {
+      b.style.background = bi===i?'var(--grad)':'var(--c2)';
+      b.style.borderColor = bi===i?'var(--a)':'var(--br)';
+    });
+  };
+};
+
+window.doCreateGroup = async function() {
+  const name = (document.getElementById('gCreateName')?.value||'').trim();
+  const desc = (document.getElementById('gCreateDesc')?.value||'').trim();
+  const icon = document.getElementById('gCreateIcon')?.value || '👥';
+  if (!name) { toast('Group এর নাম দাও!'); return; }
+  const checked = [...document.querySelectorAll('#gMemberList input[type=checkbox]:checked')].map(i=>i.value);
+  const members = [me.uid, ...checked];
+  try {
+    await addDoc(collection(DB,'groups'), {
+      name, desc, icon,
+      members, admins:[me.uid],
+      createdBy: me.uid,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      lastMsg: '',
+    });
+    toast('✅ Group তৈরি হয়েছে!');
+    document.querySelector('[style*="position:fixed"][style*="9999"]')?.remove();
+    window.switchChatTab('group');
+  } catch(e) { toast('❌ Error: '+e.message); }
+};
+
+// ── Open Group Chat ─────────────────────────────────────────────
+function openGroupChat(g) {
+  // For now show a simple group chat window
+  const mw = G('mw');
+  G('mwAv').textContent = g.icon||'👥';
+  G('mwNm').textContent = g.name;
+  const st = G('mwSt');
+  if(st){ st.textContent = `${g.members?.length||0} members`; st.className='mw-st'; }
+  chatU = {uid:'group:'+g.id, name:g.name, emoji:g.icon||'👥', isGroup:true, groupId:g.id};
+  mw.classList.add('open');
+  G('mta')?.focus();
+  // Load group messages
+  const ml = G('msgList');
+  if(ml) ml.innerHTML = `<div style="text-align:center;padding:30px;color:var(--m);"><div style="font-size:32px;margin-bottom:8px;">${g.icon||'👥'}</div><div style="font-weight:700;">${g.name}</div><div style="font-size:12px;margin-top:4px;">${g.members?.length||0} members</div><div style="font-size:11px;margin-top:8px;color:var(--br2);">Group messages coming soon! 🚀</div></div>`;
+}
+
+
+window.loadLearn = function() {
+  const el = G('learnContent');
+  if (!el || el.dataset.built) return;
+  el.dataset.built = '1';
+
+  const LC = {'Beginner':'#4dff91','Intermediate':'#ffd740','Advanced':'#ff6e40'};
+
+  let html = `
+  <div style="padding:18px 16px 10px;background:var(--bg);">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <div style="width:44px;height:44px;border-radius:16px;background:linear-gradient(135deg,#7c6cff,#ff3d7f);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 16px rgba(124,108,255,.4);">📚</div>
+      <div>
+        <div style="font-size:22px;font-weight:900;background:linear-gradient(90deg,#7c6cff,#ff3d7f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;">Learn CSE</div>
+        <div style="font-size:11px;color:var(--m);margin-top:1px;">Programming · AI · Web · Database · Tools</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+      <button id="lf-All" onclick="window._lf('All')" style="flex-shrink:0;padding:6px 16px;border-radius:20px;border:1.5px solid var(--a);background:var(--a);color:#fff;font-size:12px;font-weight:700;cursor:pointer;">All</button>
+      <button id="lf-Beginner" onclick="window._lf('Beginner')" style="flex-shrink:0;padding:6px 16px;border-radius:20px;border:1.5px solid #4dff91;background:transparent;color:#4dff91;font-size:12px;font-weight:700;cursor:pointer;">🟢 Beginner</button>
+      <button id="lf-Intermediate" onclick="window._lf('Intermediate')" style="flex-shrink:0;padding:6px 16px;border-radius:20px;border:1.5px solid #ffd740;background:transparent;color:#ffd740;font-size:12px;font-weight:700;cursor:pointer;">🟡 Intermediate</button>
+      <button id="lf-Advanced" onclick="window._lf('Advanced')" style="flex-shrink:0;padding:6px 16px;border-radius:20px;border:1.5px solid #ff6e40;background:transparent;color:#ff6e40;font-size:12px;font-weight:700;cursor:pointer;">🔴 Advanced</button>
+    </div>
+  </div>
+  <div id="learnBody" style="padding:0 14px 90px;">`;
+
+  for (const cat of LEARN_DATA) {
+    html += `<div class="lcat" style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:8px;margin:16px 0 11px;">
+        <div style="height:2px;flex:1;background:${cat.accent};border-radius:4px;opacity:.4;"></div>
+        <span style="font-size:12px;font-weight:900;color:${cat.accent};white-space:nowrap;">${cat.category}</span>
+        <div style="height:2px;flex:1;background:${cat.accent};border-radius:4px;opacity:.4;"></div>
+      </div>`;
+    for (const t of cat.topics) {
+      html += `<a href="${t.url}" target="_blank" rel="noopener noreferrer"
+        class="lcard" data-level="${t.level}"
+        style="display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:var(--c1);border:1px solid var(--br);text-decoration:none;margin-bottom:9px;-webkit-tap-highlight-color:transparent;"
+        ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
+        <div style="width:50px;height:50px;flex-shrink:0;border-radius:15px;background:${cat.color};display:flex;align-items:center;justify-content:center;font-size:26px;border:1px solid ${cat.accent}44;">${t.icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:800;color:var(--tx);margin-bottom:3px;">${t.title}</div>
+          <div style="font-size:12px;color:var(--m);line-height:1.55;margin-bottom:8px;">${t.desc}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;">
+            <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:8px;background:${LC[t.level]}22;color:${LC[t.level]};border:1px solid ${LC[t.level]}44;">${t.level}</span>
+            <span style="font-size:10px;padding:3px 9px;border-radius:8px;background:var(--c2);color:var(--m);">📹 ${t.duration}</span>
+            <span style="font-size:10px;padding:3px 9px;border-radius:8px;background:var(--c2);color:var(--m);">🌐 ${t.lang}</span>
+          </div>
+        </div>
+        <div style="flex-shrink:0;width:30px;height:30px;border-radius:50%;background:${cat.accent}22;border:1px solid ${cat.accent}55;display:flex;align-items:center;justify-content:center;color:${cat.accent};font-size:13px;margin-top:2px;">▶</div>
+      </a>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+
+  window._lf = function(level) {
+    // Update filter buttons
+    ['All','Beginner','Intermediate','Advanced'].forEach(l => {
+      const b = document.getElementById('lf-'+l); if (!b) return;
+      const on = l === level;
+      if (l === 'All') {
+        b.style.background = on ? 'var(--a)' : 'transparent';
+        b.style.color = on ? '#fff' : 'var(--m)';
+      } else {
+        const col = {'Beginner':'#4dff91','Intermediate':'#ffd740','Advanced':'#ff6e40'}[l];
+        b.style.background = on ? col : 'transparent';
+        b.style.color = on ? '#000' : col;
+      }
+    });
+    // Show/hide cards
+    document.querySelectorAll('.lcard').forEach(card => {
+      card.style.display = (level === 'All' || card.dataset.level === level) ? 'flex' : 'none';
+    });
+    // Hide empty category sections
+    document.querySelectorAll('.lcat').forEach(cat => {
+      const anyVisible = [...cat.querySelectorAll('.lcard')].some(c => c.style.display !== 'none');
+      cat.style.display = anyVisible ? 'block' : 'none';
+    });
+  };
+};
+
 
 window.changeChatPass=function(){
   const hasPw=!!(localStorage.getItem('fi_sp')||'');
@@ -3212,11 +4225,39 @@ window.doSharePost=async function(postId,text,toUid,el){
 // ─── BLOCK USER ──────────────────────────────────────────
 let blockedUsers=JSON.parse(localStorage.getItem('fi_blocked')||'[]');
 window.blockUser=async function(uid,name){
-  if(!confirm(`Block ${name}? You won't see their posts or messages.`))return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:flex-end;justify-content:center;';
+  ov.innerHTML=`<div style="background:var(--c1);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 18px 36px;">
+    <div style="width:40px;height:4px;background:var(--br2);border-radius:4px;margin:0 auto 18px;"></div>
+    <div style="font-size:18px;font-weight:900;margin-bottom:6px;color:#ff3d7f;">🚫 Block & Actions</div>
+    <div style="font-size:13px;color:var(--m);margin-bottom:20px;">@${name} — কী করতে চাও?</div>
+    <button onclick="window._doBlock('${uid}','${name}',false);this.closest('[style*=fixed]').remove()" style="width:100%;padding:14px;background:rgba(255,61,127,.12);border:1.5px solid rgba(255,61,127,.3);border-radius:16px;color:#ff3d7f;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;text-align:left;">🚫 Block করো — পোস্ট ও ম্যাসেজ আর দেখবে না</button>
+    <button onclick="window._doBlock('${uid}','${name}',true);this.closest('[style*=fixed]').remove()" style="width:100%;padding:14px;background:rgba(255,61,127,.08);border:1.5px solid rgba(255,61,127,.2);border-radius:16px;color:#ff3d7f;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;text-align:left;">🚫 Block + 🗑️ Chat history মুছে ফেলো</button>
+    <button onclick="window._clearChatWith('${uid}','${name}');this.closest('[style*=fixed]').remove()" style="width:100%;padding:14px;background:rgba(255,61,127,.08);border:1.5px solid var(--br);border-radius:16px;color:var(--tx);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;text-align:left;">🗑️ শুধু Chat মুছে ফেলো (block না করে)</button>
+    <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;padding:13px;background:var(--c2);border:none;border-radius:16px;color:var(--m);font-size:14px;font-weight:700;cursor:pointer;">বাতিল</button>
+  </div>`;
+  ov.onclick=e=>{if(e.target===ov)ov.remove();};
+  document.body.appendChild(ov);
+};
+
+window._doBlock=async function(uid,name,clearChat){
   blockedUsers.push(uid);
   localStorage.setItem('fi_blocked',JSON.stringify(blockedUsers));
+  if(clearChat) await window._clearChatWith(uid,name,true);
   toast(`🚫 ${name} blocked`);
   loadFeed();
+};
+
+window._clearChatWith=async function(uid,name,silent){
+  try{
+    const key=cKey(me.uid,uid);
+    const snap=await getDocs(collection(DB,'chats',key,'messages'));
+    const batch=[];
+    snap.forEach(d=>batch.push(deleteDoc(d.ref)));
+    await Promise.all(batch);
+    if(!silent)toast('🗑️ Chat history মুছে গেছে!');
+    const ml=G('msgList');if(ml)ml.innerHTML='';
+  }catch(e){toast('❌ Error clearing chat');}
 };
 
 // ─── REPORT POST ─────────────────────────────────────────
@@ -3388,6 +4429,7 @@ window.showMsgRxnBar=function(msgId,postId,x,y){
     bar.appendChild(btn);
   });
   document.body.appendChild(bar);
+  setTimeout(()=>document.addEventListener('click',()=>bar.remove(),{once:true}),100);
   setTimeout(()=>bar.remove(),4000);
   document.addEventListener('touchstart',()=>bar.remove(),{once:true});
 };
@@ -4320,25 +5362,33 @@ if (document.readyState === 'loading') {
 // ══════════════════════════════════════════════════════════════════
 
 const GAMES_LIST = [
-  {id:'snake',    name:'Snake',         emoji:'🐍', desc:'Eat food, grow longer!', color:'linear-gradient(135deg,#4dff91,#00b0ff)', players:'1'},
-  {id:'ttt',      name:'Tic-Tac-Toe',   emoji:'✖️', desc:'Beat the AI or a friend', color:'linear-gradient(135deg,#ff3d7f,#7c6cff)', players:'1-2'},
-  {id:'memory',   name:'Memory Match',  emoji:'🃏', desc:'Find all matching pairs', color:'linear-gradient(135deg,#ffd740,#ff6e40)', players:'1'},
-  {id:'quiz',     name:'GK Quiz',       emoji:'🧠', desc:'General knowledge, BD/India', color:'linear-gradient(135deg,#00d4ff,#7c6cff)', players:'1'},
-  {id:'g2048',    name:'2048',          emoji:'🔢', desc:'Merge tiles to reach 2048', color:'linear-gradient(135deg,#ff9800,#f44336)', players:'1'},
-  {id:'reaction', name:'Reaction Time', emoji:'⚡', desc:'Tap as fast as you can!', color:'linear-gradient(135deg,#e040fb,#7c6cff)', players:'1'},
-  {id:'wordguess',name:'Word Guess',    emoji:'🔤', desc:'Guess the hidden word', color:'linear-gradient(135deg,#4caf50,#8bc34a)', players:'1'},
-  {id:'numslide', name:'Number Slide',  emoji:'🔢', desc:'Slide tiles to order 1-15', color:'linear-gradient(135deg,#26c6da,#0288d1)', players:'1'},
+  // Original games
+  {id:'snake',    name:'Snake',              emoji:'🐍', desc:'খাও, বড় হও!',              color:'linear-gradient(135deg,#4dff91,#00b0ff)', players:'1'},
+  {id:'ttt',      name:'Tic-Tac-Toe',        emoji:'❌', desc:'AI কে হারাও!',              color:'linear-gradient(135deg,#ff3d7f,#7c6cff)', players:'1-2'},
+  {id:'memory',   name:'Memory Match',       emoji:'🃏', desc:'জোড়া মেলাও!',              color:'linear-gradient(135deg,#ffd740,#ff6e40)', players:'1'},
+  {id:'g2048',    name:'2048',               emoji:'🔢', desc:'Tile merge করো!',           color:'linear-gradient(135deg,#ff9800,#f44336)', players:'1'},
+  {id:'reaction', name:'Reaction Time',      emoji:'⚡', desc:'যত দ্রুত পারো Tap করো!',   color:'linear-gradient(135deg,#e040fb,#7c6cff)', players:'1'},
+  {id:'wordguess',name:'Word Guess',         emoji:'🔤', desc:'লুকানো শব্দ বের করো!',     color:'linear-gradient(135deg,#4caf50,#8bc34a)', players:'1'},
+  // CSE / Programming games
+  {id:'cquiz',    name:'CSE Quiz',           emoji:'💻', desc:'CS জ্ঞান পরীক্ষা করো!',   color:'linear-gradient(135deg,#00d4ff,#0288d1)', players:'1'},
+  {id:'binary',   name:'Binary Converter',   emoji:'01', desc:'Binary ↔ Decimal শেখো!',   color:'linear-gradient(135deg,#7c6cff,#ff3d7f)', players:'1'},
+  {id:'typespeed',name:'Typing Speed',       emoji:'⌨️', desc:'Code typing speed test!',  color:'linear-gradient(135deg,#26c6da,#00897b)', players:'1'},
+  {id:'bugsquash',name:'Bug Squash',         emoji:'🐛', desc:'Bug খুঁজে বের করো!',       color:'linear-gradient(135deg,#ff6e40,#ffd740)', players:'1'},
+  {id:'algosort', name:'Sort Race',          emoji:'📊', desc:'Array sort করো!',           color:'linear-gradient(135deg,#4dff91,#7c6cff)', players:'1'},
+  {id:'numslide', name:'Number Slide',       emoji:'🔢', desc:'1-15 order করো!',           color:'linear-gradient(135deg,#26c6da,#0288d1)', players:'1'},
 ];
 
-let _gActive = null; // current game id
-let _gScores = {};   // {gameId: highScore}
+let _gActive = null;
+let _gScores = {};
 
-// ── Load game grid ─────────────────────────────────────────────────
 window.loadGames = function() {
   const grid = G('gameGrid'); if(!grid) return;
-  // Load saved scores
-  try { _gScores = JSON.parse(localStorage.getItem('fi_gscores') || '{}'); } catch(e){}
-  grid.innerHTML = GAMES_LIST.map(g => `
+  try { _gScores = JSON.parse(localStorage.getItem('fi_gscores')||'{}'); } catch(e){}
+  grid.innerHTML = `
+    <div style="grid-column:1/-1;margin-bottom:4px;">
+      <div style="font-size:12px;color:var(--m);font-weight:700;letter-spacing:1px;">🎮 ALL GAMES</div>
+    </div>` +
+  GAMES_LIST.map(g=>`
     <div class="game-card" onclick="openGame('${g.id}')">
       <div class="game-thumb" style="background:${g.color};">
         <span>${g.emoji}</span>
@@ -4347,399 +5397,469 @@ window.loadGames = function() {
       <div class="game-info">
         <div class="game-nm">${g.name}</div>
         <div class="game-desc">${g.desc}</div>
-        ${_gScores[g.id] ? `<div style="font-size:10px;color:var(--a);margin-top:4px;font-weight:700;">Best: ${_gScores[g.id]}</div>` : ''}
+        ${_gScores[g.id]?`<div style="font-size:10px;color:var(--a);margin-top:4px;font-weight:700;">Best: ${_gScores[g.id]}</div>`:''}
       </div>
     </div>`).join('');
 };
 
 window.openGame = function(id) {
-  // Stop any previous game first
   clearInterval(window._gLoop); clearInterval(window._gLoop2); clearTimeout(window._gTimer);
-  _gActive = id;
-  window._gActive = id; // global for restart button
-  const game = GAMES_LIST.find(g => g.id === id);
-  if (!game) return;
-  const gs = G('gameScreen');
-  G('gameTitle').textContent = game.emoji + ' ' + game.name;
+  _gActive = id; window._gActive = id;
+  const game = GAMES_LIST.find(g=>g.id===id);
+  if(!game) return;
+  G('gameTitle').textContent = game.emoji+' '+game.name;
   G('gameScore').textContent = '';
   G('gameArea').innerHTML = '';
-  // Show restart button
-  const rb=G('gameRestartBtn');
-  if(rb){rb.style.display='flex';rb.onclick=()=>{clearInterval(window._gLoop);clearInterval(window._gLoop2);clearTimeout(window._gTimer);G('gameArea').innerHTML='';G('gameScore').textContent='';setTimeout(()=>openGame(id),50);};}
-  gs.style.display = 'flex';
-  // Init specific game
-  const inits = {snake:_gSnake,ttt:_gTTT,memory:_gMemory,quiz:_gQuiz,g2048:_g2048,reaction:_gReaction,wordguess:_gWord,numslide:_gNumSlide};
-  if (inits[id]) setTimeout(() => inits[id](), 50);
+  const rb = G('gameRestartBtn');
+  if(rb){ rb.style.display='flex'; rb.onclick=()=>{ clearInterval(window._gLoop);clearInterval(window._gLoop2);clearTimeout(window._gTimer);G('gameArea').innerHTML='';G('gameScore').textContent='';setTimeout(()=>openGame(id),50); }; }
+  G('gameScreen').style.display = 'flex';
+  const inits = {snake:_gSnake,ttt:_gTTT,memory:_gMemory,g2048:_g2048,reaction:_gReaction,wordguess:_gWord,numslide:_gNumSlide,cquiz:_gCSEQuiz,binary:_gBinary,typespeed:_gTyping,bugsquash:_gBugSquash,algosort:_gSortRace};
+  if(inits[id]) setTimeout(()=>inits[id](),50);
 };
 
 window.closeGame = function() {
-  // Stop all game loops and timers
-  clearInterval(window._gLoop);
-  clearInterval(window._gLoop2);
-  clearTimeout(window._gTimer);
+  clearInterval(window._gLoop); clearInterval(window._gLoop2); clearTimeout(window._gTimer);
   window._gLoop=null; window._gLoop2=null; window._gTimer=null;
-  // Clear game canvas/area
-  const area=G('gameArea');
-  if(area)area.innerHTML='';
-  // Hide game screen
-  G('gameScreen').style.display = 'none';
-  _gActive = null;
-  // Make sure games page is visible and bottom nav works
+  const area=G('gameArea'); if(area) area.innerHTML='';
+  G('gameScreen').style.display='none';
+  _gActive=null;
   sw('games');
 };
 
-function _gSaveScore(id, score) {
-  const best = _gScores[id] || 0;
-  if (score > best) {
-    _gScores[id] = score;
-    localStorage.setItem('fi_gscores', JSON.stringify(_gScores));
-    // Save to Firebase
-    if (me) setDoc(doc(DB,'gameScores',me.uid+'-'+id),{uid:me.uid,name:pr?.name,emoji:pr?.emoji,game:id,score,updatedAt:serverTimestamp()},{merge:true}).catch(()=>{});
+function _gSaveScore(id,score){
+  const best=_gScores[id]||0;
+  if(score>best){
+    _gScores[id]=score;
+    localStorage.setItem('fi_gscores',JSON.stringify(_gScores));
+    if(me) setDoc(doc(DB,'gameScores',me.uid+'-'+id),{uid:me.uid,name:pr?.name,emoji:pr?.emoji,game:id,score,updatedAt:serverTimestamp()},{merge:true}).catch(()=>{});
   }
 }
-function _gSetScore(s) { const el=G('gameScore'); if(el) el.textContent=s; }
+function _gSetScore(s){const el=G('gameScore');if(el)el.textContent=s;}
 
-// ════════════════════════════════════════════════════════
-// 🐍 SNAKE GAME
-// ════════════════════════════════════════════════════════
-function _gSnake() {
-  const area = G('gameArea');
-  const SIZE = 20;
-  const W = Math.min(area.offsetWidth, 400);
-  const COLS = Math.floor(W / SIZE);
-  const ROWS = Math.floor((area.offsetHeight || 600) / SIZE);
-  area.innerHTML = `<canvas id="snakeCanvas" width="${COLS*SIZE}" height="${ROWS*SIZE}" style="display:block;margin:auto;background:#0a0a14;"></canvas>
-    <div style="position:absolute;bottom:20px;width:100%;display:flex;justify-content:center;gap:16px;">
-      <button onclick="window._snDir={x:0,y:-1}" style="width:50px;height:50px;border-radius:50%;background:var(--c2);border:1px solid var(--br);font-size:22px;cursor:pointer;">↑</button>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <button onclick="window._snDir={x:-1,y:0}" style="width:50px;height:50px;border-radius:50%;background:var(--c2);border:1px solid var(--br);font-size:22px;cursor:pointer;">←</button>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <button onclick="window._snDir={x:1,y:0}" style="width:50px;height:50px;border-radius:50%;background:var(--c2);border:1px solid var(--br);font-size:22px;cursor:pointer;">→</button>
-      </div>
-      <button onclick="window._snDir={x:0,y:1}" style="width:50px;height:50px;border-radius:50%;background:var(--c2);border:1px solid var(--br);font-size:22px;cursor:pointer;">↓</button>
-    </div>`;
-  const cv = document.getElementById('snakeCanvas');
-  const ctx = cv.getContext('2d');
-  let snake = [{x:Math.floor(COLS/2),y:Math.floor(ROWS/2)}];
-  let food = _snFood(snake,COLS,ROWS);
-  let dir = {x:1,y:0};
-  let score = 0;
-  window._snDir = {x:1,y:0};
-  // Keys
-  document.onkeydown = e => {
-    const m = {ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0}};
-    if(m[e.key]) window._snDir = m[e.key];
-  };
-  clearInterval(window._gLoop);
-  window._gLoop = setInterval(() => {
-    const nd = window._snDir;
-    if(nd.x !== -dir.x || nd.y !== -dir.y) dir = nd;
-    const head = {x:((snake[0].x+dir.x)+COLS)%COLS, y:((snake[0].y+dir.y)+ROWS)%ROWS};
-    if(snake.some(s=>s.x===head.x&&s.y===head.y)){
-      clearInterval(window._gLoop);
-      ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,cv.width,cv.height);
-      ctx.fillStyle='#fff';ctx.font='bold 24px sans-serif';ctx.textAlign='center';
-      ctx.fillText('Game Over! Score: '+score,cv.width/2,cv.height/2);
-      _gSaveScore('snake',score);
+// ═══════════════════════════════════
+// 🐍 SNAKE
+// ═══════════════════════════════════
+function _gSnake(){
+  const area=G('gameArea');
+  const SZ=20, W=Math.floor(Math.min(area.offsetWidth,360)/SZ)*SZ, H=Math.floor(Math.min(area.offsetHeight-40,360)/SZ)*SZ;
+  area.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;padding:10px;">
+    <canvas id="sc" width="${W}" height="${H}" style="background:#111;border-radius:12px;touch-action:none;"></canvas>
+    <div style="margin-top:10px;display:grid;grid-template-columns:repeat(3,56px);gap:6px;">
+      <div></div><button ontouchstart="sd='U'" style="height:48px;background:var(--c2);border:none;border-radius:10px;font-size:22px;color:var(--tx);cursor:pointer;">↑</button><div></div>
+      <button ontouchstart="sd='L'" style="height:48px;background:var(--c2);border:none;border-radius:10px;font-size:22px;color:var(--tx);cursor:pointer;">←</button>
+      <button ontouchstart="sd='D'" style="height:48px;background:var(--c2);border:none;border-radius:10px;font-size:22px;color:var(--tx);cursor:pointer;">↓</button>
+      <button ontouchstart="sd='R'" style="height:48px;background:var(--c2);border:none;border-radius:10px;font-size:22px;color:var(--tx);cursor:pointer;">→</button>
+    </div></div>`;
+  const cv=document.getElementById('sc'),ctx=cv.getContext('2d');
+  let snake=[{x:5,y:5}],food={x:10,y:10},sd='R',nsd='R',score=0,alive=true;
+  function rFood(){food={x:Math.floor(Math.random()*(W/SZ)),y:Math.floor(Math.random()*(H/SZ))};}
+  function draw(){
+    ctx.fillStyle='#111';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#ff3d7f';ctx.beginPath();ctx.arc((food.x+.5)*SZ,(food.y+.5)*SZ,SZ*.4,0,Math.PI*2);ctx.fill();
+    snake.forEach((s,i)=>{ctx.fillStyle=i===0?'#4dff91':'#00b0ff';ctx.fillRect(s.x*SZ+1,s.y*SZ+1,SZ-2,SZ-2);});
+  }
+  window._gLoop=setInterval(()=>{
+    if(!alive)return; sd=nsd;
+    const h={...snake[0]};
+    if(sd==='U')h.y--;if(sd==='D')h.y++;if(sd==='L')h.x--;if(sd==='R')h.x++;
+    if(h.x<0||h.y<0||h.x>=W/SZ||h.y>=H/SZ||snake.some(s=>s.x===h.x&&s.y===s.y&&snake.indexOf(s)>0)){
+      alive=false;_gSaveScore('snake',score);_gSetScore('💀 Score:'+score);
+      ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='bold 20px sans-serif';ctx.textAlign='center';ctx.fillText('Game Over! Score:'+score,W/2,H/2);
       return;
     }
-    snake.unshift(head);
-    if(head.x===food.x&&head.y===food.y){score+=10;_gSetScore('🏆 '+score);food=_snFood(snake,COLS,ROWS);}
+    snake.unshift(h);
+    if(h.x===food.x&&h.y===food.y){score+=10;rFood();_gSetScore('Score:'+score);}
     else snake.pop();
-    ctx.fillStyle='#0a0a14';ctx.fillRect(0,0,cv.width,cv.height);
-    // Draw food
-    ctx.fillStyle='#ff3d7f';ctx.beginPath();ctx.arc(food.x*SIZE+SIZE/2,food.y*SIZE+SIZE/2,SIZE/2-1,0,Math.PI*2);ctx.fill();
-    // Draw snake
-    snake.forEach((s,i)=>{
-      const g=ctx.createLinearGradient(s.x*SIZE,s.y*SIZE,s.x*SIZE+SIZE,s.y*SIZE+SIZE);
-      g.addColorStop(0,i===0?'#00ff88':'#00d4ff');g.addColorStop(1,i===0?'#00d4ff':'#7c6cff');
-      ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(s.x*SIZE+1,s.y*SIZE+1,SIZE-2,SIZE-2,4);ctx.fill();
-    });
-  }, 150);
-}
-function _snFood(snake,COLS,ROWS){let f;do{f={x:Math.floor(Math.random()*COLS),y:Math.floor(Math.random()*ROWS)};}while(snake.some(s=>s.x===f.x&&s.y===f.y));return f;}
-
-// ════════════════════════════════════════════════════════
-// ✖️ TIC-TAC-TOE
-// ════════════════════════════════════════════════════════
-function _gTTT() {
-  let board = Array(9).fill('');
-  let turn = 'X'; // X = player, O = AI
-  let gameOver = false;
-  const render = () => {
-    G('gameArea').innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;">
-        <div style="font-size:15px;font-weight:700;color:var(--m2);" id="tttStatus">${turn==='X'?'আপনার পালা (X)':'AI চিন্তা করছে...'}</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);width:min(300px,90vw);background:var(--br2);gap:2px;border-radius:16px;overflow:hidden;">
-          ${board.map((v,i)=>`<div class="ttt-cell" onclick="window._tttClick(${i})" style="background:var(--c1);font-size:48px;line-height:1;">
-            <span style="color:${v==='X'?'#00d4ff':'#ff3d7f'}">${v}</span>
-          </div>`).join('')}
-        </div>
-        <button onclick="_gTTT()" style="padding:10px 24px;background:var(--c2);border:1px solid var(--br);border-radius:14px;color:var(--tx);font-weight:700;cursor:pointer;">🔄 New Game</button>
-      </div>`;
-  };
-  const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-  const check = (b,p) => wins.some(w=>w.every(i=>b[i]===p));
-  const aiMove = () => {
-    // Try win, then block, then center, then random
-    let best = -1;
-    for(let i=0;i<9;i++){if(!board[i]){board[i]='O';if(check(board,'O')){best=i;board[i]='';break;}board[i]='';}}
-    if(best===-1){for(let i=0;i<9;i++){if(!board[i]){board[i]='X';if(check(board,'X')){best=i;board[i]='';break;}board[i]='';}}};
-    if(best===-1&&!board[4])best=4;
-    if(best===-1){const empty=board.map((v,i)=>v?null:i).filter(v=>v!==null);best=empty[Math.floor(Math.random()*empty.length)];}
-    if(best!==-1){board[best]='O';turn='X';}
-    if(check(board,'O')){gameOver=true;document.getElementById('tttStatus').textContent='🤖 AI জিতে গেছে!';_gSaveScore('ttt',0);return;}
-    if(board.every(v=>v)){gameOver=true;document.getElementById('tttStatus').textContent='🤝 Draw!';return;}
-    document.getElementById('tttStatus').textContent='আপনার পালা (X)';
-    render();
-  };
-  window._tttClick = (i) => {
-    if(gameOver||board[i]||turn!=='X')return;
-    board[i]='X';turn='O';
-    if(check(board,'X')){gameOver=true;_gSaveScore('ttt',100);render();document.getElementById('tttStatus').textContent='🎉 আপনি জিতেছেন!';return;}
-    if(board.every(v=>v)){gameOver=true;render();document.getElementById('tttStatus').textContent='🤝 Draw!';return;}
-    render();
-    setTimeout(aiMove,500);
-  };
-  render();
-}
-
-// ════════════════════════════════════════════════════════
-// 🃏 MEMORY MATCH
-// ════════════════════════════════════════════════════════
-function _gMemory() {
-  const emojis = ['🎮','🎵','🌟','🔥','💎','🚀','🌈','⚡','🦋','🎯','🎭','🏆'];
-  const cards = [...emojis,...emojis].sort(()=>Math.random()-.5).map((e,i)=>({id:i,emoji:e,flipped:false,matched:false}));
-  let first=null,second=null,moves=0,matches=0,locked=false;
-  const render=()=>{
-    G('gameArea').innerHTML=`<div style="padding:16px;"><div style="text-align:center;margin-bottom:12px;font-size:13px;color:var(--m);">Moves: <strong style="color:var(--a)">${moves}</strong> | Matches: <strong style="color:var(--a3)">${matches}/${emojis.length}</strong></div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">${cards.map(cd=>`<div class="mem-card ${cd.flipped||cd.matched?'flipped':''} ${cd.matched?'matched':''}" onclick="window._memClick(${cd.id})" data-id="${cd.id}">
-        ${cd.flipped||cd.matched?cd.emoji:''}
-      </div>`).join('')}</div></div>`;
-  };
-  window._memClick=(id)=>{
-    if(locked)return;
-    const card=cards[id];
-    if(card.matched||card.flipped)return;
-    card.flipped=true;render();
-    if(!first){first=card;return;}
-    second=card;moves++;locked=true;
-    if(first.emoji===second.emoji){
-      first.matched=second.matched=true;matches++;
-      first=second=null;locked=false;
-      _gSetScore('🃏 '+moves+' moves');
-      if(matches===emojis.length){_gSaveScore('memory',1000-moves*10);setTimeout(()=>toast('🎉 সব match করেছেন! '+moves+' moves'),100);}
-      render();
-    }else{
-      setTimeout(()=>{first.flipped=second.flipped=false;first=second=null;locked=false;render();},900);
-    }
-  };
-  render();
-}
-
-// ════════════════════════════════════════════════════════
-// 🧠 GK QUIZ (BD/India focused)
-// ════════════════════════════════════════════════════════
-const QUIZ_QS = [
-  {q:'বাংলাদেশের রাজধানী কোনটি?',opts:['চট্টগ্রাম','ঢাকা','রাজশাহী','খুলনা'],a:1},
-  {q:'ভারতের রাজধানী কোথায়?',opts:['মুম্বাই','কলকাতা','নয়াদিল্লি','চেন্নাই'],a:2},
-  {q:'বাংলাদেশ স্বাধীন হয় কত সালে?',opts:['1969','1971','1973','1975'],a:1},
-  {q:'বিশ্বের সবচেয়ে বড় নদীর ব-দ্বীপ কোনটি?',opts:['নীলনদ','সুন্দরবন','আমাজন','মিসিসিপি'],a:1},
-  {q:'ক্রিকেট বিশ্বকাপ কত বছর পর হয়?',opts:['2 বছর','3 বছর','4 বছর','5 বছর'],a:2},
-  {q:'বাংলাদেশের জাতীয় ফুল কোনটি?',opts:['গোলাপ','শাপলা','জবা','পদ্ম'],a:1},
-  {q:'ভারতের জাতীয় খেলা কোনটি?',opts:['ক্রিকেট','হকি','ব্যাডমিন্টন','ফুটবল'],a:1},
-  {q:'Mount Everest কোন দেশে?',opts:['ভারত','চীন','নেপাল','তিব্বত'],a:2},
-  {q:'ইন্টারনেট আবিষ্কার করেন কে?',opts:['বিল গেটস','টিম বার্নার্স-লি','স্টিভ জবস','মার্ক জাকারবার্গ'],a:1},
-  {q:'সূর্য থেকে পৃথিবীর দূরত্ব প্রায় কত?',opts:['100 মিলিয়ন km','150 মিলিয়ন km','200 মিলিয়ন km','50 মিলিয়ন km'],a:1},
-  {q:'বাংলাদেশের জাতীয় পাখি কোনটি?',opts:['দোয়েল','ময়ূর','কোকিল','টিয়া'],a:0},
-  {q:'IPL কোন খেলার লিগ?',opts:['ফুটবল','হকি','ক্রিকেট','কাবাডি'],a:2},
-  {q:'WhatsApp এর মালিক কে?',opts:['Google','Apple','Meta','Microsoft'],a:2},
-  {q:'বাংলাদেশের মুদ্রার নাম কী?',opts:['রুপি','টাকা','পয়সা','ডলার'],a:1},
-  {q:'পৃথিবীতে কয়টি মহাসাগর আছে?',opts:['3টি','4টি','5টি','6টি'],a:2},
-  {q:'সবচেয়ে বেশি জনসংখ্যার দেশ কোনটি?',opts:['ভারত','চীন','আমেরিকা','ইন্দোনেশিয়া'],a:0},
-  {q:'Facebook কত সালে তৈরি হয়?',opts:['2002','2004','2006','2008'],a:1},
-  {q:'ঢাকা বিশ্ববিদ্যালয় কত সালে প্রতিষ্ঠিত হয়?',opts:['1905','1921','1947','1971'],a:1},
-  {q:'বিশ্বের দীর্ঘতম নদী কোনটি?',opts:['আমাজন','নীলনদ','গঙ্গা','ইয়াংসি'],a:1},
-  {q:'শেখ মুজিবুর রহমান কত তারিখে জন্মগ্রহণ করেন?',opts:['১৭ মার্চ','২৬ মার্চ','১৬ ডিসেম্বর','১ জানুয়ারি'],a:0},
-];
-function _gQuiz() {
-  let qs=[...QUIZ_QS].sort(()=>Math.random()-.5).slice(0,10);
-  let qi=0,score=0,answered=false;
-  const show=()=>{
-    if(qi>=qs.length){
-      _gSaveScore('quiz',score);
-      G('gameArea').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;padding:20px;">
-        <div style="font-size:60px;">🏆</div>
-        <div style="font-size:24px;font-weight:900;">${score}/${qs.length*10} পয়েন্ট</div>
-        <div style="font-size:15px;color:var(--m);">${score>=80?'অসাধারণ! 🌟':score>=50?'ভালো! 👍':'আরো পড়ুন 📚'}</div>
-        <button onclick="_gQuiz()" style="padding:12px 28px;background:var(--grad);border:none;border-radius:14px;color:#fff;font-weight:800;cursor:pointer;font-size:14px;">আবার খেলুন 🔄</button>
-      </div>`;return;
-    }
-    const q=qs[qi];answered=false;
-    G('gameArea').innerHTML=`<div style="padding:16px 14px;display:flex;flex-direction:column;gap:14px;">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--m);">
-        <span>প্রশ্ন ${qi+1}/${qs.length}</span><span style="color:var(--a);font-weight:700;">Score: ${score}</span>
-      </div>
-      <div style="height:4px;background:var(--c2);border-radius:4px;"><div style="height:100%;background:var(--grad);border-radius:4px;width:${(qi/qs.length)*100}%;transition:.3s;"></div></div>
-      <div style="font-size:17px;font-weight:800;line-height:1.5;padding:16px;background:var(--c1);border-radius:16px;border:1px solid var(--br);">${q.q}</div>
-      <div>${q.opts.map((o,i)=>`<div class="quiz-opt" id="qopt${i}" onclick="window._qAns(${i})">${String.fromCharCode(65+i)}. ${o}</div>`).join('')}</div>
-    </div>`;
-    // 15 second timer
-    let t=15;const tid=setInterval(()=>{t--;if(document.getElementById('qopt0'))G('gameScore').textContent='⏱ '+t+'s';if(t<=0||answered){clearInterval(tid);if(!answered){answered=true;document.getElementById('qopt'+q.a)?.classList.add('correct');setTimeout(()=>{qi++;show();},1200);}}},1000);
-    G('gameScore').textContent='⏱ 15s';
-    window._qAns=(i)=>{if(answered)return;answered=true;clearInterval(tid);const opt=document.getElementById('qopt'+i);if(i===q.a){opt?.classList.add('correct');score+=10;}else{opt?.classList.add('wrong');document.getElementById('qopt'+q.a)?.classList.add('correct');}setTimeout(()=>{qi++;show();},1200);};
-  };
-  show();
-}
-
-// ════════════════════════════════════════════════════════
-// 🔢 2048
-// ════════════════════════════════════════════════════════
-function _g2048() {
-  let board=Array(16).fill(0);let score=0;
-  const spawn=()=>{const emp=board.map((v,i)=>v?null:i).filter(v=>v!==null);if(emp.length)board[emp[Math.floor(Math.random()*emp.length)]]=Math.random()<.9?2:4;};
-  spawn();spawn();
-  const COLORS={0:'#1a1a2e',2:'#7c6cff',4:'#00d4ff',8:'#4dff91',16:'#ffaa00',32:'#ff6e40',64:'#ff3d7f',128:'#ffd740',256:'#c6ff00',512:'#69f0ae',1024:'#40c4ff',2048:'#e040fb'};
-  const render=()=>{
-    G('gameArea').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;padding:12px;">
-      <div style="font-size:13px;color:var(--m);">Score: <strong style="color:var(--a);font-size:16px;">${score}</strong></div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:min(320px,90vw);">
-        ${board.map(v=>`<div class="g2048-cell" style="background:${COLORS[v]||'#7c6cff'};color:${v<8?'#000':'#fff'};font-size:${v>512?'14px':v>64?'18px':'22px'};min-height:70px;">${v||''}</div>`).join('')}
-      </div>
-      <div style="display:flex;gap:10px;">
-        <button onclick="_g2048()" style="padding:10px 20px;background:var(--c2);border:1px solid var(--br);border-radius:12px;color:var(--tx);cursor:pointer;font-weight:700;">🔄 New</button>
-      </div>
-      <div style="font-size:11px;color:var(--m);">Swipe বা Arrow keys দিয়ে খেলুন</div>
-    </div>`;
-  };
-  const move=(dir)=>{
-    let moved=false;
-    const rotate=(b)=>{const n=Array(16).fill(0);for(let r=0;r<4;r++)for(let c=0;c<4;c++)n[c*4+(3-r)]=b[r*4+c];return n;};
-    const slideLeft=(b)=>{let nb=[...b];for(let r=0;r<4;r++){let row=nb.slice(r*4,r*4+4).filter(v=>v);for(let i=0;i<row.length-1;i++){if(row[i]===row[i+1]){row[i]*=2;score+=row[i];row.splice(i+1,1);moved=true;}}while(row.length<4)row.push(0);for(let c=0;c<4;c++){if(nb[r*4+c]!==row[c])moved=true;nb[r*4+c]=row[c];}}return nb;};
-    let b=[...board];
-    if(dir==='left')b=slideLeft(b);
-    else if(dir==='right'){b=rotate(rotate(slideLeft(rotate(rotate(b)))));} 
-    else if(dir==='up'){b=rotate(rotate(rotate(slideLeft(rotate(b)))));} 
-    else{b=rotate(slideLeft(rotate(rotate(rotate(b)))));};
-    if(moved||JSON.stringify(b)!==JSON.stringify(board)){board=b;spawn();_gSetScore('🏆 '+score);_gSaveScore('g2048',score);render();}
-  };
+    draw();
+  },150);
+  document.onkeydown=e=>{if(e.key==='ArrowUp'&&sd!=='D')nsd='U';if(e.key==='ArrowDown'&&sd!=='U')nsd='D';if(e.key==='ArrowLeft'&&sd!=='R')nsd='L';if(e.key==='ArrowRight'&&sd!=='L')nsd='R';};
   let ts=null;
-  G('gameArea').addEventListener('touchstart',e=>{ts=e.touches[0];},{passive:true});
-  G('gameArea').addEventListener('touchend',e=>{if(!ts)return;const dx=e.changedTouches[0].clientX-ts.clientX,dy=e.changedTouches[0].clientY-ts.clientY;if(Math.abs(dx)>Math.abs(dy)){move(dx>0?'right':'left');}else{move(dy>0?'down':'up');}ts=null;},{passive:true});
-  document.onkeydown=e=>{const m={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'};if(m[e.key])move(m[e.key]);};
+  cv.addEventListener('touchstart',e=>{ts=e.touches[0];},{passive:true});
+  cv.addEventListener('touchend',e=>{if(!ts)return;const dx=e.changedTouches[0].clientX-ts.clientX,dy=e.changedTouches[0].clientY-ts.clientY;if(Math.abs(dx)>Math.abs(dy)){if(dx>0&&sd!=='L')nsd='R';else if(sd!=='R')nsd='L';}else{if(dy>0&&sd!=='U')nsd='D';else if(sd!=='D')nsd='U';}ts=null;},{passive:true});
+  draw();
+}
+
+// ═══════════════════════════════════
+// ❌ TIC-TAC-TOE
+// ═══════════════════════════════════
+function _gTTT(){
+  const area=G('gameArea');
+  let board=Array(9).fill(''),turn='X',over=false;
+  const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  function check(b,p){return wins.some(w=>w.every(i=>b[i]===p));}
+  function aiMove(){
+    for(const w of wins){const e=w.filter(i=>board[i]==='');if(w.filter(i=>board[i]==='O').length===2&&e.length===1)return e[0];}
+    for(const w of wins){const e=w.filter(i=>board[i]==='');if(w.filter(i=>board[i]==='X').length===2&&e.length===1)return e[0];}
+    if(board[4]==='')return 4;
+    const c=[0,2,6,8].filter(i=>board[i]==='');if(c.length)return c[Math.floor(Math.random()*c.length)];
+    return board.findIndex(v=>v==='');
+  }
+  function render(){
+    area.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;">
+      <div style="font-size:16px;font-weight:700;">${over?'':'Turn: '+turn}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,80px);gap:8px;">
+        ${board.map((v,i)=>`<button onclick="window._ttt(${i})" style="width:80px;height:80px;font-size:32px;font-weight:900;background:var(--c2);border:2px solid var(--br);border-radius:14px;cursor:pointer;color:${v==='X'?'#ff3d7f':'#7c6cff'};">${v}</button>`).join('')}
+      </div>
+      ${over?`<button onclick="window._tttReset()" style="padding:10px 28px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">🔄 আবার খেলো</button>`:''}
+    </div>`;
+  }
+  window._ttt=i=>{if(board[i]||over||turn==='O')return;board[i]='X';if(check(board,'X')){over=true;_gSetScore('🏆 তুমি জিতেছ!');_gSaveScore('ttt',10);render();return;}if(board.every(v=>v)){over=true;_gSetScore('🤝 Draw!');render();return;}turn='O';render();setTimeout(()=>{const m=aiMove();if(m>=0){board[m]='O';if(check(board,'O')){over=true;_gSetScore('🤖 AI জিতেছে!');render();return;}turn='X';render();}},400);};
+  window._tttReset=()=>{board=Array(9).fill('');turn='X';over=false;_gSetScore('');render();};
   render();
 }
 
-// ════════════════════════════════════════════════════════
-// ⚡ REACTION TIME
-// ════════════════════════════════════════════════════════
-function _gReaction() {
-  let times=[],waiting=false;
-  const show=()=>{
-    G('gameArea').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;padding:20px;" id="rxnMain">
-      <div style="font-size:15px;color:var(--m);text-align:center;">সবুজ দেখলে যত দ্রুত সম্ভব tap করুন!</div>
-      <div id="rxnTarget" class="rxn-target" style="background:var(--c2);border:3px solid var(--br);cursor:default;" onclick="window._rxnTap()">⏳</div>
-      <div id="rxnResults" style="font-size:13px;color:var(--m);text-align:center;">${times.length?'Last: '+times[times.length-1]+'ms | Best: '+Math.min(...times)+'ms':''}</div>
-      ${times.length>=5?`<div style="font-size:20px;font-weight:900;color:var(--a);">Avg: ${Math.round(times.reduce((a,b)=>a+b)/times.length)}ms</div><button onclick="_gReaction()" style="padding:10px 24px;background:var(--c2);border:1px solid var(--br);border-radius:14px;color:var(--tx);font-weight:700;cursor:pointer;">🔄 Reset</button>`:''}
-    </div>`;
-    if(times.length>=5)return;
-    waiting=true;
-    const delay=1500+Math.random()*3000;
-    window._gTimer=setTimeout(()=>{
-      waiting=false;const t=Date.now();
-      document.getElementById('rxnTarget').style.background='linear-gradient(135deg,#4dff91,#00b0ff)';
-      document.getElementById('rxnTarget').textContent='👆';
-      document.getElementById('rxnTarget').style.cursor='pointer';
-      window._rxnStart=t;
-    },delay);
+// ═══════════════════════════════════
+// 🃏 MEMORY MATCH
+// ═══════════════════════════════════
+function _gMemory(){
+  const area=G('gameArea');
+  const em=['💻','🐍','☕','🔥','⚡','🎯','🌟','💡','🎮','🔢','📱','🛠️'];
+  const cards=[...em,...em].sort(()=>Math.random()-.5).map((e,i)=>({e,i,flipped:false,matched:false}));
+  let first=null,locked=false,moves=0,matches=0;
+  function render(){
+    area.innerHTML=`<div style="padding:10px;"><div style="text-align:center;margin-bottom:8px;font-size:13px;color:var(--m);">Moves: <b style="color:var(--a)">${moves}</b> | Matches: <b style="color:var(--a3)">${matches}/${em.length}</b></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:340px;margin:0 auto;">
+      ${cards.map(c=>`<button onclick="window._mem(${c.i})" style="aspect-ratio:1;font-size:24px;background:${c.flipped||c.matched?'var(--c2)':'var(--grad)'};border:none;border-radius:12px;cursor:pointer;transition:.2s;">${c.flipped||c.matched?c.e:'❓'}</button>`).join('')}
+    </div></div>`;
+  }
+  window._mem=i=>{
+    const c=cards[i];if(locked||c.flipped||c.matched)return;
+    c.flipped=true;render();
+    if(!first){first=c;return;}
+    locked=true;moves++;
+    if(first.e===c.e){c.matched=first.matched=true;matches++;first=null;locked=false;if(matches===em.length){_gSetScore('🏆 Cleared! Moves:'+moves);_gSaveScore('memory',1000-moves*10);}render();}
+    else{setTimeout(()=>{c.flipped=first.flipped=false;first=null;locked=false;render();},800);}
   };
-  window._rxnTap=()=>{
-    if(waiting){document.getElementById('rxnTarget').style.background='#ff3d7f';document.getElementById('rxnTarget').textContent='❌ Too early!';setTimeout(show,1000);return;}
-    if(!window._rxnStart)return;
-    const rt=Date.now()-window._rxnStart;window._rxnStart=null;
-    times.push(rt);_gSetScore('⚡ '+rt+'ms');
-    if(rt<200)_gSaveScore('reaction',1000);else if(rt<350)_gSaveScore('reaction',800);else _gSaveScore('reaction',500);
-    setTimeout(show,500);
+  render();
+}
+
+// ═══════════════════════════════════
+// 🔢 2048
+// ═══════════════════════════════════
+function _g2048(){
+  const area=G('gameArea');
+  let grid=Array(4).fill(null).map(()=>Array(4).fill(0)),score=0;
+  const colors={0:'#3a3a3a',2:'#4dff91',4:'#00d4ff',8:'#7c6cff',16:'#ff3d7f',32:'#ff9800',64:'#f44336',128:'#ffd740',256:'#e040fb',512:'#00bcd4',1024:'#8bc34a',2048:'#ff6e40'};
+  function addTile(){const e=[];for(let r=0;r<4;r++)for(let c2=0;c2<4;c2++)if(!grid[r][c2])e.push([r,c2]);if(!e.length)return;const[r,c2]=e[Math.floor(Math.random()*e.length)];grid[r][c2]=Math.random()<.9?2:4;}
+  addTile();addTile();
+  function move(d){let moved=false;const ng=grid.map(r=>[...r]);function slide(row){const f=row.filter(v=>v);while(f.length<4)f.push(0);for(let i=0;i<3;i++)if(f[i]&&f[i]===f[i+1]){f[i]*=2;score+=f[i];f.splice(i+1,1);f.push(0);}return f;}
+  if(d==='L')grid=grid.map(r=>slide(r));else if(d==='R')grid=grid.map(r=>slide([...r].reverse()).reverse());else if(d==='U'){for(let c2=0;c2<4;c2++){const col=slide(grid.map(r=>r[c2]));grid.forEach((r,i)=>r[c2]=col[i]);}}else{for(let c2=0;c2<4;c2++){const col=slide(grid.map(r=>r[c2]).reverse()).reverse();grid.forEach((r,i)=>r[c2]=col[i]);}}
+  moved=JSON.stringify(grid)!==JSON.stringify(ng);if(moved){addTile();_gSetScore('Score:'+score);_gSaveScore('g2048',score);}render();}
+  function render(){area.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;padding:10px;gap:6px;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:280px;width:100%;">
+      ${grid.flat().map(v=>`<div style="aspect-ratio:1;background:${colors[Math.min(v,2048)]||'#ff6e40'};border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:${v>99?'16px':'20px'};font-weight:900;color:#fff;">${v||''}</div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,56px);gap:6px;margin-top:8px;">
+      <div></div><button ontouchstart="move('U')" onclick="move('U')" style="height:48px;background:var(--c2);border:none;border-radius:10px;font-size:22px;cursor:pointer;color:var(--tx);">↑</button><div></div>
+      <button ontouchstart="move('L')" onclick="move('L')" style="height:48px;background:var(--c2);border:none;border-radius:10px;font-size:22px;cursor:pointer;color:var(--tx);">←</button>
+      <button ontouchstart="move('D')" onclick="move('D')" style="height:48px;background:var(--c2);border:none;border-radius:10px;font-size:22px;cursor:pointer;color:var(--tx);">↓</button>
+      <button ontouchstart="move('R')" onclick="move('R')" style="height:48px;background:var(--c2);border:none;border-radius:10px;font-size:22px;cursor:pointer;color:var(--tx);">→</button>
+    </div></div>`;}
+  let ts2=null;area.addEventListener('touchstart',e=>ts2=e.touches[0],{passive:true});area.addEventListener('touchend',e=>{if(!ts2)return;const dx=e.changedTouches[0].clientX-ts2.clientX,dy=e.changedTouches[0].clientY-ts2.clientY;if(Math.abs(dx)>Math.abs(dy)){move(dx>0?'R':'L');}else move(dy>0?'D':'U');ts2=null;},{passive:true});
+  render();
+}
+
+// ═══════════════════════════════════
+// ⚡ REACTION TIME
+// ═══════════════════════════════════
+function _gReaction(){
+  const area=G('gameArea');let st=0,waiting=false,scores=[];
+  function show(){area.innerHTML=`<div onclick="window._react()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;cursor:pointer;user-select:none;">
+    <div style="width:200px;height:200px;border-radius:50%;background:${waiting?'#4dff91':'#ff3d7f'};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;transition:background .2s;box-shadow:0 0 40px ${waiting?'#4dff91':'#ff3d7f'}44;">
+      ${waiting?'TAP NOW!':'Wait...⏳'}</div>
+    ${scores.length?`<div style="margin-top:20px;font-size:14px;color:var(--m);">Last: ${scores[scores.length-1]}ms | Best: ${Math.min(...scores)}ms</div>`:''}
+    <div style="margin-top:10px;font-size:12px;color:var(--m);">ক্লিক করে শুরু করো</div>
+  </div>`;}
+  window._react=()=>{
+    if(!waiting&&!st){waiting=false;clearTimeout(window._gTimer);window._gTimer=setTimeout(()=>{waiting=true;st=Date.now();show();},1000+Math.random()*3000);show();}
+    else if(waiting){const t=Date.now()-st;scores.push(t);if(t<100){area.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:20px;">⚡ Too fast! Cheat detected!</div>';return;}waiting=false;st=0;_gSaveScore('reaction',1000-t);_gSetScore('⚡ '+t+'ms');show();}
+    else{area.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:10px;"><div style="font-size:60px;">❌</div><div>Too early! Wait for green!</div><button onclick="window._react()" style="padding:10px 24px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;">Try Again</button></div>';clearTimeout(window._gTimer);waiting=false;st=0;}
   };
   show();
 }
 
-// ════════════════════════════════════════════════════════
-// 🔤 WORD GUESS (Bangla/English)
-// ════════════════════════════════════════════════════════
-const WORD_LIST = ['DHAKA','TIGER','RIVER','BREAD','DANCE','MUSIC','SMILE','HAPPY','LIGHT','CLOUD','DREAM','PEACE','EARTH','WATER','FLAME','STORM','HEART','NIGHT','PIXEL','FOCUS'];
-function _gWord() {
-  const word=WORD_LIST[Math.floor(Math.random()*WORD_LIST.length)];
-  let guesses=[];let currentGuess='';let maxGuesses=6;let over=false;
-  const render=()=>{
-    const rows=[];
-    for(let r=0;r<maxGuesses;r++){
-      const guess=guesses[r]||'';
-      const cells=[];
-      for(let c=0;c<5;c++){
-        const ch=guess[c]||'';
-        let bg='var(--c2)';let color='var(--tx)';
-        if(guess.length===5){if(ch===word[c]){bg='#4dff91';color='#000';}else if(word.includes(ch)){bg='#ffaa00';color='#000';}else{bg='var(--c1)';color='var(--m)';}}
-        cells.push(`<div style="width:50px;height:50px;border-radius:10px;background:${bg};color:${color};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;border:2px solid ${guess.length===5?'transparent':'var(--br)'};">${ch}</div>`);
-      }
-      rows.push(`<div style="display:flex;gap:6px;">${cells.join('')}</div>`);
+// ═══════════════════════════════════
+// 🔤 WORD GUESS (Bangla tech words)
+// ═══════════════════════════════════
+function _gWord(){
+  const area=G('gameArea');
+  const words=[
+    {w:'ARRAY',h:'একাধিক element store করার data structure'},
+    {w:'QUEUE',h:'FIFO — First In First Out'},
+    {w:'STACK',h:'LIFO — Last In First Out'},
+    {w:'LOOPS',h:'Code বারবার চালানোর জন্য'},
+    {w:'CLASS',h:'OOP এর blueprint'},
+    {w:'DEBUG',h:'Code এর error খোঁজা'},
+    {w:'INDEX',h:'Array তে position নম্বর'},
+    {w:'LOGIC',h:'Program এর চিন্তার ধারা'},
+    {w:'INPUT',h:'User থেকে data নেওয়া'},
+    {w:'TOKEN',h:'Authentication এ ব্যবহৃত'},
+    {w:'VIRUS',h:'ক্ষতিকর malware এর ধরন'},
+    {w:'FETCH',h:'Server থেকে data আনা (JS)'},
+    {w:'SCOPE',h:'Variable এর কার্যক্ষেত্র'},
+    {w:'SHELL',h:'OS এ command দেওয়ার interface'},
+    {w:'PROXY',h:'Network এ মধ্যস্থতাকারী'},
+  ];
+  const chosen=words[Math.floor(Math.random()*words.length)];
+  const w=chosen.w;let guessed=new Set(),wrong=0,maxWrong=6;
+  function render(){
+    const display=w.split('').map(l=>guessed.has(l)?l:'_').join(' ');
+    const won=w.split('').every(l=>guessed.has(l));
+    const lost=wrong>=maxWrong;
+    const alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    area.innerHTML=`<div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+      <div style="font-size:12px;color:var(--m);text-align:center;">💡 Hint: ${chosen.h}</div>
+      <div style="font-size:28px;font-weight:900;text-align:center;letter-spacing:8px;color:var(--a);">${display}</div>
+      <div style="text-align:center;font-size:13px;">❌ Wrong: ${wrong}/${maxWrong} ${won?'🏆 জিতেছ!':lost?'💀 হেরেছ! Word: '+w:''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;">
+        ${alpha.split('').map(l=>`<button onclick="window._wg('${l}')" ${guessed.has(l)||won||lost?'disabled':''} style="width:34px;height:34px;border-radius:8px;border:1.5px solid var(--br);background:${guessed.has(l)?(w.includes(l)?'var(--a3)':'#ff3d7f44'):'var(--c2)'};color:var(--tx);font-size:13px;font-weight:700;cursor:pointer;">${l}</button>`).join('')}
+      </div>
+      ${won||lost?`<button onclick="window._gWord()" style="padding:10px 24px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;align-self:center;">🔄 আবার খেলো</button>`:''}
+    </div>`;
+  }
+  window._wg=l=>{guessed.add(l);if(!w.includes(l))wrong++;if(w.split('').every(x=>guessed.has(x)))_gSaveScore('wordguess',100-wrong*10);render();};
+  window._gWord=()=>_gWord(); // restart
+  render();
+}
+
+// ═══════════════════════════════════
+// 🔢 NUMBER SLIDE
+// ═══════════════════════════════════
+function _gNumSlide(){
+  const area=G('gameArea');
+  let tiles=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0],moves=0;
+  for(let i=tiles.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[tiles[i],tiles[j]]=[tiles[j],tiles[i]];}
+  function render(){area.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;padding:10px;gap:10px;">
+    <div style="font-size:13px;color:var(--m);">Moves: <b style="color:var(--a)">${moves}</b></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:280px;width:100%;">
+      ${tiles.map((v,i)=>`<button onclick="window._ns(${i})" style="aspect-ratio:1;font-size:${v>9?'18':'22'}px;font-weight:900;background:${v?'var(--grad)':'transparent'};color:#fff;border:none;border-radius:12px;cursor:${v?'pointer':'default'};">${v||''}</button>`).join('')}
+    </div></div>`;}
+  window._ns=i=>{const empty=tiles.indexOf(0);const adj=[i-1,i+1,i-4,i+4];if(!adj.includes(empty))return;if((i%4===0&&empty===i-1)||(i%4===3&&empty===i+1))return;[tiles[empty],tiles[i]]=[tiles[i],tiles[empty]];moves++;if(tiles.slice(0,15).every((v,j)=>v===j+1)){_gSaveScore('numslide',1000-moves);_gSetScore('🏆 Done! Moves:'+moves);}render();};
+  render();
+}
+
+// ════════════════════════════════════════
+// 💻 CSE QUIZ — Programming & CS basics
+// ════════════════════════════════════════
+function _gCSEQuiz(){
+  const area=G('gameArea');
+  const Qs=[
+    {q:'HTML এর পূর্ণরূপ কী?',o:['HyperText Markup Language','High Tech Modern Language','HyperText Modern Links','Home Tool Markup Language'],a:0},
+    {q:'কোনটি programming language নয়?',o:['Python','Java','HTML','C++'],a:2},
+    {q:'CPU এর পূর্ণরূপ কী?',o:['Central Processing Unit','Computer Personal Unit','Core Processing Utility','Central Program Unit'],a:0},
+    {q:'Binary তে 10 = কত?',o:['1010','1100','1001','1111'],a:0},
+    {q:'RAM মানে কী?',o:['Random Access Memory','Read All Memory','Run All Modules','Real Active Module'],a:0},
+    {q:'`for` loop কোন ধরনের statement?',o:['Conditional','Iteration','Declaration','Function'],a:1},
+    {q:'একটি array তে প্রথম element এর index কত?',o:['1','-1','0','2'],a:2},
+    {q:'OOP এ "class" কী?',o:['Variable','Function','Blueprint/Template','Loop'],a:2},
+    {q:'HTTP status code 404 মানে?',o:['Server Error','Not Found','Success','Redirect'],a:1},
+    {q:'কোনটি database language?',o:['CSS','SQL','HTML','XML'],a:1},
+    {q:'JavaScript কোথায় run করে?',o:['Server only','Browser / Node.js','Database','OS Kernel'],a:1},
+    {q:'Python এ comment লেখার চিহ্ন কী?',o:['//','/* */','#','--'],a:2},
+    {q:'বড় O notation কী measure করে?',o:['Memory size','Algorithm complexity','File size','Network speed'],a:1},
+    {q:'Git কী কাজে ব্যবহার হয়?',o:['Web design','Version control','Database management','Game dev'],a:1},
+    {q:'কোনটি frontend framework?',o:['Django','Laravel','React','Flask'],a:2},
+    {q:'Binary তে 1+1 = ?',o:['2','10','11','0'],a:1},
+    {q:'IP address এর পূর্ণরূপ?',o:['Internet Protocol','Internal Port','Input Point','Integrated Packet'],a:0},
+    {q:'কোনটি data structure?',o:['HTML','CSS','Stack','HTTP'],a:2},
+    {q:'Recursion মানে কী?',o:['Loop একবার চলা','Function নিজেকে call করা','Array sort করা','Variable declare করা'],a:1},
+    {q:'Boolean এ কয়টি মান থাকে?',o:['1','2','3','অনেক'],a:1},
+  ];
+  const shuffled=[...Qs].sort(()=>Math.random()-.5);
+  let qi=0,score=0,answered=false;
+  function show(){
+    if(qi>=shuffled.length){
+      area.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:20px;">
+        <div style="font-size:48px;">🏆</div>
+        <div style="font-size:24px;font-weight:900;color:var(--a);">${score}/${shuffled.length}</div>
+        <div style="font-size:15px;color:var(--m);">${score>=15?'অসাধারণ! তুমি CSE এর রাজা!':score>=10?'ভালো করেছ! আরো পড়ো।':'চেষ্টা করো, পারবে!'}</div>
+        <button onclick="_gCSEQuiz()" style="padding:12px 28px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;font-size:15px;">🔄 আবার খেলো</button>
+      </div>`;
+      _gSaveScore('cquiz',score*10); _gSetScore(`Score: ${score}/${shuffled.length}`); return;
     }
-    const lastGuess=guesses[guesses.length-1]||'';
-    const won=lastGuess===word;
-    if(won||guesses.length>=maxGuesses)over=true;
-    G('gameArea').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;padding:14px;gap:10px;overflow-y:auto;height:100%;">
-      ${rows.join('')}
-      ${over?`<div style="font-size:17px;font-weight:800;color:${won?'var(--a3)':'#ff3d7f'};">${won?'🎉 সঠিক! '+word:'শব্দটি ছিল: '+word}</div><button onclick="_gWord()" style="padding:10px 24px;background:var(--grad);border:none;border-radius:12px;color:#fff;font-weight:800;cursor:pointer;">🔄 New Word</button>`:''}
-      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;max-width:320px;">
-        ${'QWERTYUIOPASDFGHJKLZXCVBNM'.split('').map(k=>`<button onclick="window._wKey('${k}')" style="width:32px;height:36px;border-radius:8px;background:var(--c2);border:1px solid var(--br);color:var(--tx);font-size:13px;font-weight:700;cursor:pointer;">${k}</button>`).join('')}
-        <button onclick="window._wKey('⌫')" style="padding:0 10px;height:36px;border-radius:8px;background:var(--c2);border:1px solid var(--br);color:var(--tx);font-size:13px;cursor:pointer;">⌫</button>
-        <button onclick="window._wKey('⏎')" style="padding:0 10px;height:36px;border-radius:8px;background:var(--grad);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Enter</button>
+    const q=shuffled[qi]; answered=false;
+    area.innerHTML=`<div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+      <div style="font-size:11px;color:var(--m);font-weight:700;">Q ${qi+1}/${shuffled.length} • Score: ${score}</div>
+      <div style="font-size:15px;font-weight:800;line-height:1.5;color:var(--tx);">${q.q}</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${q.o.map((opt,i)=>`<button id="qo${i}" onclick="window._cq(${i})" style="text-align:left;padding:13px 16px;background:var(--c2);border:1.5px solid var(--br);border-radius:14px;color:var(--tx);font-size:14px;cursor:pointer;font-weight:600;-webkit-tap-highlight-color:transparent;">${['A','B','C','D'][i]}. ${opt}</button>`).join('')}
       </div>
     </div>`;
+  }
+  window._cq=i=>{
+    if(answered)return; answered=true;
+    const q=shuffled[qi];
+    const btns=area.querySelectorAll('[id^="qo"]');
+    btns.forEach((b,bi)=>{b.style.pointerEvents='none';if(bi===q.a)b.style.background='rgba(77,255,145,.25)';else if(bi===i)b.style.background='rgba(255,61,127,.25)';});
+    if(i===q.a)score++;
+    setTimeout(()=>{qi++;show();},900);
   };
-  window._wKey=(k)=>{
-    if(over)return;
-    if(k==='⌫'){currentGuess=currentGuess.slice(0,-1);}
-    else if(k==='⏎'){if(currentGuess.length===5){guesses.push(currentGuess);if(currentGuess===word){_gSaveScore('wordguess',(maxGuesses-guesses.length+1)*100);}_gSetScore('Guess '+guesses.length+'/'+maxGuesses);currentGuess='';}}
-    else if(currentGuess.length<5)currentGuess+=k;
-    // Show current typing in next row
-    if(!over){const r=guesses.length;for(let c=0;c<5;c++){const cells=document.querySelectorAll('[style*="50px"][style*="50px"]');}}
-    render();
-  };
-  render();
+  window._gCSEQuiz=()=>{qi=0;score=0;show();}; // restart support
+  show();
 }
 
-// ════════════════════════════════════════════════════════
-// 🔢 NUMBER SLIDE PUZZLE (15-puzzle)
-// ════════════════════════════════════════════════════════
-function _gNumSlide() {
-  let tiles=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
-  // Shuffle (always solvable)
-  for(let i=0;i<200;i++){const empty=tiles.indexOf(0);const neighbors=[];if(empty%4>0)neighbors.push(empty-1);if(empty%4<3)neighbors.push(empty+1);if(empty>3)neighbors.push(empty-4);if(empty<12)neighbors.push(empty+4);const n=neighbors[Math.floor(Math.random()*neighbors.length)];tiles[empty]=tiles[n];tiles[n]=0;}
-  let moves=0;
-  const render=()=>{
-    const solved=tiles.slice(0,15).every((v,i)=>v===i+1)&&tiles[15]===0;
-    G('gameArea').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;">
-      <div style="font-size:13px;color:var(--m);">Moves: <strong style="color:var(--a)">${moves}</strong></div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:min(280px,90vw);">
-        ${tiles.map((v,i)=>`<div onclick="window._nsClick(${i})" style="aspect-ratio:1;border-radius:12px;background:${v?'var(--grad)':'transparent'};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;cursor:${v?'pointer':'default'};transition:.15s;min-height:60px;">${v||''}</div>`).join('')}
+// ════════════════════════════════════════
+// 01 BINARY CONVERTER — শেখো ও খেলো
+// ════════════════════════════════════════
+function _gBinary(){
+  const area=G('gameArea');
+  let score=0,mode='d2b'; // decimal to binary or binary to decimal
+  function randQ(){return mode==='d2b'?{num:Math.floor(Math.random()*64+1),ans:(n=>n.toString(2))(Math.floor(Math.random()*64+1))}:{num:Math.floor(Math.random()*64+1).toString(2),ans:parseInt(Math.floor(Math.random()*64+1).toString(2),2).toString()};}
+  let cur={num:1,ans:'1'};
+  function newQ(){
+    const n=Math.floor(Math.random()*64+1);
+    cur=mode==='d2b'?{num:n,ans:n.toString(2)}:{num:n.toString(2),ans:n.toString()};
+    render();
+  }
+  function render(){
+    area.innerHTML=`<div style="padding:16px;display:flex;flex-direction:column;gap:14px;align-items:center;">
+      <div style="display:flex;gap:8px;">
+        <button onclick="window._bvMode('d2b')" style="padding:8px 16px;border-radius:20px;border:none;background:${mode==='d2b'?'var(--grad)':'var(--c2)'};color:${mode==='d2b'?'#fff':'var(--tx)'};font-weight:700;cursor:pointer;">Decimal→Binary</button>
+        <button onclick="window._bvMode('b2d')" style="padding:8px 16px;border-radius:20px;border:none;background:${mode==='b2d'?'var(--grad)':'var(--c2)'};color:${mode==='b2d'?'#fff':'var(--tx)'};font-weight:700;cursor:pointer;">Binary→Decimal</button>
       </div>
-      ${solved?`<div style="font-size:18px;font-weight:800;color:var(--a3);">🎉 Solved in ${moves} moves!</div><button onclick="_gNumSlide()" style="padding:10px 24px;background:var(--grad);border:none;border-radius:12px;color:#fff;font-weight:700;cursor:pointer;">🔄 New Puzzle</button>`:''}
+      <div style="font-size:13px;color:var(--m);">Score: <b style="color:var(--a)">${score}</b></div>
+      <div style="font-size:42px;font-weight:900;color:var(--a);text-align:center;letter-spacing:2px;">${cur.num}</div>
+      <div style="font-size:13px;color:var(--m);">${mode==='d2b'?'Binary তে লিখুন:':'Decimal তে লিখুন:'}</div>
+      <input id="bvAns" type="text" inputmode="numeric" placeholder="উত্তর লিখুন..." style="width:200px;padding:12px 16px;border-radius:14px;border:2px solid var(--br);background:var(--c2);color:var(--tx);font-size:18px;font-weight:700;text-align:center;outline:none;">
+      <button onclick="window._bvCheck()" style="padding:12px 32px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:800;cursor:pointer;font-size:15px;">✅ Check</button>
+      <div id="bvFb" style="font-size:14px;font-weight:700;min-height:20px;"></div>
+      <div style="font-size:11px;color:var(--m);text-align:center;line-height:1.6;">
+        💡 টিপস: ${mode==='d2b'?'2 দিয়ে ভাগ করে remainder নিন':'প্রতিটা bit × 2ⁿ যোগ করুন'}
+      </div>
     </div>`;
+  }
+  window._bvMode=m=>{mode=m;score=0;newQ();};
+  window._bvCheck=()=>{
+    const inp=document.getElementById('bvAns');if(!inp)return;
+    const fb=document.getElementById('bvFb');
+    if(inp.value.trim()===cur.ans){score++;fb.innerHTML='<span style="color:#4dff91">✅ সঠিক! বাহ!</span>';_gSaveScore('binary',score);_gSetScore('Score:'+score);setTimeout(()=>newQ(),700);}
+    else{fb.innerHTML=`<span style="color:#ff3d7f">❌ ভুল। সঠিক: <b>${cur.ans}</b></span>`;setTimeout(()=>newQ(),1400);}
   };
-  window._nsClick=(i)=>{
-    const empty=tiles.indexOf(0);
-    const valid=(i===empty-1&&Math.floor(i/4)===Math.floor(empty/4))||(i===empty+1&&Math.floor(i/4)===Math.floor(empty/4))||i===empty-4||i===empty+4;
-    if(!valid)return;
-    tiles[empty]=tiles[i];tiles[i]=0;moves++;
-    _gSetScore('Moves: '+moves);
-    if(tiles.slice(0,15).every((v,j)=>v===j+1)){_gSaveScore('numslide',1000-moves);}
-    render();
-  };
-  render();
+  document.getElementById('bvAns')?.addEventListener('keydown',e=>{if(e.key==='Enter')window._bvCheck();});
+  newQ();
 }
 
+// ════════════════════════════════════════
+// ⌨️ TYPING SPEED — Code snippets
+// ════════════════════════════════════════
+function _gTyping(){
+  const area=G('gameArea');
+  const texts=[
+    'print("Hello World")',
+    'for i in range(10):',
+    'int main() { return 0; }',
+    'SELECT * FROM users;',
+    'console.log("Hello")',
+    'if (x > 0) { x++; }',
+    'public class Main {}',
+    'def add(a, b): return a+b',
+    'const arr = [1, 2, 3];',
+    'git commit -m "fix bug"',
+    'npm install react',
+    'ls -la /home/user',
+  ];
+  let txt='',start=0,done=false,wpm=0;
+  function newText(){txt=texts[Math.floor(Math.random()*texts.length)];start=0;done=false;render();}
+  function render(){
+    area.innerHTML=`<div style="padding:16px;display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <div style="font-size:13px;color:var(--m);">⌨️ নিচের code টাইপ করো:</div>
+      <div style="font-family:monospace;font-size:16px;background:var(--c2);padding:16px;border-radius:14px;color:var(--a);font-weight:700;text-align:center;width:90%;word-break:break-all;">${txt}</div>
+      <textarea id="tpIn" rows="2" placeholder="এখানে type করো..." style="width:90%;padding:12px;border-radius:12px;border:2px solid var(--br);background:var(--c1);color:var(--tx);font-size:15px;font-family:monospace;resize:none;outline:none;"></textarea>
+      ${done?`<div style="font-size:20px;font-weight:900;color:var(--a);">⚡ ${wpm} WPM</div>
+        <button onclick="window._tpNew()" style="padding:10px 24px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;">🔄 নতুন Text</button>`
+      :'<div style="font-size:12px;color:var(--m);">শুরু করলেই timer চলবে</div>'}
+    </div>`;
+    const inp=document.getElementById('tpIn');
+    if(inp){inp.addEventListener('input',()=>{
+      if(!start)start=Date.now();
+      const v=inp.value;
+      if(v===txt){done=true;const mins=(Date.now()-start)/60000;wpm=Math.round((txt.split(' ').length||1)/mins);_gSaveScore('typespeed',wpm);_gSetScore('⚡ '+wpm+' WPM');render();}
+    });inp.focus();}
+  }
+  window._tpNew=newText;
+  newText();
+}
+
+// ════════════════════════════════════════
+// 🐛 BUG SQUASH — Code এর ভুল ধরো
+// ════════════════════════════════════════
+function _gBugSquash(){
+  const area=G('gameArea');
+  const bugs=[
+    {code:'for i in range(10)\n    print(i)',bug:'Missing colon after range(10)',fix:'for i in range(10):'},
+    {code:'int x = "hello";',bug:'"hello" is a string, not int',fix:'String x = "hello"; or int x = 5;'},
+    {code:'if x = 5:\n    print(x)',bug:'= is assignment, use == for comparison',fix:'if x == 5:'},
+    {code:'console.log("Hi")',bug:'Missing semicolon at end (JS)',fix:'console.log("Hi");'},
+    {code:'def add(a b):\n    return a+b',bug:'Missing comma between parameters',fix:'def add(a, b):'},
+    {code:'SELECT name FROM;\nWHERE age > 18',bug:'FROM এ table name নেই, semicolon ভুল জায়গায়',fix:'SELECT name FROM users WHERE age > 18;'},
+    {code:'array[5] = 10;\n// array size 5',bug:'Index 5 out of bounds! (0-4)',fix:'array[4] = 10; // last valid index'},
+    {code:'while(true)\n    x++;',bug:'Infinite loop — no break condition',fix:'while(x < 10) { x++; }'},
+    {code:'int divide(int a, int b){\n    return a/b; // b=0?',bug:'Division by zero possible',fix:'if(b==0) return -1; return a/b;'},
+    {code:'x = x + 1\nprint(x)\nx = 0',bug:'Variable used before proper init order',fix:'x = 0; x = x + 1; print(x)'},
+  ];
+  const sh=[...bugs].sort(()=>Math.random()-.5);
+  let qi=0,score=0;
+  function show(){
+    if(qi>=sh.length){area.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;padding:20px;"><div style="font-size:48px;">🐛✅</div><div style="font-size:22px;font-weight:900;color:var(--a);">${score}/${sh.length} Bugs Found!</div><button onclick="_gBugSquash()" style="padding:12px 28px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;">🔄 আবার খেলো</button></div>`;_gSaveScore('bugsquash',score*10);return;}
+    const b=sh[qi];
+    area.innerHTML=`<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+      <div style="font-size:11px;color:var(--m);font-weight:700;">BUG ${qi+1}/${sh.length} • Score: ${score}</div>
+      <div style="font-size:13px;font-weight:700;">🐛 এই code এ bug কোথায়?</div>
+      <pre style="background:#1a1a2e;color:#4dff91;padding:14px;border-radius:12px;font-size:13px;overflow-x:auto;border:1px solid var(--br);">${b.code}</pre>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button onclick="window._bsAns(true)" style="padding:12px;background:rgba(255,61,127,.15);border:1.5px solid #ff3d7f;border-radius:14px;color:var(--tx);font-size:14px;cursor:pointer;font-weight:600;">🔍 Bug আছে — Explain করো</button>
+        <button onclick="window._bsAns(false)" style="padding:12px;background:var(--c2);border:1.5px solid var(--br);border-radius:14px;color:var(--tx);font-size:14px;cursor:pointer;font-weight:600;">✅ Code ঠিক আছে</button>
+      </div>
+    </div>`;
+  }
+  window._bsAns=hasB=>{
+    const b=sh[qi];
+    if(hasB){score++;area.innerHTML=`<div style="padding:14px;display:flex;flex-direction:column;gap:12px;">
+      <div style="color:#4dff91;font-weight:800;font-size:15px;">✅ সঠিক! Bug ধরেছ!</div>
+      <div style="font-size:13px;color:var(--m);font-weight:700;">🐛 Bug: ${b.bug}</div>
+      <div style="font-size:13px;color:var(--a3);font-weight:700;">✅ Fix: <code>${b.fix}</code></div>
+      <button onclick="window._bsNext()" style="padding:10px 24px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;align-self:flex-start;">পরের Bug →</button>
+    </div>`;_gSaveScore('bugsquash',score*10);}
+    else{area.innerHTML=`<div style="padding:14px;display:flex;flex-direction:column;gap:12px;">
+      <div style="color:#ff3d7f;font-weight:800;font-size:15px;">❌ আসলে Bug আছে!</div>
+      <div style="font-size:13px;color:var(--m);">🐛 ${b.bug}</div>
+      <div style="font-size:13px;color:var(--a3);">Fix: <code>${b.fix}</code></div>
+      <button onclick="window._bsNext()" style="padding:10px 24px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;align-self:flex-start;">পরের Bug →</button>
+    </div>`;}
+  };
+  window._bsNext=()=>{qi++;show();};
+  window._gBugSquash=()=>{qi=0;score=0;show();};
+  show();
+}
+
+// ════════════════════════════════════════
+// 📊 SORT RACE — Array sorting visualization
+// ════════════════════════════════════════
+function _gSortRace(){
+  const area=G('gameArea');
+  let arr=[],sorted=[],sel=null,moves=0,done=false;
+  function newGame(){
+    arr=Array.from({length:8},()=>Math.floor(Math.random()*90+10));
+    sorted=[...arr].sort((a,b)=>a-b); sel=null;moves=0;done=false;render();
+  }
+  function render(){
+    const isSorted=JSON.stringify(arr)===JSON.stringify(sorted);
+    if(isSorted&&!done){done=true;_gSaveScore('algosort',500-moves*10);_gSetScore('✅ Sorted! Moves:'+moves);}
+    area.innerHTML=`<div style="padding:14px;display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <div style="font-size:13px;color:var(--m);">📊 Array কে ascending order এ সাজাও!</div>
+      <div style="font-size:12px;color:var(--m);">Moves: <b style="color:var(--a)">${moves}</b> | ${sel!==null?'Selected: <b style="color:var(--a3)">'+arr[sel]+'</b>':'একটা element select করো'}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+        ${arr.map((v,i)=>`<button onclick="window._sr(${i})" style="width:54px;height:54px;border-radius:12px;background:${sel===i?'var(--grad)':JSON.stringify(arr)===JSON.stringify(sorted)?'rgba(77,255,145,.3)':'var(--c2)'};border:2px solid ${sel===i?'var(--a)':'var(--br)'};color:var(--tx);font-size:16px;font-weight:900;cursor:pointer;transition:.15s;">${v}</button>`).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--m);">Sorted: [${sorted.join(', ')}]</div>
+      ${done?`<div style="color:#4dff91;font-size:18px;font-weight:900;">🏆 সাজানো হয়ে গেছে!</div>
+        <button onclick="window._srNew()" style="padding:10px 24px;background:var(--grad);border:none;border-radius:20px;color:#fff;font-weight:700;cursor:pointer;">🔄 নতুন Array</button>`:''}
+    </div>`;
+  }
+  window._sr=i=>{if(done)return;if(sel===null){sel=i;}else if(sel===i){sel=null;}else{[arr[sel],arr[i]]=[arr[i],arr[sel]];moves++;sel=null;}render();};
+  window._srNew=newGame;
+  newGame();
+}
 
 </script>
 </body>
