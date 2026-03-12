@@ -24,6 +24,8 @@ body.th-gold{--a:#ffd740;--a2:#ff6e40;--grad:linear-gradient(135deg,#ffd740,#ffa
 body.th-amoled{--bg:#000;--c1:#0a0a0a;--c2:#111;}
 body.th-light{--bg:#f0f2f5;--c1:#fff;--c2:#e4e6eb;--br:rgba(0,0,0,.1);--tx:#050505;--m:#65676b;--m2:#444;--sh:0 2px 12px rgba(0,0,0,.1);}
 html,body{height:100%;overflow:hidden;background:var(--bg);}
+#app{position:relative;overflow:hidden;min-height:100vh;background:var(--bg);}
+
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--tx);font-size:15px;}
 ::-webkit-scrollbar{width:3px;height:3px;}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
@@ -829,9 +831,114 @@ body.th-light .mw-top{background:rgba(255,255,255,.97);}
 .notif-msg{border-left:3px solid #7c6cff;}
 
 /* ── MEDIA QUERY: Tablet ── */
+/* ════════════════════════════════════
+   RESPONSIVE DESKTOP / TABLET LAYOUT
+   Centered phone UI on larger screens
+   ════════════════════════════════════ */
+:root{--app-w:480px;}
+
 @media(min-width:600px){
-  .pw,.mw,.pg-reels{max-width:480px;margin:0 auto;left:50%;right:auto;transform:translateX(-50%);}
-  .topbar,.bnav{max-width:480px;left:50%;right:auto;transform:translateX(-50%);}
+  /* ── Centered app shell ── */
+  body{background:#0a0a14;display:flex;align-items:stretch;justify-content:center;}
+  
+  /* Desktop background pattern */
+  body::before{
+    content:'∞';
+    position:fixed;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:40vw;font-weight:900;
+    background:linear-gradient(135deg,#7c6cff,#ff3d7f);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    opacity:.03;pointer-events:none;z-index:0;
+  }
+  
+  /* Main app container */
+  #app{
+    position:relative;width:var(--app-w);max-width:var(--app-w);
+    min-height:100vh;margin:0 auto;
+    box-shadow:0 0 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.05);
+    overflow:hidden;
+  }
+  
+  /* Fixed elements stay inside the 480px column */
+  .topbar{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  .bnav{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  .pw{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  .mw{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  /* Reels page */
+  #pg-reels{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  /* Game screen */
+  #gameScreen{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  /* Compose/full-screen modals */
+  .comp-full{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  /* Call screen */
+  .call-sc{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  /* Story modals */
+  #stM,#svM{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  /* Screen lock */
+  #screenLock{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  /* Pull refresh */
+  .pull-ind{left:50%!important;}
+  /* Toast */
+  .toast{max-width:calc(var(--app-w) - 40px)!important;}
+  /* Bottom sheets — center within app */
+  .m-bg{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  /* Emoji panel */
+  #ep{
+    width:var(--app-w)!important;max-width:var(--app-w)!important;
+    left:50%!important;right:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  /* Chat password bar */
+  #chatPassBar{max-width:var(--app-w)!important;}
+}
+
+@media(min-width:900px){
+  :root{--app-w:430px;}
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1217,7 +1324,7 @@ input:-webkit-autofill:focus {
 <div class="pull-ind" id="pullInd">🔄</div>
 
 <!-- ═══ MAIN APP ═══ -->
-<div id="app" style="display:none">
+<div id="app" style="display:none;position:relative;">
   <div class="topbar">
     <div class="t-logo">
       <svg width="26" height="26" viewBox="0 0 100 100"><defs><linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#ff3d7f"/></linearGradient></defs><rect width="100" height="100" rx="20" fill="#0f0f1a"/><text x="50" y="66" font-family="Arial Black" font-size="58" text-anchor="middle" fill="url(#tg)">&#8734;</text></svg>
