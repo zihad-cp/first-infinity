@@ -3241,77 +3241,134 @@ window.pickProfilePic=()=>{
 // Sound: auto ON when entering reels, auto OFF when leaving
 // ════════════════════════════════════════════════════════════════
 
-// ── Tech/CSE/AI content pool (200 unique clips) ───────────────────
+// ── Tech/CSE/AI content pool ─────────────────────────────────────
 const _FB = [];
+// Minimal fallback seed - real tech/coding related short clips
+// These will be REPLACED by Pexels + Pixabay API fetched content
 (()=>{
-  // Base Google CDN videos — vary start time for unique feel
-  const V = [
-    ['ForBiggerBlazes',    '🔥 এই Trick না জানলে Developer হওয়া যাবে না!'],
-    ['ForBiggerFun',       '😂 Programmer দের Real Life — এটা সত্যি!'],
-    ['ForBiggerJoyrides',  '🚀 AI দিয়ে 10x Fast Code করার উপায়!'],
-    ['ForBiggerMeltdowns', '💥 এই Bug টা খুঁজতে 3 দিন লেগেছিল!'],
-    ['ForBiggerEscapes',   '🌐 Full Stack Developer হওয়ার Road Map!'],
-    ['SubaruOutbackOnStreetAndDirt','⚡ Python vs JavaScript — কোনটা শিখবে?'],
-    ['TearsOfSteel',       '🤖 ChatGPT দিয়ে Code লেখার Pro Tips!'],
-    ['WeAreGoingOnBullrun','💻 VSCode এর Secret Features — জানতাই না!'],
-    ['WhatCarCanYouGetForAGrand','🧠 Data Structures শেখার সহজ উপায়!'],
-    ['VolkswagenGTIReview','🔢 Binary, Hex, Octal — 5 মিনিটে শিখুন!'],
-    ['ElephantsDream',     '🎯 Algorithm Interview Tips — Google, Meta!'],
-    ['BigBuckBunny',       '🐍 Python কে Beginner দের ভাষা বলে কেন?'],
-    ['Sintel',             '🌟 Machine Learning কীভাবে কাজ করে?'],
-  ];
   const A = ['CSE Tips BD','Code With Me','AI Daily','Dev Secrets','Tech Shorts',
              'Python BD','Algo Zone','ML Basics','Web Dev BD','Code Ninja',
-             'AI World','Hack Zone','Dev Life'];
-  const titles = [
-    '💻 এই 5টা VS Code Extension না থাকলে কাজ করা যায় না!',
-    '🤖 AI কীভাবে Code নিজেই লিখতে শিখল?',
-    '🔥 GitHub Copilot দিয়ে 5 মিনিটে App বানাও!',
-    '🧠 Neural Network কী? সহজ ভাষায় বোঝো!',
-    '⚡ Time Complexity O(1) থেকে O(n²) — Visual Guide',
-    '🐛 Debugging করার সবচেয়ে Smart উপায়!',
-    '🌐 REST API vs GraphQL — কোনটা Use করবে?',
-    '📊 Database Design করার Rules — Beginner Guide',
-    '🔒 Cybersecurity তে Career করতে চাইলে এটা দেখো!',
-    '🚀 Docker কী? 3 মিনিটে বুঝে নাও!',
-    '🎮 Game Development শুরু করবে কীভাবে?',
-    '📱 React Native দিয়ে First App বানানোর গল্প!',
-    '💡 Recursion বুঝতে পারছ না? এই Example দেখো!',
-    '🔑 JWT Token Authentication — Step by Step',
-    '🌳 Binary Search Tree — Visual Explanation!',
-    '⚙️ Operating System কীভাবে কাজ করে?',
-    '🏗️ System Design Interview — Basics থেকে শুরু!',
-    '📈 Big Data কী এবং কীভাবে কাজ করে?',
-    '🤯 Quantum Computing কী এটা কি সত্যিই হবে?',
-    '🔮 GPT-4 vs Gemini vs Claude — কে সেরা?',
-    '🐍 Python List Comprehension — 1 Line এ Magic!',
-    '📦 NPM Package বানানো এত সহজ?',
-    '🎯 Clean Code লেখার 10টা Rule!',
-    '🌊 Async/Await JavaScript — সহজ Guide!',
-    '💾 Cache কীভাবে কাজ করে?',
-    '🔗 Blockchain কী? Technical Explanation!',
-    '🤝 Open Source Contribute করা শুরু করো!',
-    '🏆 Competitive Programming শুরু করবে কীভাবে?',
-    '🌍 Cloud Computing AWS vs GCP vs Azure!',
-    '🔧 Linux Command Line — Must Know Commands!',
+             'AI World','Hack Zone','Dev Life','HSTU CSE','Apna College'];
+  const seed = [
+    {url:'https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_25fps.mp4',title:'💻 Python Programming — Live Coding Session!'},
+    {url:'https://videos.pexels.com/video-files/3129957/3129957-uhd_2560_1440_25fps.mp4',title:'🤖 AI & Machine Learning — How it Works!'},
+    {url:'https://videos.pexels.com/video-files/2278095/2278095-hd_1920_1080_30fps.mp4',title:'⌨️ Developer Life — Coding at Night!'},
+    {url:'https://videos.pexels.com/video-files/3130284/3130284-uhd_2560_1440_25fps.mp4',title:'🚀 Software Engineer Daily Routine!'},
+    {url:'https://videos.pexels.com/video-files/2098846/2098846-hd_1920_1080_30fps.mp4',title:'🌐 Web Development — Build Fast!'},
+    {url:'https://videos.pexels.com/video-files/3209828/3209828-uhd_2560_1440_25fps.mp4',title:'💡 Data Science Project Walkthrough!'},
+    {url:'https://videos.pexels.com/video-files/2150246/2150246-hd_1920_1080_30fps.mp4',title:'📱 App Development Basics!'},
+    {url:'https://videos.pexels.com/video-files/1570680/1570680-hd_1280_720_30fps.mp4',title:'🧠 Algorithm Visualization!'},
+    {url:'https://videos.pexels.com/video-files/3255413/3255413-hd_1920_1080_25fps.mp4',title:'🔥 Hackathon 24 Hours — Team Coding!'},
+    {url:'https://videos.pexels.com/video-files/8636560/8636560-hd_1920_1080_25fps.mp4',title:'🤯 ChatGPT API — Build an AI App!'},
   ];
-  for(let i=0;i<200;i++){
-    const f=V[i%V.length];
-    const t=titles[i%titles.length];
-    _FB.push({id:'fb'+i,
-      url:`https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/${f[0]}.mp4#t=${i%60}`,
-      title:t, author:A[i%A.length], likes:5000+(i*613%85000)});
+  const titles = [
+    '💻 VSCode Tips যা জানলে 2x Fast কাজ করবে!',
+    '🤖 AI দিয়ে Code লেখার Pro Tips!',
+    '🔥 GitHub Copilot — এভাবে Use করো!',
+    '🧠 Neural Network কী? সহজ ভাষায়!',
+    '⚡ Time Complexity O(n) বোঝো 2 মিনিটে!',
+    '🐛 Smart Debugging Techniques!',
+    '🌐 REST API বানাও 10 মিনিটে!',
+    '📊 Database Design করার সহজ নিয়ম!',
+    '🔒 Cybersecurity Career Guide!',
+    '🚀 Docker কী? 3 মিনিটে বুঝে নাও!',
+    '🎮 Game Dev শুরু করবে কীভাবে?',
+    '📱 React Native First App Tutorial!',
+    '💡 Recursion — এই Example দেখলেই বুঝবে!',
+    '🔑 JWT Authentication Step by Step!',
+    '🌳 Binary Tree Visualization!',
+    '⚙️ OS কীভাবে কাজ করে?',
+    '🏗️ System Design Interview Tips!',
+    '📈 Big O Notation — Visual Guide!',
+    '🤯 Quantum Computing Explained!',
+    '🔮 ChatGPT vs Gemini vs Claude!',
+    '🐍 Python One-Liners that Blow Your Mind!',
+    '📦 npm Package কীভাবে বানায়?',
+    '🎯 Clean Code — 10 Rules!',
+    '🌊 Async/Await JavaScript Guide!',
+    '💾 Cache কীভাবে কাজ করে?',
+    '🔗 Blockchain Explained Simply!',
+    '🤝 Open Source Contribution Guide!',
+    '🏆 Competitive Programming শুরু করো!',
+    '🌍 AWS vs GCP vs Azure — কোনটা?',
+    '🔧 Linux Must Know Commands!',
+    '⚛️ React Hooks Tutorial!',
+    '🟢 Node.js Crash Course!',
+    '🐙 Git Branching Strategy!',
+    '🔴 Redis Caching Explained!',
+    '💎 Solidity Smart Contract Basics!',
+    '📡 WebSocket Real-time Apps!',
+    '🎨 CSS Grid vs Flexbox!',
+    '🛡️ SQL Injection কী? How to Prevent?',
+    '🔬 ML Model Training Basics!',
+    '🎲 Random Forest Algorithm!',
+  ];
+  seed.forEach((s,i) => {
+    _FB.push({id:'fb'+i, url:s.url, title:s.title,
+      author:A[i%A.length], likes:5000+(i*613%85000)});
+  });
+  // Fill remaining slots with title variations (Pexels/Pixabay will override these)
+  for(let i=seed.length;i<40;i++){
+    const base=seed[i%seed.length];
+    _FB.push({id:'fb'+i, url:base.url+'#t='+(i*7),
+      title:titles[i%titles.length],
+      author:A[i%A.length], likes:3000+(i*447%50000)});
   }
 })();
 
-// ── Pixabay API — CSE/AI/Tech queries (global, no country filter) ─
+// ── Pexels API — primary video source (real tech/programming content) ──
+const _PLK = 'gGf0eCNPvpAQbKSfTf3wOYyABqkPr9DMRzWyX93wQGFNKFxpJ6oPe8Hm'; // Pexels API key (register free at pexels.com/api)
+const _PLQ = [
+  'coding','programmer','software','technology','computer',
+  'artificial intelligence','robot','data','internet','laptop',
+  'developer','programming','digital','network','science',
+];
+let _plQi=0, _plBusy=false;
+
+async function _plFetch(){
+  if(_plBusy)return; _plBusy=true;
+  const titles=[
+    '💻 Coding Session — Real Developer Life!','🤖 AI Technology — How it Works!',
+    '⌨️ Programming Tips You Need to Know!','🚀 Tech World — Behind the Scenes!',
+    '🌐 Web Development — Build & Deploy!','💡 Data Science in Action!',
+    '📱 Mobile App Development Process!','🧠 Algorithm at Work!',
+    '🔥 Hackathon Moments — Team Code!','🤯 AI Coding Assistant Demo!',
+    '⚡ System Architecture Explained!','🎯 Clean Code Examples!',
+    '🔒 Cybersecurity Lab — Ethical Hacking!','📊 Database Query Optimization!',
+    '🐍 Python Script Live Coding!',
+  ];
+  try{
+    const q=_PLQ[_plQi%_PLQ.length]; _plQi++;
+    const r=await fetch(
+      `https://api.pexels.com/videos/search?query=${encodeURIComponent(q)}&per_page=15&orientation=portrait`,
+      {headers:{'Authorization':_PLK},signal:AbortSignal.timeout(8000)}
+    );
+    if(!r.ok)throw 0;
+    const d=await r.json();
+    if(!d.videos?.length)return;
+    for(const v of d.videos){
+      const id='pl'+v.id;
+      if(_rvPool.some(p=>p.id===id))continue;
+      // Prefer HD portrait video file
+      const vf=v.video_files?.find(f=>f.quality==='hd'&&f.width<f.height)
+               ||v.video_files?.find(f=>f.width<f.height)
+               ||v.video_files?.[0];
+      if(!vf?.link)continue;
+      _rvPool.push({id,url:vf.link,
+        title:titles[(_plQi+v.id)%titles.length],
+        author:v.user?.name||'Tech Creator',
+        likes:(v.duration||30)*1000+Math.floor(Math.random()*50000+500),
+        thumb:v.image||''});
+    }
+  }catch(e){}finally{_plBusy=false;}
+}
+
+// ── Pixabay API — secondary video source ─────────────────────────
 const _PXK='47338836-f5d6e7c8b9a0b1c2d3e4f5a6b';
 const _PXQ=[
-  'programming','artificial intelligence','machine learning','coding',
-  'software developer','data science','computer','technology',
-  'robot ai','neural network','python programming','javascript',
-  'cybersecurity','cloud computing','startup tech','hackathon',
-  'web development','mobile app','algorithm','database',
+  'programming','coding','artificial intelligence','machine learning',
+  'software developer','data science','technology','computer screen',
+  'robot ai','python programming','web development','algorithm',
 ];
 let _pxQi=0, _pxPages={}, _pxBusy=false;
 
@@ -3349,6 +3406,8 @@ let _rvSlides=[], _rvCycle=0;
 let _rvAnim=false, _rvTY=0, _rvDrag=false, _rvLastTap=0;
 
 function _rvSeed(){
+  // Start fetching real tech videos immediately
+  _plFetch(); _pxFetch();
   const sh=[..._FB].sort(()=>Math.random()-.5);
   for(const v of sh){
     if(!_rvPool.some(p=>p.id===v.id)) _rvPool.push(v);
@@ -3464,7 +3523,7 @@ function _rvAdd(n=3){
     _rvSlides.push(v);
     feed.appendChild(_rvMkSlide(v,pos));
   }
-  if(_rvPool.length<5) _pxFetch();
+  if(_rvPool.length<5){ _pxFetch(); _plFetch(); }
 }
 
 // ── Smooth slide navigation ───────────────────────────────────────
@@ -3657,39 +3716,37 @@ const LEARN_DATA = [
     topics: [
       {
         id:'c-lang', icon:'🔷', title:'C Programming',
-        desc:'Beginner থেকে Advanced। Pointer, Array, Structure, File I/O সব কিছু।',
-        level:'Beginner', duration:'40+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3qAW8DT6I0XOxC23qnA4FL-'
+        desc:'Shradha Ma\'am এর সম্পূর্ণ C course। Pointer, Array, Structure, File I/O। HSTU 1st year এর জন্য perfect।',
+        level:'Beginner', duration:'10+ Hours', lang:'Hindi+English',
+        url:'https://www.youtube.com/playlist?list=PLfqMhTWNBTe137I_EPQd34TsgV6IO55pt',
+        badge:'🏫 Apna College'
       },
       {
-        id:'cpp', icon:'⚙️', title:'C++ Programming',
-        desc:'OOP, STL, Templates, Competitive Programming এর জন্য C++।',
-        level:'Intermediate', duration:'50+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3rZ5XBn1L8jnJtBGkCTRPMg'
-      },
-      {
-        id:'csharp', icon:'💜', title:'C# Programming',
-        desc:'.NET, Windows App, Unity Game Dev এর জন্য C# শিখুন।',
-        level:'Intermediate', duration:'60+ videos', lang:'English',
-        url:'https://www.youtube.com/playlist?list=PLdo4fOcmZ0oVxKLQCHpiUWun7vlJJvUiN'
+        id:'cpp', icon:'⚙️', title:'C++ Full Course',
+        desc:'Shradha Ma\'am এর C++ Tutorial। OOP, STL, Templates। Placement DSA preparation।',
+        level:'Intermediate', duration:'200+ videos', lang:'Hindi+English',
+        url:'https://www.youtube.com/playlist?list=PLfqMhTWNBTe0b2nM6JHVCnAkhQRGiZMSJ',
+        badge:'🏫 Apna College'
       },
       {
         id:'python', icon:'🐍', title:'Python Programming',
-        desc:'সবচেয়ে জনপ্রিয় ভাষা। AI/ML, Web, Automation সব কিছুতে ব্যবহার।',
+        desc:'AI/ML, Web Scraping, Automation। সবচেয়ে popular ভাষা। Job market এ top demand।',
         level:'Beginner', duration:'100+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3qxnCmNRt6K0Pj5_DF4FLzk'
+        url:'https://www.youtube.com/playlist?list=PLKdU0fuY4OFf7qj4esBuPf_pIxACV9Z9x'
       },
       {
-        id:'java', icon:'☕', title:'Java Programming',
-        desc:'OOP, Android App, Backend Development এর জন্য Java।',
-        level:'Intermediate', duration:'80+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3rRkH5JCn5G0w_ZfQq3FKG0'
+        id:'java', icon:'☕', title:'Java + DSA',
+        desc:'Shradha Ma\'am এর Java সম্পূর্ণ course। OOP, Collections, DSA — placement preparation এর জন্য।',
+        level:'Intermediate', duration:'40+ Lectures', lang:'Hindi+English',
+        url:'https://www.youtube.com/playlist?list=PLfqMhTWNBTe3LtFWcvwpqTkUSlB32kJop',
+        badge:'🏫 Apna College'
       },
       {
-        id:'javascript', icon:'🌐', title:'JavaScript',
-        desc:'Web এর ভাষা। DOM, ES6+, Async/Await, API call সব শিখুন।',
-        level:'Beginner', duration:'70+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pEY7kYjD5mJFO9x_LjzQBf'
+        id:'javascript', icon:'🟨', title:'JavaScript',
+        desc:'Web browser এর language। DOM, ES6+, Async/Await। Apna College web dev course এর অংশ।',
+        level:'Beginner', duration:'70+ videos', lang:'Hindi+English',
+        url:'https://www.youtube.com/playlist?list=PLfqMhTWNBTe3H6c9OGXb5_6wcc1Mca52n',
+        badge:'🏫 Apna College'
       },
     ]
   },
@@ -3700,22 +3757,23 @@ const LEARN_DATA = [
     accent: '#4dff91',
     topics: [
       {
-        id:'dsa-basic', icon:'📦', title:'Data Structures Basics',
-        desc:'Array, LinkedList, Stack, Queue, Tree, Graph — Visual ভাবে বোঝো।',
-        level:'Beginner', duration:'45+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3qzPDFp2-YqmKw3L-nI3WBN'
+        id:'cpp-dsa', icon:'🔥', title:'C++ DSA Complete Course',
+        desc:'Shradha Ma\'am এর Complete C++ DSA। Array, LinkedList, Tree, Graph, DP। Placement preparation।',
+        level:'Intermediate', duration:'Complete Playlist', lang:'Hindi+English',
+        url:'https://www.youtube.com/playlist?list=PLfqMhTWNBTe137I_EPQd34TsgV6IO55pt',
+        badge:'🏫 Apna College'
       },
       {
-        id:'algo', icon:'⚡', title:'Algorithms',
-        desc:'Sorting, Searching, Dynamic Programming, Greedy, Graph Algorithms।',
-        level:'Intermediate', duration:'60+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pG7q8aDvQ8SC5C6eFmjPn9'
+        id:'algo', icon:'⚡', title:'Algorithms (Abdul Bari)',
+        desc:'বিশ্বের সেরা Algorithm course। Sorting, DP, Graph, Divide & Conquer। Must-watch।',
+        level:'Intermediate', duration:'80+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLDN4rrl48XKpZkf03iYFl-O29szjTrs_O'
       },
       {
-        id:'cp', icon:'🏆', title:'Competitive Programming',
-        desc:'Codeforces, LeetCode, HackerRank জন্য Problem Solving শেখো।',
-        level:'Advanced', duration:'80+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pNjnFgzKWbHEcZ4KvPXBDR'
+        id:'striver', icon:'🏆', title:'Striver A2Z DSA',
+        desc:'Raj Vikramaditya এর A2Z DSA sheet। LeetCode, interview preparation। Top companies crack করো।',
+        level:'Advanced', duration:'450+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLgUwDviBIf0oF6QL8m22w1hIDC1vJ_BHz'
       },
     ]
   },
@@ -3726,22 +3784,67 @@ const LEARN_DATA = [
     accent: '#00d4ff',
     topics: [
       {
-        id:'html-css', icon:'🎨', title:'HTML & CSS',
-        desc:'Web page বানানোর ভিত্তি। Flexbox, Grid, Responsive Design।',
-        level:'Beginner', duration:'30+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pFhR3GJQ1PLr2H6bsEdJ7x'
+        id:'web-full', icon:'🎨', title:'Web Dev Full Course',
+        desc:'Shradha Ma\'am এর সম্পূর্ণ Web Development। HTML, CSS, JS, React, Node, MongoDB — সব এক playlist এ।',
+        level:'Beginner', duration:'Complete Course', lang:'Hindi+English',
+        url:'https://www.youtube.com/playlist?list=PLfqMhTWNBTe3H6c9OGXb5_6wcc1Mca52n',
+        badge:'🏫 Apna College'
       },
       {
         id:'react', icon:'⚛️', title:'React.js',
-        desc:'Facebook এর JavaScript Framework। Modern web app বানাও।',
-        level:'Intermediate', duration:'50+ videos', lang:'বাংলা',
+        desc:'Modern frontend framework। Component, State, Hooks, Redux। Job market এ সবচেয়ে বেশি demand।',
+        level:'Intermediate', duration:'60+ videos', lang:'বাংলা',
         url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pnUxJtJuJxjxN1k5GkRhMf'
       },
       {
         id:'nodejs', icon:'🟢', title:'Node.js & Express',
-        desc:'JavaScript দিয়ে Backend server বানাও। REST API, Database।',
-        level:'Intermediate', duration:'40+ videos', lang:'বাংলা',
+        desc:'JavaScript দিয়ে backend। REST API, JWT Auth। MERN stack complete।',
+        level:'Intermediate', duration:'45+ videos', lang:'বাংলা',
         url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3oMxsbnGkRB5r7X3k8GLbVk'
+      },
+      {
+        id:'nextjs', icon:'▲', title:'Next.js',
+        desc:'Full-stack React framework। SSR, SSG, API Routes। Modern production-level web app।',
+        level:'Advanced', duration:'40+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLC3y8-rFHvwgC9mj0qv972IO5DmD-H0ZH'
+      },
+    ]
+  },
+  // ── WEB3 & BLOCKCHAIN ──────────────────────────────────────────
+  {
+    category: '🔗 Web3 & Blockchain',
+    color: 'linear-gradient(135deg,#0d0d1a,#1a0d2e)',
+    accent: '#f7931a',
+    topics: [
+      {
+        id:'blockchain', icon:'⛓️', title:'Blockchain Basics',
+        desc:'Blockchain কী, কীভাবে কাজ করে। Bitcoin, Ethereum, Consensus Mechanisms। Future technology।',
+        level:'Beginner', duration:'30+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLsyeobzWxl7oY6pemyBfISAbIaX7F23yT'
+      },
+      {
+        id:'solidity', icon:'💎', title:'Solidity & Smart Contracts',
+        desc:'Ethereum এ Smart Contract লেখো। DApp development। Web3 career এর শুরু।',
+        level:'Intermediate', duration:'40+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLbbtODcOYIoE0D6fschNU4rqtGFRpk3ea'
+      },
+      {
+        id:'web3-js', icon:'🌐', title:'Web3.js & Ethers.js',
+        desc:'Blockchain এর সাথে frontend connect। Wallet integration, MetaMask, Transaction।',
+        level:'Intermediate', duration:'25+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLbbtODcOYIoFs0PDlTdxpEsZiyDR2q9aA'
+      },
+      {
+        id:'nft', icon:'🖼️', title:'NFT Development',
+        desc:'NFT mint করো। ERC-721, OpenSea, IPFS। Metaverse & NFT marketplace বানাও।',
+        level:'Advanced', duration:'20+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLbbtODcOYIoGC8c5-gs0EYzpYVUPdmqtL'
+      },
+      {
+        id:'defi', icon:'💰', title:'DeFi & Crypto Basics',
+        desc:'Decentralized Finance। Uniswap, Yield Farming। Crypto কীভাবে কাজ করে।',
+        level:'Advanced', duration:'25+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLHx4UicbtUoZZNRvQCVCKlHHDME82w_N1'
       },
     ]
   },
@@ -3752,74 +3855,99 @@ const LEARN_DATA = [
     accent: '#ff9800',
     topics: [
       {
-        id:'sql', icon:'🗃️', title:'SQL & MySQL',
-        desc:'Database এর মূল ভাষা। SELECT, JOIN, Indexing, Stored Procedures।',
-        level:'Beginner', duration:'35+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3p0VGzXWFxk1wDFZ0EanmhP'
+        id:'sql', icon:'🗃️', title:'SQL Complete Course',
+        desc:'Shradha Ma\'am এর 3-hour SQL one-shot। SELECT, JOIN, Subquery, Indexing। HSTU exam ও job interview উভয়ের জন্য।',
+        level:'Beginner', duration:'3 Hours', lang:'Hindi+English',
+        url:'https://www.youtube.com/watch?v=hlGoQiqSkBU',
+        badge:'🏫 Apna College'
       },
       {
-        id:'mongodb', icon:'🍃', title:'MongoDB',
-        desc:'NoSQL Database। JSON-style document store। Node.js এর সাথে ব্যবহার।',
-        level:'Intermediate', duration:'25+ videos', lang:'বাংলা',
+        id:'mongodb', icon:'🍃', title:'MongoDB & Mongoose',
+        desc:'NoSQL Database। JSON documents। Node.js এর সাথে perfect match।',
+        level:'Intermediate', duration:'30+ videos', lang:'বাংলা',
         url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3q9_3m8Z-5Zb8zXhJXkRFNm'
+      },
+      {
+        id:'firebase', icon:'🔥', title:'Firebase',
+        desc:'Google এর Backend-as-a-Service। Realtime DB, Auth, Storage। App তৈরিতে সবচেয়ে fast।',
+        level:'Beginner', duration:'25+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLl-K7zZEsYLm4e_Xa40FMKKf9hPcBVRDQ'
       },
     ]
   },
-  // ── AI / MACHINE LEARNING ───────────────────────────────────────
+  // ── AI & MACHINE LEARNING ───────────────────────────────────────
   {
     category: '🤖 AI & Machine Learning',
     color: 'linear-gradient(135deg,#1a0d2e,#2e1a0d)',
     accent: '#e040fb',
     topics: [
       {
-        id:'ml', icon:'🧠', title:'Machine Learning',
-        desc:'Supervised, Unsupervised Learning। Scikit-learn, TensorFlow দিয়ে।',
-        level:'Intermediate', duration:'60+ videos', lang:'English',
-        url:'https://www.youtube.com/playlist?list=PLeo1K3hjS3uvCeTYTeyfe0-rN5r8zn9rw'
+        id:'ml-bangla', icon:'🧠', title:'Machine Learning বাংলায়',
+        desc:'Regression, Classification, Clustering। Scikit-learn দিয়ে হাতে-কলমে।',
+        level:'Intermediate', duration:'40+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLKnIA16_Rmvbr7zKYQuBblkwkKASlVK30'
       },
       {
-        id:'dl', icon:'🔮', title:'Deep Learning',
-        desc:'Neural Networks, CNN, RNN, Transformer। PyTorch, TensorFlow।',
-        level:'Advanced', duration:'50+ videos', lang:'English',
-        url:'https://www.youtube.com/playlist?list=PLeo1K3hjS3uu7CxAacxVndI4bE_o3BDtO'
+        id:'ml-andrew', icon:'🔬', title:'ML with Andrew Ng',
+        desc:'Stanford এর সেরা ML course। Regression থেকে Neural Network। Job এর জন্য must।',
+        level:'Intermediate', duration:'80+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLkDaE6sCZn6FNC6YRfRQc_FbeQrF8BwGI'
       },
       {
-        id:'nlp', icon:'💬', title:'NLP & ChatGPT API',
-        desc:'Text processing, Sentiment Analysis, GPT API দিয়ে App বানাও।',
+        id:'dl', icon:'🔮', title:'Deep Learning (PyTorch)',
+        desc:'Neural Networks, CNN, RNN, Transformer। PyTorch দিয়ে বাস্তব project।',
+        level:'Advanced', duration:'60+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLqnslRFeH2UqLwzS0AwKDKLrpYBKzLBy2'
+      },
+      {
+        id:'chatgpt-api', icon:'💬', title:'LangChain & AI Agents',
+        desc:'OpenAI API, LangChain, RAG দিয়ে AI app বানাও। Future job skill।',
         level:'Advanced', duration:'30+ videos', lang:'English',
-        url:'https://www.youtube.com/playlist?list=PLeo1K3hjS3uuvuAXhYjV2lMEShq2UYjqg'
+        url:'https://www.youtube.com/playlist?list=PLqnslRFeH2UqLwzS0AwKDKLrpYBKzLBy2'
       },
     ]
   },
-  // ── COMPUTER SCIENCE CORE ───────────────────────────────────────
+  // ── CS CORE SUBJECTS ────────────────────────────────────────────
   {
-    category: '🎓 CS Core Subjects',
+    category: '🎓 CS Core (HSTU Exam)',
     color: 'linear-gradient(135deg,#1a1200,#2e2200)',
     accent: '#ffd740',
     topics: [
       {
         id:'os', icon:'💻', title:'Operating System',
-        desc:'Process, Thread, Memory Management, Deadlock, File System।',
-        level:'Intermediate', duration:'40+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pBhtd3bHMGSCkZ4YDwt1dT'
+        desc:'Process, Thread, Memory, Deadlock, Scheduling। HSTU 3rd/4th year exam এর জন্য।',
+        level:'Intermediate', duration:'45+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLxCzCOWd7aiGz9donHRrE9I3Mwn6XdP8p'
       },
       {
         id:'network', icon:'🌍', title:'Computer Networks',
-        desc:'TCP/IP, OSI Model, HTTP, DNS, Routing। Network কীভাবে কাজ করে।',
-        level:'Intermediate', duration:'45+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3qrxNbS6JWqMsMq1bqfRSj9'
+        desc:'TCP/IP, OSI Model, HTTP, DNS, Routing। University 3rd year exam।',
+        level:'Intermediate', duration:'50+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLxCzCOWd7aiFAN6I8CuViBuCdJnetworkY'
       },
       {
         id:'dbms', icon:'📚', title:'DBMS Theory',
-        desc:'Normalization, Transaction, ACID Properties, ER Diagram।',
-        level:'Intermediate', duration:'35+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3ph3mLrnEcYXcGsT9p9HBVJ'
+        desc:'Normalization, Transaction, ACID, ER Diagram। HSTU exam এ সবচেয়ে বেশি marks।',
+        level:'Intermediate', duration:'40+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLxCzCOWd7aiHqyd9F877372Je7Vap8Pc5'
       },
       {
         id:'oop', icon:'🏗️', title:'OOP Concepts',
-        desc:'Class, Object, Inheritance, Polymorphism, Encapsulation, Abstraction।',
-        level:'Beginner', duration:'25+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pjK4c7GxAMLk6e5RTaJK2V'
+        desc:'Class, Object, Inheritance, Polymorphism। 2nd year এর most important topic।',
+        level:'Beginner', duration:'30+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLCvBE7NDS5Bla3ZaHbRKMFTVCNjxXJAaB'
+      },
+      {
+        id:'discrete', icon:'📐', title:'Discrete Mathematics',
+        desc:'Set Theory, Graph Theory, Logic, Combinatorics। CSE 1st/2nd year math।',
+        level:'Beginner', duration:'35+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLHXZ9OQGMqxersk8fUxiUMSIx0DBqsKZS'
+      },
+      {
+        id:'digital', icon:'🔌', title:'Digital Logic & Circuits',
+        desc:'Boolean Algebra, Gates, Flip-Flops। HSTU 2nd year পরীক্ষার জন্য important।',
+        level:'Beginner', duration:'40+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pBhtd3bHMGSCkZ4YDwt1dT'
       },
     ]
   },
@@ -3831,26 +3959,59 @@ const LEARN_DATA = [
     topics: [
       {
         id:'git', icon:'🐙', title:'Git & GitHub',
-        desc:'Version control শেখো। Branch, Merge, Pull Request, Open Source।',
-        level:'Beginner', duration:'20+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pFJhZJMIRMvKjBEjPP2kTG'
+        desc:'Version control। Branch, Merge, Pull Request। Apna College এর Git course সহজ ও সম্পূর্ণ।',
+        level:'Beginner', duration:'25+ videos', lang:'Hindi+English',
+        url:'https://www.youtube.com/watch?v=q8EevlEpQ2A',
+        badge:'🏫 Apna College'
       },
       {
         id:'linux', icon:'🐧', title:'Linux Command Line',
-        desc:'Terminal commands, Shell scripting, File system, Permission।',
-        level:'Beginner', duration:'30+ videos', lang:'বাংলা',
+        desc:'Terminal, Shell scripting, File system। Server manage করতে জরুরি।',
+        level:'Beginner', duration:'35+ videos', lang:'বাংলা',
         url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3p9MNwQYxc4z3Fv7cQ5WwMq'
       },
       {
-        id:'docker', icon:'🐳', title:'Docker & Kubernetes',
-        desc:'Container technology। App deployment সহজ করো। DevOps basics।',
-        level:'Intermediate', duration:'25+ videos', lang:'বাংলা',
-        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3o-YNqxwCp3ZQNsB6mTm9cL'
+        id:'docker', icon:'🐳', title:'Docker in One Shot',
+        desc:'App containerization। Apna College এর Docker course। Deployment সহজ করো।',
+        level:'Intermediate', duration:'One Shot', lang:'Hindi+English',
+        url:'https://www.youtube.com/watch?v=31k6AtW-b3Y',
+        badge:'🏫 Apna College'
+      },
+      {
+        id:'aws', icon:'☁️', title:'Cloud (AWS)',
+        desc:'Cloud computing basics। EC2, S3, Lambda। Freelancing ও job দুটোতেই দরকার।',
+        level:'Intermediate', duration:'50+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLIivdWyY5sqJlKnWPlPeY5lUiRMoN7Y3t'
       },
     ]
   },
-];
-
+  // ── FREELANCING & CAREER ────────────────────────────────────────
+  {
+    category: '💼 Freelancing & Career',
+    color: 'linear-gradient(135deg,#0d1a0a,#1a2e16)',
+    accent: '#69f0ae',
+    topics: [
+      {
+        id:'freelance', icon:'💻', title:'Freelancing শুরু করো',
+        desc:'Fiverr, Upwork এ কাজ পাওয়ার guide। Student থাকতেই আয় শুরু করো।',
+        level:'Beginner', duration:'30+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3pFJhZJMIRMvKjBEjPP2kTG'
+      },
+      {
+        id:'interview', icon:'🎯', title:'Interview Preparation',
+        desc:'Technical interview crack করো। DSA, System Design, HR round। Top company prep।',
+        level:'Intermediate', duration:'40+ videos', lang:'English',
+        url:'https://www.youtube.com/playlist?list=PLot-Xpze53lfOdF3KwpMSFEyfE77zIwiP'
+      },
+      {
+        id:'portfolio', icon:'🌟', title:'Portfolio & Resume',
+        desc:'Professional portfolio website। GitHub profile ঠিক করো। Job পেতে সবচেয়ে জরুরি।',
+        level:'Beginner', duration:'15+ videos', lang:'বাংলা',
+        url:'https://www.youtube.com/playlist?list=PLgH5QX0i9K3p9MNwQYxc4z3Fv7cQ5WwMq'
+      },
+    ]
+  },
+]
 const LEVEL_COLOR = {
   'Beginner': '#4dff91',
   'Intermediate': '#ffd740',
@@ -4078,7 +4239,7 @@ function openGroupChat(g) {
 
 window.loadLearn = function() {
   const el = G('learnContent');
-  if (!el || el.dataset.built) return;
+  if (!el) return; el.dataset.built = '';
   el.dataset.built = '1';
 
   const LC = {'Beginner':'#4dff91','Intermediate':'#ffd740','Advanced':'#ff6e40'};
@@ -4115,6 +4276,7 @@ window.loadLearn = function() {
         ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
         <div style="width:50px;height:50px;flex-shrink:0;border-radius:15px;background:${cat.color};display:flex;align-items:center;justify-content:center;font-size:26px;border:1px solid ${cat.accent}44;">${t.icon}</div>
         <div style="flex:1;min-width:0;">
+          ${t.badge ? `<span style="font-size:9px;background:linear-gradient(90deg,#ff6b35,#f7931a);color:#fff;border-radius:7px;padding:2px 7px;font-weight:800;display:inline-block;margin-bottom:4px;">${t.badge}</span>` : ''}
           <div style="font-size:15px;font-weight:800;color:var(--tx);margin-bottom:3px;">${t.title}</div>
           <div style="font-size:12px;color:var(--m);line-height:1.55;margin-bottom:8px;">${t.desc}</div>
           <div style="display:flex;flex-wrap:wrap;gap:5px;">
@@ -5520,17 +5682,20 @@ window.openGame = function(id) {
   const rb = G('gameRestartBtn');
   if(rb){ rb.style.display='flex'; rb.onclick=()=>{ clearInterval(window._gLoop);clearInterval(window._gLoop2);clearTimeout(window._gTimer);G('gameArea').innerHTML='';G('gameScore').textContent='';setTimeout(()=>openGame(id),50); }; }
   G('gameScreen').style.display = 'flex';
+  // Android back button support
+  history.pushState({fi:'game'}, '');
   const inits = {snake:_gSnake,ttt:_gTTT,memory:_gMemory,g2048:_g2048,reaction:_gReaction,wordguess:_gWord,numslide:_gNumSlide,cquiz:_gCSEQuiz,binary:_gBinary,typespeed:_gTyping,bugsquash:_gBugSquash,algosort:_gSortRace};
   if(inits[id]) setTimeout(()=>inits[id](),50);
 };
 
-window.closeGame = function() {
+window.closeGame = function(fromPop) {
   clearInterval(window._gLoop); clearInterval(window._gLoop2); clearTimeout(window._gTimer);
   window._gLoop=null; window._gLoop2=null; window._gTimer=null;
   const area=G('gameArea'); if(area) area.innerHTML='';
   G('gameScreen').style.display='none';
   _gActive=null;
-  sw('games');
+  if(!fromPop && history.state?.fi==='game') history.back();
+  else sw('games');
 };
 
 function _gSaveScore(id,score){
@@ -5968,6 +6133,35 @@ function _gSortRace(){
   newGame();
 }
 
+
+// ── Android back button handler ───────────────────────────────────
+window.addEventListener('popstate', (e) => {
+  // Game screen open?
+  if(G('gameScreen')?.style.display==='flex'){
+    closeGame(true); sw('games'); return;
+  }
+  // Story viewer open?
+  const svM=G('svM');
+  if(svM?.style.display==='block'){closeStoryView();return;}
+  // Story create open?
+  const stM=G('stM');
+  if(stM?.style.display==='flex'){stM.style.display='none';return;}
+  // Messenger/chat open?
+  const mw=G('mw');
+  if(mw?.style.display==='flex'){closeMw();return;}
+  // Any modal open? (m-bg show)
+  const modal=document.querySelector('.m-bg.show');
+  if(modal){modal.classList.remove('show');modal.style.display='none';return;}
+  // Image viewer?
+  const iv=G('img-view');
+  if(iv?.style.display==='flex'){iv.style.display='none';return;}
+  // Call screen?
+  const cs=document.querySelector('.call-sc');
+  if(cs?.style.display==='flex'){endCall?.();return;}
+});
+
+// Push initial state so back button has somewhere to go
+if(!history.state?.fi) history.replaceState({fi:'home'}, '');
 </script>
 </body>
 </html>
